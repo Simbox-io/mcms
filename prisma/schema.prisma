@@ -1,0 +1,224 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int            @id @default(autoincrement())
+  username           String         @unique
+  email              String         @unique
+  passwordHash       String
+  avatar             String?
+  bio                String?
+  role               Role           @default(USER)
+  posts              Post[]
+  comments           Comment[]
+  files              File[]
+  ownedProjects      Project[]      @relation("Owned by")
+  memberProjects     Project[]      @relation("Member of")
+  wikis              Wiki[]
+  followedBy         User[]         @relation("UserFollows")
+  following          User[]         @relation("UserFollows")
+  permissions        Permission[]   @relation("UserPermissions")
+  grantedPermissions Permission[]   @relation("GrantedPermissions")
+  notifications      Notification[]
+  activities         Activity[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  profile            Profile?
+  points             Int            @default(0)
+  badges             Badge[]
+  level              Int            @default(1)
+}
+
+model Profile {
+  id                Int                @id @default(autoincrement())
+  user              User               @relation(fields: [userId], references: [id])
+  userId            Int                @unique
+  bio               String?
+  location          String?
+  website           String?
+  socialLinks       SocialLink[]
+  skills            Skill[]
+  gamificationStats GamificationStats?
+}
+
+model SocialLink {
+  id        Int     @id @default(autoincrement())
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int
+  platform  String // e.g. 'twitter', 'github', 'linkedin'
+  url       String
+}
+
+model Skill {
+  id        Int     @id @default(autoincrement())
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int
+  name      String
+}
+
+model GamificationStats {
+  id        Int     @id @default(autoincrement())
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int     @unique
+  points    Int     @default(0)
+  level     Int     @default(1)
+  badges    Badge[]
+}
+
+model Badge {
+  id                  Int               @id @default(autoincrement())
+  gamificationStats   GamificationStats @relation(fields: [gamificationStatsId], references: [id])
+  gamificationStatsId Int
+  name                String
+  description         String
+  earnedAt            DateTime          @default(now())
+  User                User?             @relation(fields: [userId], references: [id])
+  userId              Int?
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  content     String    @db.Text
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    Int
+  tags        Tag[]
+  comments    Comment[]
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model File {
+  id           Int      @id @default(autoincrement())
+  name         String
+  url          String
+  description  String?
+  isPublic     Boolean  @default(false)
+  project      Project? @relation(fields: [projectId], references: [id])
+  projectId    Int?
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  uploadedById Int
+  tags         Tag[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  ownerId     Int
+  name        String
+  description String?
+  repository  String? // URL to external repo
+  owner       User     @relation("Owned by", fields: [ownerId], references: [id])
+  files       File[]
+  members     User[]   @relation("Member of")
+  wikis       Wiki[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Wiki {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String   @db.Text
+  project    Project  @relation(fields: [projectId], references: [id])
+  projectId  Int
+  author     User     @relation(fields: [authorId], references: [id])
+  authorId   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String
+  posts Post[]
+  files File[]
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Activity {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  type      String // e.g. 'post', 'comment', 'file', 'follow'
+  message   String
+  itemId    Int
+  createdAt DateTime @default(now())
+}
+
+model Permission {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation("UserPermissions", fields: [userId], references: [id])
+  userId      Int
+  resource    String // e.g. 'post', 'file', 'project'
+  action      String // e.g. 'create', 'read', 'update', 'delete'
+  grantedBy   User     @relation("GrantedPermissions", fields: [grantedById], references: [id])
+  grantedById Int
+  grantedAt   DateTime @default(now())
+}
+
+model AdminSettings {
+  id                  Int      @id @default(autoincrement())
+  siteTitle           String
+  siteDescription     String
+  logo                String?
+  accentColor         String   @default("#4B5563")
+  customCSS           String?
+  customJS            String?
+  emailDigestSubject  String?
+  emailSignature      String?
+  emailProvider       String   @default("smtp")
+  fileStorageProvider String   @default("local")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Image {
+  id          Int      @id @default(autoincrement())
+  fileName    String   @unique
+  contentType String
+  data        Bytes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  MODERATOR
+  USER
+}

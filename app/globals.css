@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.stepper {
+    @apply flex flex-col;
+  }
+  
+  .stepper-list {
+    @apply space-y-4;
+  }
+  
+  .stepper-item {
+    @apply flex items-center;
+  }
+  
+  .stepper-item.active .stepper-icon {
+    @apply bg-blue-500 text-white;
+  }
+  
+  .stepper-item.complete .stepper-icon {
+    @apply bg-green-500 text-white;
+  }
+  
+  .stepper-icon {
+    @apply flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-600;
+  }
+  
+  .stepper-number {
+    @apply text-lg font-semibold;
+  }
+  
+  .stepper-content {
+    @apply ml-4;
+  }
+  
+  .stepper-title {
+    @apply text-lg font-semibold;
+  }
+  
+  .stepper-description {
+    @apply text-gray-500;
+  }
