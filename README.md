@@ -2,6 +2,24 @@
 
 MCMS is a powerful and flexible content management system built with modern web technologies. It provides a comprehensive set of features for managing and collaborating on various types of content, including posts, files, projects, and wikis.
 
+MCMS (Modern Content Management System) is an exciting new open-source Content Management System designed specifically for developers and coding enthusiasts. Built using cutting-edge technologies such as TypeScript, React, PostgreSQL, and Prisma ORM, MCMS offers a comprehensive set of features that cater to the unique needs of the developer community.
+
+At its core, MCMS provides a robust platform for creating and managing various types of content. With MCMS, you can effortlessly publish articles, create dynamic pages, and maintain a wiki-style documentation system. This allows you to showcase your projects, share insights, and provide valuable resources to the community.
+
+One of the standout features of MCMS is its built-in forum functionality. Engage with fellow developers, ask questions, and participate in discussions on a wide range of topics. The forums serve as a hub for knowledge sharing and collaboration, fostering an active and supportive community within the developer space.
+
+MCMS also offers a flexible membership system, enabling you to create different user roles and manage access to your content. With granular content restriction settings, you can control who can view, edit, or contribute to specific areas of your site. This ensures that your content remains secure and tailored to your desired audience.
+
+In addition to its content management capabilities, MCMS provides a convenient file-sharing feature. Easily upload and share code snippets, project files, and resources with other developers. This promotes collaboration and facilitates the exchange of ideas and best practices among community members.
+
+As an open-source project, MCMS is completely free to use and deploy. You have the freedom to host it on your own servers or utilize your preferred cloud providers. This flexibility allows you to have full control over your CMS environment and customize it to suit your specific requirements.
+
+MCMS is particularly well-suited for developers interested in cloud technologies, infrastructure as code (IaC) using Terraform, and container orchestration with Kubernetes. The platform aims to provide a space where developers can showcase their projects, share tutorials, and engage in discussions related to these cutting-edge technologies.
+
+With its modern architecture, extensive feature set, and focus on the developer community, MCMS is poised to become a go-to platform for developers seeking a powerful and flexible Content Management System. Whether you're looking to create a personal blog, document your projects, or build a thriving community around your favorite technologies, MCMS has you covered.
+
+Join the MCMS community today and experience the future of content management for developers!
+
 ## Features
 
 - **User Authentication**: Secure user registration and login functionality using Next Auth.
