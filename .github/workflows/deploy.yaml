@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Website
 
 on:
   release:
@@ -16,8 +16,8 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "release" ]; then
             echo "Event name: ${{ github.event_name }}"
-            echo "Tag name: ${{ github.event.release.tag_name }}"
-            if [[ "${{ github.event.release.tag_name }}" == prod_* ]]; then
+            echo "Release name: ${{ github.event.release.name }}"
+            if [[ "${{ github.event.release.name }}" == *"prod"* ]]; then
               echo "DEPLOY_ENV=production" >> $GITHUB_OUTPUT
             else
               echo "DEPLOY_ENV=preview" >> $GITHUB_OUTPUT
@@ -27,6 +27,7 @@ jobs:
       - uses: amondnet/vercel-action@v20
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           vercel-args: ${{ steps.set-env.outputs.DEPLOY_ENV == 'production' && '--prod' || '' }}
           vercel-org-id: ${{ secrets.ORG_ID}}
           vercel-project-id: ${{ secrets.PROJECT_ID}}
