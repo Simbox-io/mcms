@@ -66,7 +66,7 @@ const SearchResultsPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">
-        Search Results for "{searchTerm}"
+        Search Results for &quot;{searchTerm}&quot;
       </h1>
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
