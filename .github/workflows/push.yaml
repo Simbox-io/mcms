@@ -1,10 +1,9 @@
 name: Deploy Website
 
 on:
-  push:
-    branches:
-      - main  # Adjust this to your main branch name or use '*' for all branches
-
+  release:
+    types:
+      - published
 jobs:
   deploy:
     runs-on: ubuntu-latest
