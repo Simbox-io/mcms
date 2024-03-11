@@ -15,7 +15,6 @@
     "@tailwindcss/typography": "^0.5.10",
     "@tinymce/tinymce-react": "^4.3.2",
     "@types/bcrypt": "^5.0.2",
-    "@types/date-fns": "^2.6.0",
     "@types/ftp": "^0.3.36",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/nodemailer": "^6.4.14",

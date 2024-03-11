@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '../../../lib/prisma';
+import prisma, { File, Post, Project } from '@/lib/prisma';
 import { getToken } from 'next-auth/jwt';
 
 export async function GET(request: NextRequest) {
@@ -61,9 +61,9 @@ export async function GET(request: NextRequest) {
     ]);
 
     const results = [
-      ...posts.map((post) => ({ ...post, type: 'post' })),
-      ...files.map((file) => ({ ...file, type: 'file' })),
-      ...projects.map((project) => ({ ...project, type: 'project' })),
+      ...posts.map((post: { id: number; title: string; }) => ({ id: post.id, title: post.title, type: 'post' })),
+      ...files.map((file: { id: number; name: string; }) => ({ id: file.id, name: file.name, type: 'file' })),
+      ...projects.map((project: { id: number; name: string; }) => ({ id: project.id, name: project.name, type: 'project' })),
     ];
 
     const totalResults = await prisma.post.count({
