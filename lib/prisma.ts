@@ -28,14 +28,14 @@ export type User = {
   activities: Activity[];
   createdAt: Date;
   updatedAt: Date;
-  profile?: Profile | null;
+  user?: user | null;
   points: number;
   badges: Badge[];
   level: number;
 }
 
 
-export type Profile = {
+export type user = {
   id: number;
   userId: string;
   bio?: string | null;
@@ -48,20 +48,20 @@ export type Profile = {
 
 export type SocialLink = {
   id: number;
-  profileId: number;
+  userId: number;
   platform: string;
   url: string;
 }
 
 export type Skill = {
   id: number;
-  profileId: number;
+  userId: number;
   name: string;
 }
 
 export type GamificationStats = {
   id: number;
-  profileId: number;
+  userId: number;
   points: number;
   level: number;
   badges: Badge[];

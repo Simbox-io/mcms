@@ -12,7 +12,7 @@ import Textarea from '../../../components/Textarea';
 import Select from '../../../components/Select';
 
 interface Project {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -20,7 +20,7 @@ const FileUploadPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<number | null>(null);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const router = useRouter();
@@ -33,9 +33,7 @@ const FileUploadPage: React.FC = () => {
     };
 
     fetchAndSetProjects();
-  }, []);
-
-
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -144,9 +142,15 @@ const FileUploadPage: React.FC = () => {
           <div className="mb-6">
             <Select
               title='Project'
-              options={projects.map(project => ({ value: project.id.toString(), label: project.name }))}
-              value={selectedProject !== null ? selectedProject.toString() : ''}
-              onChange={(projectId) => setSelectedProject(Number(projectId))}
+              options={projects && projects.map(project => ({ value: project.id, label: project.name }))}
+              value={selectedProject !== null ? selectedProject : ''}
+              onChange={(projectId) => {
+                if (typeof projectId === 'string') {
+                  setSelectedProject(projectId);
+                } else if (Array.isArray(projectId) && projectId.length > 0) {
+                  setSelectedProject(projectId[0]);
+                }
+              }}
               placeholder="Select a project"
             />
           </div>

@@ -10,6 +10,7 @@ import Badge from '@/components/Badge';
 import Pagination from '@/components/Pagination';
 import Button from '@/components/Button';
 import Avatar from '@/components/Avatar';
+import Spinner from '@/components/Spinner';
 
 interface User {
   id: number;
@@ -50,16 +51,18 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!session) {
-          router.push('/login');
-          return;
+        if (status === 'unauthenticated') {
+          if (!session) {
+            router.push('/login');
+            return;
+          }
         }
 
         const [userResponse, projectsResponse, notificationsResponse, activitiesResponse] = await Promise.all([
           fetch('/api/users'),
           fetch(`/api/projects?page=${currentPage}`),
           fetch('/api/notifications'),
-          fetch('/api/activities'),
+          fetch('/api/activity'),
         ]);
 
         if (userResponse.ok) {
@@ -107,7 +110,12 @@ const DashboardPage: React.FC = () => {
     router.push('/profile/edit');
   };
 
+  if (status === 'loading') {
+    return <Spinner />;
+  }
+
   return (
+
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">
         Welcome, {user?.username}!
@@ -142,7 +150,7 @@ const DashboardPage: React.FC = () => {
         </Card>
 
         <Card title="Notifications">
-          {notifications.map((notification) => (
+          {notifications && notifications.length > 0 && notifications.map((notification) => (
             <div key={notification.id} className="mb-4">
               <p className="text-gray-600 dark:text-gray-400">{notification.message}</p>
               <Badge variant="info">{new Date(notification.createdAt).toLocaleString()}</Badge>
@@ -151,7 +159,7 @@ const DashboardPage: React.FC = () => {
         </Card>
 
         <Card title="Activity">
-          {activities.map((activity) => (
+          {activities && activities.length > 0 && activities.map((activity) => (
             <div key={activity.id} className="mb-4">
               <p className="text-gray-600 dark:text-gray-400">
                 <span className="font-semibold">{activity.type}</span> - {activity.message}

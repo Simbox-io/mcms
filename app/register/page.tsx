@@ -9,7 +9,6 @@ import Input from '@/components/Input';
 import Button from '@/components/Button';
 
 const RegistrationPage: React.FC = () => {
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,11 +32,11 @@ const RegistrationPage: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
-        router.push('/login');
+        router.push('/onboarding');
       } else {
         const errorData = await response.json();
         setError(errorData.message);
@@ -59,19 +58,6 @@ const RegistrationPage: React.FC = () => {
         </div>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <Input
-              label="Username"
-              name="username"
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              placeholder="Enter your username"
-              className="w-full"
-            />
-          </div>
           <div className="mb-6">
             <Input
               label='Email'

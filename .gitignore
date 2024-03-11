@@ -2,3 +2,5 @@ node_modules
 .next
 .github
 .env
+.vercel
+.env*.local

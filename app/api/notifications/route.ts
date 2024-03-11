@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendEmailDigest, setEmailConfig } from '@/lib/email';
-import { useGetTokenFromRequest, decodeToken } from '@/lib/useToken';
 import { Notification } from '@/lib/prisma';
+import { getSession } from '@/lib/auth';
+import { User } from '@/lib/prisma';
 
 
 // Set the email configuration
@@ -18,17 +19,10 @@ setEmailConfig({
 
 
 export async function GET(request: NextRequest) {
-  const token = useGetTokenFromRequest(request);
-  if (!token) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
+  const session = await getSession(request);
+  const user = session?.user as User;
 
-  const decodedToken = decodeToken(token);
-  if (!decodedToken) {
-    return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
-  }
-
-  if (!token) {
+  if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -37,15 +31,15 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    if (typeof decodedToken === 'object' && 'id' in decodedToken) {
+    if (typeof user === 'object' && 'id' in user) {
       const totalNotifications = await prisma.notification.count({
-        where: { userId: decodedToken.id },
+        where: { userId: user.id },
       });
 
       const totalPages = Math.ceil(totalNotifications / perPage);
 
       const notifications = await prisma.notification.findMany({
-        where: { userId: decodedToken.id },
+        where: { userId: user.id },
         skip: (page - 1) * perPage,
         take: perPage,
         orderBy: { createdAt: 'desc' },

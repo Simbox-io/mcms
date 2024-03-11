@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,31 +11,34 @@ datasource db {
 }
 
 model User {
-  id                 String         @id @default(uuid())
-  username           String         @unique
-  email              String         @unique
-  passwordHash       String
-  avatar             String?
-  bio                String?
-  role               Role           @default(USER)
-  posts              Post[]
-  comments           Comment[]
-  files              File[]
-  ownedProjects      Project[]      @relation("Owned by")
-  memberProjects     Project[]      @relation("Member of")
-  wikis              Wiki[]
-  followedBy         User[]         @relation("UserFollows")
-  following          User[]         @relation("UserFollows")
-  permissions        Permission[]   @relation("UserPermissions")
-  grantedPermissions Permission[]   @relation("GrantedPermissions")
-  notifications      Notification[]
-  activities         Activity[]
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  profile            Profile?
-  points             Int            @default(0)
-  badges             Badge[]
-  level              Int            @default(1)
+  id                   String         @id @default(uuid())
+  username             String         @unique
+  email                String         @unique
+  passwordHash         String
+  avatar               String?
+  bio                  String?
+  role                 Role           @default(USER)
+  posts                Post[]
+  comments             Comment[]
+  files                File[]
+  ownedProjects        Project[]      @relation("Owned by")
+  memberProjects       Project[]      @relation("Member of")
+  wikis                Wiki[]
+  followedBy           User[]         @relation("UserFollows")
+  following            User[]         @relation("UserFollows")
+  followedWikis        Wiki[]         @relation("UserFollowsWiki")
+  permissions          Permission[]   @relation("UserPermissions")
+  grantedPermissions   Permission[]   @relation("GrantedPermissions")
+  notifications        Notification[]
+  activities           Activity[]
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  profile              Profile?
+  points               Int            @default(0)
+  badges               Badge[]
+  level                Int            @default(1)
+  receiveNotifications Boolean        @default(true)
+  receiveUpdates       Boolean        @default(true)
 }
 
 model Profile {
@@ -151,6 +151,7 @@ model Wiki {
   projectId Int
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
+  followers User[]   @relation("UserFollowsWiki")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -226,7 +227,6 @@ model Plugin {
   version     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
 }
 
 enum Role {
