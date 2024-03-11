@@ -12,6 +12,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set up environment variables
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            echo "Event name: ${{ github.event_name }}"
+            echo "Tag name: ${{ github.event.release.tag_name }}"
+            if [[ "${{ github.event.release.tag_name }}" == prod_* ]]; then
+              echo "DEPLOY_ENV=production" >> $GITHUB_OUTPUT
+            else
+              echo "DEPLOY_ENV=preview" >> $GITHUB_OUTPUT
+            fi
+          fi
+
 
         
       - name: Vercel Action
