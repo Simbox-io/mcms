@@ -11,8 +11,8 @@ export type User = {
   username: string;
   email: string;
   passwordHash: string;
-  avatar?: string;
-  bio?: string;
+  avatar?: string | null;
+  bio?: string | null;
   role: 'ADMIN' | 'MODERATOR' | 'USER';
   posts: Post[];
   comments: Comment[];
@@ -28,7 +28,7 @@ export type User = {
   activities: Activity[];
   createdAt: Date;
   updatedAt: Date;
-  profile?: Profile;
+  profile?: Profile | null;
   points: number;
   badges: Badge[];
   level: number;
@@ -38,12 +38,12 @@ export type User = {
 export type Profile = {
   id: number;
   userId: string;
-  bio?: string;
-  location?: string;
-  website?: string;
+  bio?: string | null;
+  location?: string | null;
+  website?: string | null;
   socialLinks: SocialLink[];
   skills: Skill[];
-  gamificationStats?: GamificationStats;
+  gamificationStats?: GamificationStats | null;
 }
 
 export type SocialLink = {
@@ -73,7 +73,7 @@ export type Badge = {
   name: string;
   description: string;
   earnedAt: Date;
-  userId?: string;
+  userId?: string | null;
 }
 
 export type Post = {
@@ -85,7 +85,7 @@ export type Post = {
   comments: Comment[];
   forum: boolean;
   isPublished: boolean;
-  publishedAt?: Date;
+  publishedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -103,9 +103,9 @@ export type File = {
   id: number;
   name: string;
   url: string;
-  description?: string;
+  description?: string | null;
   isPublic: boolean;
-  projectId?: number;
+  projectId?: number | null;
   uploadedById: string;
   tags: Tag[];
   createdAt: Date;
@@ -116,8 +116,8 @@ export type Project = {
   id: number;
   ownerId: string;
   name: string;
-  description?: string;
-  repository?: string;
+  description?: string | null;
+  repository?: string | null;
   files: File[];
   members: User[];
   wikis: Wiki[];
@@ -146,7 +146,7 @@ export type Notification = {
   id: number;
   userId: string;
   message: string;
-  link?: string;
+  link?: string | null;
   read: boolean;
   createdAt: Date;
 }
@@ -173,12 +173,12 @@ export type AdminSettings = {
   id: number;
   siteTitle: string;
   siteDescription: string;
-  logo?: string;
+  logo?: string | null;
   accentColor: string;
-  customCSS?: string;
-  customJS?: string;
-  emailDigestSubject?: string;
-  emailSignature?: string;
+  customCSS?: string | null;
+  customJS?: string | null;
+  emailDigestSubject?: string | null;
+  emailSignature?: string | null;
   emailProvider: string;
   fileStorageProvider: string;
   createdAt: Date;

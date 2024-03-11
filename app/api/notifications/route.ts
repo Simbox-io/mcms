@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendEmailDigest, setEmailConfig } from '@/lib/email';
 import { useGetTokenFromRequest, decodeToken } from '@/lib/useToken';
+import { Notification } from '@/lib/prisma';
 
 
 // Set the email configuration
@@ -84,8 +85,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    const notificationsForEmail = user.notifications.map(notification => ({
+    const notificationsForEmail = user.notifications.map((notification: Notification) => ({
       ...notification,
+      link: notification.link ?? undefined,
       createdAt: notification.createdAt.toISOString(),
     }));
 
