@@ -12,6 +12,7 @@ import { formatDate } from '../../../utils/dateUtils';
 import { getImageUrl } from '../../../utils/imageUtils';
 import { useRouter } from 'next/navigation';
 import { Tag } from '../../../types/tag';
+import { User } from '@prisma/client';
 
 interface Post {
   id: number;
@@ -19,7 +20,7 @@ interface Post {
   content: string;
   tags: Tag[];
   author: {
-    id: number;
+    id: string;
     username: string;
     avatar: string;
   };
@@ -33,6 +34,7 @@ const PostDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const user = session?.user as User;
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -87,7 +89,7 @@ const PostDetailPage: React.FC = () => {
     return <div>Post not found.</div>;
   }
 
-  const isAuthor = session?.user?.email === post.author.id;
+  const isAuthor = user?.email === post.author.id;
 
   return (
     <div className="container mx-auto px-4 py-8">

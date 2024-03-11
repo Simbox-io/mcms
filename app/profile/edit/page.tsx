@@ -128,10 +128,9 @@ const EditProfilePage: React.FC = () => {
         <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Edit Profile</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="username" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Username
-            </label>
             <Input
+              label="Username"
+              name="username"
               type="text"
               id="username"
               value={username}
@@ -141,10 +140,9 @@ const EditProfilePage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="email" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Email
-            </label>
             <Input
+              label="Email"
+              name="email"
               type="email"
               id="email"
               value={email}
@@ -160,9 +158,8 @@ const EditProfilePage: React.FC = () => {
             <Textarea
               id="bio"
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              onChange={setBio}
               rows={4}
-              className="w-full"
             />
           </div>
           <div className="mb-6">

@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { useSession } from 'next-auth/react';
 import prisma from '@/lib/prisma';
+import { User } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  const { data: session } = await useSession();
+  const user = session?.user as User;
 
-  if (!token) {
+  if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as { userId: number };
     const notifications = await prisma.notification.findMany({
-      where: { userId: decoded.userId },
+      where: { userId: user.id },
       select: { id: true, message: true, createdAt: true },
       orderBy: { createdAt: 'desc' },
     });

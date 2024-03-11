@@ -5,9 +5,11 @@ import { getSession } from '@/lib/auth';
 import { getToken } from 'next-auth/jwt';
 import prisma from '@/lib/prisma';
 import { uploadImage } from '@/lib/uploadImage';
+import { User } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
   const session = await getSession(request);
+  const userObj = session?.user as User;
 
   if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -15,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userObj.id },
       select: { id: true, username: true, email: true, avatar: true, bio: true },
     });
 
@@ -51,9 +53,9 @@ export async function PUT(request: NextRequest) {
     }
 
     const updatedUser = await prisma.user.update({
-      where: { email: token.email },
+      where: { email: token.email ?? undefined },
       data: {
-        username,
+        username: username ?? undefined,
         email,
         bio,
         avatar: avatarUrl,

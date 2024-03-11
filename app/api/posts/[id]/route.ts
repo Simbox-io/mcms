@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
+import { User } from '@prisma/client';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const postId = parseInt(params.id);
@@ -36,6 +37,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   const postId = parseInt(params.id);
   const session = await getSession(request);
+  const user = session?.user as User;
 
   if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -51,7 +53,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Post not found' }, { status: 404 });
     }
 
-    if (post.author.id !== session.user.id) {
+    if (post.author.id !== user.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 

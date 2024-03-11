@@ -9,7 +9,7 @@ const secret = process.env.NEXTAUTH_SECRET;
 export async function GET(request: NextRequest) {
   const token = await getToken({ req: request, secret });
 
-  if (!token) {
+  if (!token || !token.email) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 

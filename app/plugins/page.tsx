@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import Table from '@/components/Table';
 import Button from '@/components/Button';
 import Spinner from '@/components/Spinner';
+import { User } from '@prisma/client';
 
 interface Plugin {
   id: number;
@@ -21,6 +22,7 @@ const PluginManagementPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const user = session?.user as User;
 
   useEffect(() => {
     const fetchPlugins = async () => {
@@ -85,7 +87,7 @@ const PluginManagementPage: React.FC = () => {
     return null;
   }
 
-  if (session?.user?.role !== 'ADMIN') {
+  if (user?.role !== 'ADMIN') {
     router.push('/');
     return null;
   }
@@ -117,7 +119,7 @@ const PluginManagementPage: React.FC = () => {
                     Uninstall
                   </Button>
                 ),
-              },
+              } as any,
             ]}
             data={plugins}
           />

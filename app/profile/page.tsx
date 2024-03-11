@@ -43,6 +43,7 @@ const UserProfilePage: React.FC = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const token = useToken();
+  const sessionUser = session?.user as User;
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -52,7 +53,7 @@ const UserProfilePage: React.FC = () => {
           return;
         }
 
-        const response = await fetch(`/api/users/${session.user.id}`, {
+        const response = await fetch(`/api/users/${sessionUser.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import NavigationMenu from './NavigationMenu';
+import { User } from '@prisma/client';
 
 const Header: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [searchTerm, setSerachTerm] = useState('');
+  const user = session?.user as User;
 
   const handleLogout = async () => {
     await signOut();
@@ -23,7 +25,7 @@ const Header: React.FC = () => {
     }
   }
 
-  ('session', session);
+  (session);
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow">
@@ -85,7 +87,7 @@ const Header: React.FC = () => {
               <>
                 <Link href="/profile">
                   <span className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-sm font-medium mr-4">
-                    {session.user?.username}
+                    {user?.username}
                   </span>
                 </Link>
                 <button

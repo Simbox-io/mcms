@@ -60,10 +60,9 @@ const RegistrationPage: React.FC = () => {
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="username" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Username
-            </label>
             <Input
+              label="Username"
+              name="username"
               type="text"
               id="username"
               value={username}
@@ -74,10 +73,9 @@ const RegistrationPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="email" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Email
-            </label>
             <Input
+              label='Email'
+              name="email"
               type="email"
               id="email"
               value={email}
@@ -88,10 +86,9 @@ const RegistrationPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="password" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Password
-            </label>
             <Input
+              label="Password"
+              name="password"
               type="password"
               id="password"
               value={password}
@@ -102,10 +99,9 @@ const RegistrationPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="confirmPassword" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Confirm Password
-            </label>
             <Input
+              label="Confirm Password"
+              name="confirmPassword"
               type="password"
               id="confirmPassword"
               value={confirmPassword}

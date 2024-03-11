@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { LocalStorageProvider, S3StorageProvider, FTPStorageProvider } from '@/lib/file-storage';
 import { getSession } from '@/lib/auth';
 import { FileStorageProvider } from '@/lib/file-storage';
+import { User } from '@prisma/client';
 
 
 export async function GET(request: NextRequest) {
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const session = await getSession(request);
+  const user = session?.user as User;
 
   if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -70,7 +72,7 @@ export async function POST(request: NextRequest) {
         project: projectId ? { connect: { id: projectId } } : undefined,
         uploadedBy: {
           connect: {
-            id: session.user.id,
+            id: user.id,
           },
         },
       },

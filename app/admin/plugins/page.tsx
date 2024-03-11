@@ -87,7 +87,7 @@ const PluginManagementPage: React.FC = () => {
                 Uninstall
               </Button>
             ),
-          },
+          } as any, 
         ]}
         data={plugins}
       />

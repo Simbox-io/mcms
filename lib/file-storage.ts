@@ -17,7 +17,8 @@ export class LocalStorageProvider implements FileStorageProvider {
   async uploadFile(file: File): Promise<string> {
     const fileId = `${Date.now()}-${file.name}`;
     const filePath = path.join(this.storagePath, fileId);
-    await fs.writeFile(filePath, await file.arrayBuffer());
+    const fileBuffer = new Uint8Array(await file.arrayBuffer());
+    await fs.writeFile(filePath, fileBuffer);
     return `/uploads/${fileId}`;
   }
 
@@ -48,10 +49,11 @@ export class S3StorageProvider implements FileStorageProvider {
 
   async uploadFile(file: File): Promise<string> {
     const fileId = `${Date.now()}-${file.name}`;
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
     await this.s3.putObject({
       Bucket: this.bucketName,
       Key: fileId,
-      Body: await file.arrayBuffer(),
+      Body: fileBuffer,
     });
     return `https://${this.bucketName}.s3.amazonaws.com/${fileId}`;
   }
@@ -77,13 +79,27 @@ export class FTPStorageProvider implements FileStorageProvider {
 
   async uploadFile(file: File): Promise<string> {
     const fileId = `${Date.now()}-${file.name}`;
-    await this.ftpClient.put(await file.arrayBuffer(), fileId);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    await this.ftpClient.put(buffer, fileId, (error) => {
+      if (error) {
+        console.error(`Failed to upload file: ${error}`);
+      } else {
+        console.log('File uploaded successfully');
+      }
+    });
     return `ftp://${process.env.FTP_HOST}/${fileId}`;
   }
 
   async deleteFile(fileId: string): Promise<void> {
-    await this.ftpClient.delete(fileId);
+    await this.ftpClient.delete(fileId, (error) => {
+      if (error) {
+        console.error(`Failed to delete file: ${error}`);
+      } else {
+        console.log('File deleted successfully');
+      }
+    });
   }
+
 
   getFileUrl(fileId: string): string {
     return `ftp://${process.env.FTP_HOST}/${fileId}`;

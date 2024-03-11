@@ -8,13 +8,7 @@ import { useSession } from 'next-auth/react';
 import Card from '../../../components/Card';
 import Table from '../../../components/Table';
 import Spinner from '../../../components/Spinner';
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-}
+import { User  } from '@prisma/client';
 
 interface Post {
   id: number;
@@ -31,6 +25,7 @@ const AdminDashboardPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const user = session?.user as User;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,7 +67,7 @@ const AdminDashboardPage: React.FC = () => {
     return null;
   }
 
-  if (session?.user?.role !== 'ADMIN') {
+  if (user?.role !== 'ADMIN') {
     router.push('/');
     return null;
   }
@@ -100,7 +95,7 @@ const AdminDashboardPage: React.FC = () => {
             <Table
               columns={[
                 { header: 'Title', accessor: 'title' },
-                { header: 'Author', accessor: 'author.username' },
+                { header: 'Author', accessor: (post: Post) => post.author.username },
                 { header: 'Created At', accessor: 'createdAt' },
               ]}
               data={posts}

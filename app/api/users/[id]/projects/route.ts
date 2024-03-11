@@ -11,7 +11,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const userId = parseInt(params.id);
+  const userId = params.id;
 
   try {
     const projects = await prisma.project.findMany({

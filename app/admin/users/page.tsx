@@ -8,19 +8,14 @@ import { useSession } from 'next-auth/react';
 import Table from '../../../components/Table';
 import Button from '../../../components/Button';
 import Spinner from '../../../components/Spinner';
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-}
+import { User } from '@prisma/client';
 
 const UserManagementPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const user = session?.user as User;
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -43,7 +38,7 @@ const UserManagementPage: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const handleDeleteUser = async (userId: number) => {
+  const handleDeleteUser = async (userId: string) => {
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
@@ -68,7 +63,7 @@ const UserManagementPage: React.FC = () => {
     return null;
   }
 
-  if (session?.user?.role !== 'ADMIN') {
+  if (user?.role !== 'ADMIN') {
     router.push('/');
     return null;
   }
@@ -89,12 +84,12 @@ const UserManagementPage: React.FC = () => {
             {
               header: 'Actions',
               accessor: 'id',
-              cell: (value: number) => (
+              cell: (value: string) => (
                 <Button variant="danger" onClick={() => handleDeleteUser(value)}>
                   Delete
                 </Button>
               ),
-            },
+            } as any,
           ]}
           data={users}
         />

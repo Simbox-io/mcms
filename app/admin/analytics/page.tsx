@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import Card from '../../../components/Card';
 import Spinner from '../../../components/Spinner';
 import ProgressBar from '../../../components/ProgressBar';
+import { User } from '@prisma/client';
 
 interface Analytics {
   totalUsers: number;
@@ -26,6 +27,8 @@ const AnalyticsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { data: session, status } = useSession();
+
+  const user = session?.user as User;
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -57,7 +60,7 @@ const AnalyticsPage: React.FC = () => {
     return null;
   }
 
-  if (session?.user?.role !== 'ADMIN') {
+  if (user?.role !== 'ADMIN') {
     router.push('/');
     return null;
   }

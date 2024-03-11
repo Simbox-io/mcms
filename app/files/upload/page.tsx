@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
 import Card from '../../../components/Card';
@@ -22,8 +22,20 @@ const FileUploadPage: React.FC = () => {
   const [isPublic, setIsPublic] = useState(false);
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
   const router = useRouter();
   const token = useToken();
+
+  useEffect(() => {
+    const fetchAndSetProjects = async () => {
+      const fetchedProjects = await fetchProjects();
+      setProjects(fetchedProjects);
+    };
+
+    fetchAndSetProjects();
+  }, []);
+
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -97,10 +109,10 @@ const FileUploadPage: React.FC = () => {
         <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Upload File</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="file" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              File
-            </label>
             <Input
+              label='File'
+              name="file"
+              value={selectedFile?.name || ''}
               type="file"
               id="file"
               onChange={handleFileChange}
@@ -113,39 +125,29 @@ const FileUploadPage: React.FC = () => {
               Description
             </label>
             <Textarea
-              id="description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={setDescription}
               rows={4}
-              className="w-full"
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="isPublic" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Visibility
-            </label>
             <Select
-              id="isPublic"
-              value={isPublic}
+              title='Visibility'
+              value={isPublic.toString()}
               onChange={(value) => setIsPublic(value === 'true')}
               options={[
                 { value: 'true', label: 'Public' },
                 { value: 'false', label: 'Private' },
               ]}
-              className="w-full"
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="project" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Project
-            </label>
             <Select
-              id="project"
-              options={fetchProjects}
-              value={selectedProject}
+              title='Project'
+              options={projects.map(project => ({ value: project.id.toString(), label: project.name }))}
+              value={selectedProject !== null ? selectedProject.toString() : ''}
               onChange={(projectId) => setSelectedProject(Number(projectId))}
               placeholder="Select a project"
-              className="w-full"
             />
           </div>
           <div className="flex justify-end">

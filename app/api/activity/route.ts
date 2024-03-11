@@ -2,11 +2,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
-import { getToken } from 'next-auth/jwt';
+import { getSession } from 'next-auth/react';
+import { User } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
-  const token = await getToken({ req: request });
-
+  const session = await getSession();
+  const token = session?.user as User;
   if (!token) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const totalActivities = await prisma.activity.count({
-      where: { userId: token.id },
+      where: { userId: token?.id },
     });
     const totalPages = Math.ceil(totalActivities / perPage);
 

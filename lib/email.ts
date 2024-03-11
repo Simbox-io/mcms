@@ -100,7 +100,7 @@ export async function sendEmail(options: EmailOptions) {
   console.log('Email sent successfully');
 }
 
-export async function sendEmailDigest(user: { id: number; email: string; notifications: { message: string; createdAt: string }[] }) {
+export async function sendEmailDigest(user: { id: string; email: string; notifications: { message: string; createdAt: string }[] }) {
   const { email, notifications } = user;
 
   if (notifications.length === 0) {

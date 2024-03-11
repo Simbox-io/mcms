@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
 import Input from '../../../components/Input';
@@ -18,8 +18,19 @@ const CreatePostPage: React.FC = () => {
   const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tags, setTags] = useState<{value: string, label: string}[]>([]);
   const router = useRouter();
   const token = useToken();
+
+  useEffect(() => {
+    const fetchAndSetTags = async () => {
+      const fetchedTags = await fetchTags();
+      const options = fetchedTags.map(tag => ({ value: tag.id.toString(), label: tag.name }));
+      setTags(options);
+    };
+  
+    fetchAndSetTags();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,10 +85,9 @@ const CreatePostPage: React.FC = () => {
         <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Create Post</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="title" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Title
-            </label>
             <Input
+              label="Title"
+              name="title"
               type="text"
               id="title"
               value={title}
@@ -110,16 +120,12 @@ const CreatePostPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="tags" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Tags
-            </label>
             <Select
-              id="tags"
-              options={fetchTags}
+              title="Tags"
+              options={tags}
               value={selectedTags}
-              onChange={(tags) => setSelectedTags(tags)}
+              onChange={(tags) => setSelectedTags(Array.isArray(tags) ? tags : [tags])}
               isMulti
-              className="w-full"
             />
           </div>
           <div className="flex justify-end">

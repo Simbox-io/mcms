@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { sendEmailDigest, setEmailConfig } from '@/lib/email';
-import { getSession } from '../../../lib/auth';
-import { useToken } from '@/lib/useToken';
+import { useGetTokenFromRequest, decodeToken } from '@/lib/useToken';
+
 
 // Set the email configuration
 setEmailConfig({
@@ -17,7 +17,15 @@ setEmailConfig({
 
 
 export async function GET(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const token = useGetTokenFromRequest(request);
+  if (!token) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const decodedToken = decodeToken(token);
+  if (!decodedToken) {
+    return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
+  }
 
   if (!token) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -28,19 +36,24 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalNotifications = await prisma.notification.count({
-      where: { userId: token.id },
-    });
-    const totalPages = Math.ceil(totalNotifications / perPage);
+    if (typeof decodedToken === 'object' && 'id' in decodedToken) {
+      const totalNotifications = await prisma.notification.count({
+        where: { userId: decodedToken.id },
+      });
 
-    const notifications = await prisma.notification.findMany({
-      where: { userId: token.id },
-      skip: (page - 1) * perPage,
-      take: perPage,
-      orderBy: { createdAt: 'desc' },
-    });
+      const totalPages = Math.ceil(totalNotifications / perPage);
 
-    return NextResponse.json({ notifications, totalPages });
+      const notifications = await prisma.notification.findMany({
+        where: { userId: decodedToken.id },
+        skip: (page - 1) * perPage,
+        take: perPage,
+        orderBy: { createdAt: 'desc' },
+      });
+      return NextResponse.json({ notifications, totalPages });
+    }
+    else {
+      return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
+    }
   } catch (error) {
     console.error('Error fetching notifications:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
@@ -71,13 +84,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    user.notifications = user.notifications.map(notification => ({
+    const notificationsForEmail = user.notifications.map(notification => ({
       ...notification,
       createdAt: notification.createdAt.toISOString(),
     }));
 
     // Send the email digest
-    await sendEmailDigest(user);
+    await sendEmailDigest({ ...user, notifications: notificationsForEmail });
 
     return NextResponse.json({
       message: 'Email digest sent successfully',

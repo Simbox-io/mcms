@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
 import Input from '../../../components/Input';
@@ -12,7 +12,7 @@ import Card from '../../../components/Card';
 import Select from '../../../components/Select';
 
 interface Project {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -23,6 +23,16 @@ const CreateWikiPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const token = useToken();
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    const fetchAndSetProjects = async () => {
+      const fetchedProjects = await fetchProjects();
+      setProjects(fetchedProjects);
+    };
+
+    fetchAndSetProjects();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,10 +93,9 @@ const CreateWikiPage: React.FC = () => {
         <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Create Wiki</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="title" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Title
-            </label>
             <Input
+              label="Title"
+              name="title"
               type="text"
               id="title"
               value={title}
@@ -105,20 +114,15 @@ const CreateWikiPage: React.FC = () => {
               onChange={setContent}
               required
               rows={8}
-              className="w-full"
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="project" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Project
-            </label>
             <Select
-              id="project"
-              options={fetchProjects}
-              value={selectedProject}
+              title="Project"
+              options={projects.map(project => ({ value: project.id, label: project.name }))}
+              value={selectedProject !== null ? selectedProject.toString() : ''}
               onChange={(projectId) => setSelectedProject(Number(projectId))}
               placeholder="Select a project"
-              className="w-full"
             />
           </div>
           <div className="flex justify-end">

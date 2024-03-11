@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id                 Int            @id @default(autoincrement())
+  id                 String         @id
   username           String         @unique
   email              String         @unique
   passwordHash       String
@@ -44,7 +44,7 @@ model User {
 model Profile {
   id                Int                @id @default(autoincrement())
   user              User               @relation(fields: [userId], references: [id])
-  userId            Int                @unique
+  userId            String             @unique
   bio               String?
   location          String?
   website           String?
@@ -85,7 +85,7 @@ model Badge {
   description         String
   earnedAt            DateTime          @default(now())
   User                User?             @relation(fields: [userId], references: [id])
-  userId              Int?
+  userId              String?
 }
 
 model Post {
@@ -93,9 +93,10 @@ model Post {
   title       String
   content     String    @db.Text
   author      User      @relation(fields: [authorId], references: [id])
-  authorId    Int
+  authorId    String
   tags        Tag[]
   comments    Comment[]
+  forum       Boolean   @default(false)
   isPublished Boolean   @default(false)
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
@@ -108,7 +109,7 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id])
   postId    Int
   author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+  authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -122,7 +123,7 @@ model File {
   project      Project? @relation(fields: [projectId], references: [id])
   projectId    Int?
   uploadedBy   User     @relation(fields: [uploadedById], references: [id])
-  uploadedById Int
+  uploadedById String
   tags         Tag[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -130,7 +131,7 @@ model File {
 
 model Project {
   id          Int      @id @default(autoincrement())
-  ownerId     Int
+  ownerId     String
   name        String
   description String?
   repository  String? // URL to external repo
@@ -143,15 +144,15 @@ model Project {
 }
 
 model Wiki {
-  id         Int      @id @default(autoincrement())
-  title      String
-  content    String   @db.Text
-  project    Project  @relation(fields: [projectId], references: [id])
-  projectId  Int
-  author     User     @relation(fields: [authorId], references: [id])
-  authorId   Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @db.Text
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Tag {
@@ -164,7 +165,7 @@ model Tag {
 model Notification {
   id        Int      @id @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
   message   String
   link      String?
   read      Boolean  @default(false)
@@ -174,7 +175,7 @@ model Notification {
 model Activity {
   id        Int      @id @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
   type      String // e.g. 'post', 'comment', 'file', 'follow'
   message   String
   itemId    Int
@@ -184,11 +185,11 @@ model Activity {
 model Permission {
   id          Int      @id @default(autoincrement())
   user        User     @relation("UserPermissions", fields: [userId], references: [id])
-  userId      Int
+  userId      String
   resource    String // e.g. 'post', 'file', 'project'
   action      String // e.g. 'create', 'read', 'update', 'delete'
   grantedBy   User     @relation("GrantedPermissions", fields: [grantedById], references: [id])
-  grantedById Int
+  grantedById String
   grantedAt   DateTime @default(now())
 }
 
@@ -211,10 +212,21 @@ model AdminSettings {
 model Image {
   id          Int      @id @default(autoincrement())
   fileName    String   @unique
+  url         String
   contentType String
   data        Bytes
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Plugin {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  version     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
 }
 
 enum Role {

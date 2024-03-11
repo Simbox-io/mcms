@@ -2,9 +2,11 @@
 
 import React from 'react';
 
+type ColumnAccessor<T> = (keyof T & string) | ((row: T) => React.ReactNode);
+
 interface TableColumn<T> {
   header: string;
-  accessor: keyof T;
+  accessor: ColumnAccessor<T>;
 }
 
 interface TableProps<T> {
@@ -14,6 +16,18 @@ interface TableProps<T> {
 }
 
 const Table = <T,>({ columns, data, className = '' }: TableProps<T>) => {
+  const getNestedValue = (obj: any, path: string) => {
+    const keys = path.split('.');
+    return keys.reduce((acc, key) => acc && acc[key], obj);
+  };
+
+  const renderCell = (row: T, accessor: ColumnAccessor<T>) => {
+    if (typeof accessor === 'function') {
+      return accessor(row);
+    }
+    return String(getNestedValue(row, accessor));
+  };
+
   return (
     <div className={`overflow-x-auto ${className}`}>
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -38,7 +52,7 @@ const Table = <T,>({ columns, data, className = '' }: TableProps<T>) => {
                   key={column.header}
                   className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  {String(row[column.accessor])}
+                  {renderCell(row, column.accessor)}
                 </td>
               ))}
             </tr>

@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
 import Input from '../../../components/Input';
@@ -12,7 +12,7 @@ import Card from '../../../components/Card';
 import Select from '../../../components/Select';
 
 interface User {
-  id: number;
+  id: string;
   username: string;
 }
 
@@ -20,10 +20,20 @@ const CreateProjectPage: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [repository, setRepository] = useState('');
-  const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const token = useToken();
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    const getUsers = async () => {
+      const fetchedUsers = await fetchUsers();
+      setUsers(fetchedUsers);
+    };
+
+    getUsers();
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,10 +88,9 @@ const CreateProjectPage: React.FC = () => {
         <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Create Project</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="name" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Name
-            </label>
             <Input
+              label="Name"
+              name="name"
               type="text"
               id="name"
               value={name}
@@ -100,14 +109,12 @@ const CreateProjectPage: React.FC = () => {
               onChange={setDescription}
               required
               rows={4}
-              className="w-full"
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="repository" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Repository
-            </label>
             <Input
+              label="Repository"
+              name="repository"
               type="text"
               id="repository"
               value={repository}
@@ -116,16 +123,12 @@ const CreateProjectPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="members" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Members
-            </label>
             <Select
-              id="members"
-              options={fetchUsers}
+              title="Members"
+              options={users.map(user => ({ value: user.id, label: user.username }))}
               value={selectedMembers}
-              onChange={(memberIds) => setSelectedMembers(memberIds.map(Number))}
+              onChange={(memberIds) => setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])}
               isMulti
-              className="w-full"
             />
           </div>
           <div className="flex justify-end">

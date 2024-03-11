@@ -10,7 +10,7 @@ export async function uploadImage(file: File): Promise<string> {
     throw new Error('Invalid image type. Only JPEG, PNG, and GIF are allowed.');
   }
 
-  const fileBuffer = await file.arrayBuffer();
+  const fileBuffer = Buffer.from(await file.arrayBuffer());
   const hash = createHash('sha256');
   hash.update(fileBuffer);
   const fileHash = hash.digest('hex');
@@ -31,6 +31,7 @@ export async function uploadImage(file: File): Promise<string> {
         fileName,
         contentType: file.type,
         data: Buffer.from(fileBuffer),
+        url: `/api/images/${fileName}`,
       },
     });
 

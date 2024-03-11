@@ -9,6 +9,7 @@ import Card from '../../../components/Card';
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import Spinner from '../../../components/Spinner';
+import { User } from '@prisma/client';
 
 interface SiteSettings {
   title: string;
@@ -28,6 +29,7 @@ const SiteSettingsPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const user = session?.user as User;
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -90,7 +92,7 @@ const SiteSettingsPage: React.FC = () => {
     return null;
   }
 
-  if (session?.user?.role !== 'ADMIN') {
+  if (user?.role !== 'ADMIN') {
     router.push('/');
     return null;
   }
@@ -106,10 +108,8 @@ const SiteSettingsPage: React.FC = () => {
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
-              <label htmlFor="title" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-                Site Title
-              </label>
               <Input
+                label="Site Title"
                 type="text"
                 id="title"
                 name="title"
@@ -120,10 +120,8 @@ const SiteSettingsPage: React.FC = () => {
               />
             </div>
             <div className="mb-6">
-              <label htmlFor="description" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-                Site Description
-              </label>
               <Input
+                label='Site Description'
                 type="text"
                 id="description"
                 name="description"
@@ -134,10 +132,8 @@ const SiteSettingsPage: React.FC = () => {
               />
             </div>
             <div className="mb-6">
-              <label htmlFor="logo" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-                Site Logo URL
-              </label>
               <Input
+                label="Site Logo URL"
                 type="text"
                 id="logo"
                 name="logo"
@@ -148,10 +144,8 @@ const SiteSettingsPage: React.FC = () => {
               />
             </div>
             <div className="mb-6">
-              <label htmlFor="favicon" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-                Site Favicon URL
-              </label>
               <Input
+                label="Favicon URL"
                 type="text"
                 id="favicon"
                 name="favicon"
