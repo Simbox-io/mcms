@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 import Card from '../../../components/Card';
 import Spinner from '../../../components/Spinner';
 import ProgressBar from '../../../components/ProgressBar';
-import { User } from '@prisma/client';
+import { User } from '@/lib/prisma';
 
 interface Analytics {
   totalUsers: number;

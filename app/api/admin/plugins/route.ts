@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
 import { getSession } from '../../../../lib/auth';
-import { User } from '@prisma/client';
+import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {

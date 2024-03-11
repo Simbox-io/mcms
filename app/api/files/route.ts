@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { LocalStorageProvider, S3StorageProvider, FTPStorageProvider } from '@/lib/file-storage';
 import { getSession } from '@/lib/auth';
 import { FileStorageProvider } from '@/lib/file-storage';
-import { User } from '@prisma/client';
+import { User } from '@/lib/prisma';
 
 
 export async function GET(request: NextRequest) {

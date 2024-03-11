@@ -9,7 +9,7 @@ import Card from '../../../components/Card';
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import Spinner from '../../../components/Spinner';
-import { User } from '@prisma/client';
+import { User } from '@/lib/prisma';
 
 interface SiteSettings {
   title: string;

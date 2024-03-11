@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 import Card from '../../../components/Card';
 import Table from '../../../components/Table';
 import Spinner from '../../../components/Spinner';
-import { User  } from '@prisma/client';
+import { User  } from '@/lib/prisma';
 
 interface Post {
   id: number;

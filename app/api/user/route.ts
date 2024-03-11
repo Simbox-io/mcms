@@ -5,7 +5,7 @@ import { getSession } from '@/lib/auth';
 import { getToken } from 'next-auth/jwt';
 import prisma from '@/lib/prisma';
 import { uploadImage } from '@/lib/uploadImage';
-import { User } from '@prisma/client';
+import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   const session = await getSession(request);

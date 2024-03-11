@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import NavigationMenu from './NavigationMenu';
-import { User } from '@prisma/client';
+import { User } from '@/lib/prisma';
 
 const Header: React.FC = () => {
   const router = useRouter();

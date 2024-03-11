@@ -12,7 +12,7 @@ import { formatDate } from '../../../utils/dateUtils';
 import { getImageUrl } from '../../../utils/imageUtils';
 import { useRouter } from 'next/navigation';
 import { Tag } from '../../../types/tag';
-import { User } from '@prisma/client';
+import { User } from '@/lib/prisma';
 
 interface Post {
   id: number;

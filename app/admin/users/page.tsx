@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 import Table from '../../../components/Table';
 import Button from '../../../components/Button';
 import Spinner from '../../../components/Spinner';
-import { User } from '@prisma/client';
+import { User } from '@/lib/prisma';
 
 const UserManagementPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
