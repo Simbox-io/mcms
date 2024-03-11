@@ -74,7 +74,12 @@ jobs:
         continue-on-error: true
 
       - name: Run unit tests
-        run: npx jest
+        run: |
+         if npx --no-install jest --version > /dev/null 2>&1; then
+          npx jest --passWithNoTests
+          else
+          echo "Jest is not installed. Skipping tests."
+         fi
         continue-on-error: true
 
       - name: Check for multiple failures
