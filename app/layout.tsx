@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Providers from "./providers";
+import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({ subsets: ["latin"] });
 const ibmPlexSans = IBM_Plex_Sans({ weight: ['300', '400', '600'], subsets: ["latin"] });
@@ -11,7 +12,7 @@ const ibmPlexMono = IBM_Plex_Mono({ weight: ['300', '600'], subsets: ["latin"] }
 
 export const metadata: Metadata = {
   title: "MCMS",
-  description: "Mirlok's CMS by Simbox.io",
+  description: "Modern CMS by Simbox.io",
 };
 
 export default function RootLayout({
@@ -26,6 +27,7 @@ export default function RootLayout({
       <Header />
           <main className="flex-grow overflow-auto">
             {children}
+            <Analytics />
         </main>
         <Footer />
       </body>
