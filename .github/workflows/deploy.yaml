@@ -24,7 +24,9 @@ jobs:
             fi
           fi
 
-      - uses: amondnet/vercel-action@v20
+      - name: Build Next.js project
+        run: npx next build
+      - uses: amondnet/vercel-action@latest
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
