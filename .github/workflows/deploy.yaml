@@ -24,8 +24,7 @@ jobs:
             fi
           fi
 
-      - name: Build Next.js project
-        run: npx next build
+      
         
       - name: Vercel Action
         uses: amondnet/vercel-action@v25.1.1
