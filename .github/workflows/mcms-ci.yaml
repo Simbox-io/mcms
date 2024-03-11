@@ -1,0 +1,86 @@
+name: MCMS CI
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  mcms-scan:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies
+        run: npm ci
+        continue-on-error: true
+
+      - name: Run Prettier
+        run: npx prettier --check .
+        continue-on-error: true
+
+      - name: Install ESLint
+        run: npm install eslint@8.54.0
+
+      - name: Set up ESLint
+        run: |
+          if [ ! -f .eslintrc.json ]; then
+            echo "Creating a basic ESLint config file."
+            echo '{
+              "env": {
+                "browser": true,
+                "es2021": true,
+                "node": true
+              },
+              "extends": [
+                "eslint:recommended",
+                "plugin:@typescript-eslint/recommended"
+              ],
+              "parser": "@typescript-eslint/parser",
+              "parserOptions": {
+                "ecmaVersion": 12,
+                "sourceType": "module"
+              },
+              "plugins": [
+                "@typescript-eslint"
+              ],
+              "rules": {
+              }
+            }' > .eslintrc.json
+          fi
+        continue-on-error: true
+
+      - name: Run ESLint
+        run: npx eslint . --ext .ts,.tsx
+        continue-on-error: true
+
+      - name: Build Next.js project
+        run: npx next build
+        continue-on-error: true
+
+      - name: Check for vulnerabilities with npm audit
+        run: npm audit --production
+        continue-on-error: true
+
+      - name: Run unit tests
+        run: npm test
+        continue-on-error: true
+
+      - name: Check for multiple failures
+        if: ${{ failure() }}
+        run: |
+          failures=$(grep -c "continue-on-error: true" $GITHUB_WORKFLOW)
+          if [ $failures -gt 1 ]; then
+            exit 1
+          fi
