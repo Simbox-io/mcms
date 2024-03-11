@@ -1,9 +1,10 @@
 name: Deploy Website
 
 on:
-  release:
-    types:
-      - published
+  push:
+    branches:
+      - main  # Adjust this to your main branch name or use '*' for all branches
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -14,14 +15,10 @@ jobs:
       - name: Set up environment variables
         id: set-env
         run: |
-          if [ "${{ github.event_name }}" == "release" ]; then
-            echo "Event name: ${{ github.event_name }}"
-            echo "Tag name: ${{ github.event.release.tag_name }}"
-            if [[ "${{ github.event.release.tag_name }}" == prod_* ]]; then
-              echo "DEPLOY_ENV=production" >> $GITHUB_OUTPUT
-            else
-              echo "DEPLOY_ENV=preview" >> $GITHUB_OUTPUT
-            fi
+          if [ "${{ github.event_name }}" == "release" ] && [[ "${{ github.event.release.tag_name }}" == prod_* ]]; then
+          echo "Event name: ${{ github.event_name }}"
+          echo "Tag name: ${{ github.event.release.tag_name }}"
+          echo "DEPLOY_ENV=production" >> $GITHUB_OUTPUT
           fi
 
 
