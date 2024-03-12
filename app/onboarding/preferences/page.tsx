@@ -14,8 +14,6 @@ const PreferencesPage: React.FC = () => {
   const router = useRouter();
   const token = useToken();
 
-  ('token', token);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

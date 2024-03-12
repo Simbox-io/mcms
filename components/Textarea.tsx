@@ -1,5 +1,4 @@
 // components/Textarea.tsx
-
 import React from 'react';
 
 interface TextareaProps {
@@ -7,9 +6,12 @@ interface TextareaProps {
   onChange: (value: string) => void;
   placeholder?: string;
   rows?: number;
-  disabled?: boolean;
-  id?: string;
+  className?: string;
+  labelClassName?: string;
+  label?: string;
+  error?: string;
   required?: boolean;
+  id?: string;
 }
 
 const Textarea: React.FC<TextareaProps> = ({
@@ -17,25 +19,38 @@ const Textarea: React.FC<TextareaProps> = ({
   onChange,
   placeholder = '',
   rows = 3,
-  disabled = false,
-  id,
+  className = '',
+  labelClassName = '',
+  label = '',
+  error = '',
   required = false,
+  id,
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(event.target.value);
   };
 
   return (
-    <textarea
-      value={value}
-      onChange={handleChange}
-      placeholder={placeholder}
-      rows={rows}
-      disabled={disabled}
-      id={id}
-      required={required}
-      className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:focus:ring-blue-600 dark:focus:border-blue-600"
-    />
+    <div className={`mb-4 ${className}`}>
+      {label && (
+        <label className={`block text-sm font-medium mb-1 ${labelClassName}`}>
+          {label}
+          {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+      <textarea
+        id={id}
+        value={value}
+        onChange={handleChange}
+        placeholder={placeholder}
+        rows={rows}
+        className={`w-full px-3 py-2 text-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+          error ? 'border-red-500' : 'border-gray-300'
+        }`}
+        required={required}
+      ></textarea>
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+    </div>
   );
 };
 

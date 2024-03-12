@@ -1,5 +1,4 @@
 // components/Skeleton.tsx
-
 import React from 'react';
 
 interface SkeletonProps {
@@ -7,6 +6,8 @@ interface SkeletonProps {
   width?: string;
   height?: string;
   className?: string;
+  style?: React.CSSProperties;
+  animation?: 'pulse' | 'wave';
 }
 
 const Skeleton: React.FC<SkeletonProps> = ({
@@ -14,24 +15,37 @@ const Skeleton: React.FC<SkeletonProps> = ({
   width = '100%',
   height = '1rem',
   className = '',
+  style,
+  animation = 'pulse',
 }) => {
   const getVariantClasses = () => {
     switch (variant) {
       case 'text':
-        return 'rounded';
+        return 'skeleton-text';
       case 'rectangular':
-        return 'rounded';
+        return 'skeleton-rectangular';
       case 'circular':
-        return 'rounded-full';
+        return 'skeleton-circular';
       default:
-        return 'rounded';
+        return 'skeleton-text';
+    }
+  };
+
+  const getAnimationClasses = () => {
+    switch (animation) {
+      case 'pulse':
+        return 'skeleton-pulse';
+      case 'wave':
+        return 'skeleton-wave';
+      default:
+        return 'skeleton-pulse';
     }
   };
 
   return (
     <div
-      className={`bg-gray-200 dark:bg-gray-700 animate-pulse ${getVariantClasses()} ${className}`}
-      style={{ width, height }}
+      className={`skeleton ${getVariantClasses()} ${getAnimationClasses()} ${className}`}
+      style={{ width, height, ...style }}
     ></div>
   );
 };

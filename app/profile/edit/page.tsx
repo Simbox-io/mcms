@@ -12,6 +12,7 @@ import Card from '../../../components/Card';
 import Spinner from '../../../components/Spinner';
 import { getImageUrl } from '../../../utils/imageUtils';
 import { useToken } from '../../../lib/useToken';
+import Avatar from '@/components/Avatar';
 
 interface User {
   id: number;
@@ -53,6 +54,17 @@ const EditProfilePage: React.FC = () => {
           setUsername(userData.username);
           setEmail(userData.email);
           setBio(userData.bio);
+          const avatarResponse = await fetch(getImageUrl(userData.avatar), {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (avatarResponse.ok) {
+            const avatarBlob: Blob = await avatarResponse.blob();
+            const avatarFile = new File([avatarBlob], "userAvatar", { type: avatarBlob.type });
+            setAvatar(avatarFile);
+          }
         } else {
           router.push('/login');
         }
@@ -75,7 +87,7 @@ const EditProfilePage: React.FC = () => {
       formData.append('username', username);
       formData.append('email', email);
       formData.append('bio', bio);
-      if (avatar) {
+      if (avatar && avatar.name !== user?.avatar) {
         formData.append('avatar', avatar);
       }
 
@@ -167,10 +179,9 @@ const EditProfilePage: React.FC = () => {
               Avatar
             </label>
             <div className="flex items-center">
-              <img
-                src={avatar ? URL.createObjectURL(avatar) : getImageUrl(user?.avatar)}
-                alt="Avatar"
-                className="w-16 h-16 rounded-full mr-4"
+              <Avatar
+                src={avatar ? URL.createObjectURL(avatar) : user?.avatar} alt={user?.username}
+                size="large"
               />
               <input
                 type="file"

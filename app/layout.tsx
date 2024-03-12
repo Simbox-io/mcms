@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Providers from "./providers";
 import { Analytics } from "@vercel/analytics/react"
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 const ibmPlexSans = IBM_Plex_Sans({ weight: ['300', '400', '600'], subsets: ["latin"] });
@@ -23,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={ibmPlexSans.className}>
       <Providers>
+      <Script src="https://simbox-mcms.statuspage.io/embed/script.js" />
       <body className='flex flex-col justify-between h-screen dark:bg-gray-700'>
       <Header />
           <main className="flex-grow overflow-auto">

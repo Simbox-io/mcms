@@ -1,22 +1,23 @@
 // app/api/onboarding/profile/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getSession } from '@/lib/auth';
 import prisma, { User } from '../../../../lib/prisma';
 
 export async function POST(request: NextRequest) {
-  const token = await getToken({ req: request }) as User;
+  const session = await getSession(request);
+  const user = session?.user as User;
 
-  if (!token) {
+  if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const { username, bio } = await request.json();
+  const { username, bio, firstName, lastName } = await request.json();
 
   try {
     const updatedUser = await prisma.user.update({
-      where: { email: token.email },
-      data: { username, bio },
+      where: { email: user.email },
+      data: { username, firstName, lastName, bio },
     });
 
     return NextResponse.json(updatedUser);

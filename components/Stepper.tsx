@@ -1,61 +1,97 @@
 // components/Stepper.tsx
-
 import React from 'react';
 
 interface Step {
-  label: string;
+  id: string;
+  title: string;
   description?: string;
+  completed?: boolean;
 }
 
 interface StepperProps {
   steps: Step[];
-  currentStep: number;
+  currentStep: string;
+  onStepClick?: (stepId: string) => void;
   className?: string;
+  stepClassName?: string;
+  activeStepClassName?: string;
+  completedStepClassName?: string;
+  stepTitleClassName?: string;
+  stepDescriptionClassName?: string;
 }
 
-const Stepper: React.FC<StepperProps> = ({ steps, currentStep, className = '' }) => {
-  const renderSteps = () => {
-    return steps.map((step, index) => {
-      const isActive = index === currentStep;
-      const isPast = index < currentStep;
+const Stepper: React.FC<StepperProps> = ({
+  steps,
+  currentStep,
+  onStepClick,
+  className = '',
+  stepClassName = '',
+  activeStepClassName = '',
+  completedStepClassName = '',
+  stepTitleClassName = '',
+  stepDescriptionClassName = '',
+}) => {
+  const getStepClass = (step: Step) => {
+    if (step.id === currentStep) {
+      return activeStepClassName;
+    } else if (step.completed) {
+      return completedStepClassName;
+    }
+    return stepClassName;
+  };
 
-      return (
-        <li
-          key={index}
-          className={`stepper-item ${isActive ? 'active' : ''} ${isPast ? 'complete' : ''}`}
-        >
-          <div className="stepper-icon">
-            {isPast ? (
-              <svg
-                className="w-6 h-6 text-green-500"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            ) : (
-              <span className="stepper-number">{index + 1}</span>
-            )}
-          </div>
-          <div className="stepper-content">
-            <h3 className="stepper-title">{step.label}</h3>
-            {step.description && <p className="stepper-description">{step.description}</p>}
-          </div>
-        </li>
-      );
-    });
+  const handleStepClick = (stepId: string) => {
+    if (onStepClick) {
+      onStepClick(stepId);
+    }
   };
 
   return (
     <div className={`stepper ${className}`}>
-      <ul className="stepper-list">{renderSteps()}</ul>
+      <div className="stepper-header">
+        {steps.map((step, index) => (
+          <div
+            key={step.id}
+            className={`stepper-step ${getStepClass(step)}`}
+            onClick={() => handleStepClick(step.id)}
+          >
+            <div className="stepper-icon">
+              {step.completed ? (
+                <CheckIcon className="text-green-500" />
+              ) : (
+                <span className="stepper-number">{index + 1}</span>
+              )}
+            </div>
+            <div className="stepper-content">
+              <h3 className={`stepper-title ${stepTitleClassName}`}>{step.title}</h3>
+              {step.description && (
+                <p className={`stepper-description ${stepDescriptionClassName}`}>
+                  {step.description}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
+
+const CheckIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={`h-6 w-6 ${className}`}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 13l4 4L19 7"
+    />
+  </svg>
+);
 
 export default Stepper;

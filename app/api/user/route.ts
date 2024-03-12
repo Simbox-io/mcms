@@ -2,7 +2,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { getToken } from 'next-auth/jwt';
 import prisma from '@/lib/prisma';
 import { uploadImage } from '@/lib/uploadImage';
 import { User } from '@/lib/prisma';
@@ -18,7 +17,7 @@ export async function GET(request: NextRequest) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userObj.id },
-      select: { id: true, username: true, email: true, avatar: true, bio: true },
+      select: { id: true, username: true, firstName: true, lastName: true, email: true, avatar: true, bio: true },
     });
 
     if (!user) {
@@ -34,14 +33,17 @@ export async function GET(request: NextRequest) {
 
 
 export async function PUT(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const session = await getSession(request);
+  const user = session?.user as User;
 
-  if (!token) {
+  if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const formData = await request.formData();
   const username = formData.get('username') as string;
+  const firstName = formData.get('firstName') as string;
+  const lastName = formData.get('lastName') as string;
   const email = formData.get('email') as string;
   const bio = formData.get('bio') as string;
   const avatar = formData.get('avatar') as File | null;
@@ -53,9 +55,11 @@ export async function PUT(request: NextRequest) {
     }
 
     const updatedUser = await prisma.user.update({
-      where: { email: token.email ?? undefined },
+      where: { email: user.email ?? undefined },
       data: {
         username: username ?? undefined,
+        firstName: firstName ?? undefined,
+        lastName: lastName ?? undefined,
         email,
         bio,
         avatar: avatarUrl,

@@ -1,5 +1,5 @@
 // components/Tooltip.tsx
-'use client'
+'use client';
 import React, { useState } from 'react';
 
 interface TooltipProps {
@@ -7,6 +7,9 @@ interface TooltipProps {
   children: React.ReactNode;
   position?: 'top' | 'right' | 'bottom' | 'left';
   className?: string;
+  tooltipClassName?: string;
+  delay?: number;
+  trigger?: 'hover' | 'click';
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
@@ -14,15 +17,31 @@ const Tooltip: React.FC<TooltipProps> = ({
   children,
   position = 'top',
   className = '',
+  tooltipClassName = '',
+  delay = 0,
+  trigger = 'hover',
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [delayTimer, setDelayTimer] = useState<NodeJS.Timeout | null>(null);
 
-  const handleMouseEnter = () => {
-    setIsVisible(true);
+  const showTooltip = () => {
+    if (delay > 0) {
+      setDelayTimer(setTimeout(() => setIsVisible(true), delay));
+    } else {
+      setIsVisible(true);
+    }
   };
 
-  const handleMouseLeave = () => {
+  const hideTooltip = () => {
+    if (delayTimer) {
+      clearTimeout(delayTimer);
+      setDelayTimer(null);
+    }
     setIsVisible(false);
+  };
+
+  const toggleTooltip = () => {
+    setIsVisible(!isVisible);
   };
 
   const getPositionClasses = () => {
@@ -40,16 +59,35 @@ const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
+  const handleMouseEnter = () => {
+    if (trigger === 'hover') {
+      showTooltip();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (trigger === 'hover') {
+      hideTooltip();
+    }
+  };
+
+  const handleClick = () => {
+    if (trigger === 'click') {
+      toggleTooltip();
+    }
+  };
+
   return (
     <div
       className={`relative inline-block ${className}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
     >
       {children}
       {isVisible && (
         <div
-          className={`absolute z-10 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 ${getPositionClasses()}`}
+          className={`absolute z-10 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-sm opacity-0 transition-opacity duration-300 ${getPositionClasses()} ${tooltipClassName}`}
         >
           {content}
           <div
