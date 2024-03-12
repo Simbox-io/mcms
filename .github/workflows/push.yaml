@@ -3,7 +3,7 @@ name: Deploy Website
 on:
   push:
     branches:
-      - main
+      - main  # Adjust this to your main branch name or use '*' for all branches
 
 jobs:
   deploy:
