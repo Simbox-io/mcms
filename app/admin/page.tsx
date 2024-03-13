@@ -58,7 +58,7 @@ const AdminConfigurationPage: React.FC = () => {
           onItemClick={handleSubpageChange}
         />
       </div>
-      <div className="flex flex-col lg:flex-row h-full">
+      <div className="flex flex-col lg:flex-row h-full w-full">
         <div className="hidden md:block">
           <Sidebar
             items={[
