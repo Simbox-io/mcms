@@ -123,13 +123,13 @@ const CreateProjectPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <Select
+            {/*<Select
               title="Members"
               options={users.map(user => ({ value: user.id, label: user.username }))}
               value={selectedMembers}
               onChange={(memberIds) => setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])}
               isMulti
-            />
+            />*/}
           </div>
           <div className="flex justify-end">
             <Button type="submit" variant="primary" disabled={isSubmitting}>

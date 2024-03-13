@@ -8,8 +8,8 @@ interface Option {
 
 interface SelectProps {
   options: Option[];
-  value: string[];
-  onChange: (value: string[]) => void;
+  value: string;
+  onChange: (value: string) => void;
   label?: string;
   placeholder?: string;
   disabled?: boolean;
@@ -28,7 +28,7 @@ const Select: React.FC<SelectProps> = ({
   className = '',
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onChange([event.target.value]);
+    onChange(event.target.value);
   };
 
   return (
@@ -41,7 +41,7 @@ const Select: React.FC<SelectProps> = ({
         </label>
       )}
       <select
-        value={value.join(', ')}
+        value={value}
         onChange={handleChange}
         disabled={disabled}
         className={`block w-full px-4 py-2 pr-8 leading-tight rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300 dark:focus:ring-blue-600 dark:focus:border-blue-600 ${

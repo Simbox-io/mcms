@@ -117,13 +117,13 @@ const CreateWikiPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <Select
+            {/*<Select
               title="Project"
               options={projects.map(project => ({ value: project.id, label: project.name }))}
               value={selectedProject !== null ? selectedProject.toString() : ''}
               onChange={(projectId) => setSelectedProject(Number(projectId))}
               placeholder="Select a project"
-            />
+            />*/}
           </div>
           <div className="flex justify-end">
             <Button type="submit" variant="primary" disabled={isSubmitting}>
