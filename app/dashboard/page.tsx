@@ -187,7 +187,7 @@ const DashboardPage: React.FC = () => {
                 ]}
                 data={projects}
                 onRowClick={handleProjectClick}
-                className="mb-4"
+                className="mb-4" 
               />
               <div className="flex justify-between items-center">
                 <Pagination

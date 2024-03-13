@@ -13,8 +13,9 @@ const Header: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const menuRef = useRef<HTMLElement>(null);
-  const searchRef = useRef<HTMLElement>(null);
+  const [buttonClicked, setButtonClicked] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const user = session?.user as User;
 
   const handleLogout = async () => {
@@ -29,27 +30,35 @@ const Header: React.FC = () => {
     }
   };
 
+  const handleButtonClick = (setStateFunction: React.Dispatch<React.SetStateAction<boolean>>) => {
+    setButtonClicked(true);
+    setStateFunction((prevState) => !prevState);
+  };
+
   const handleClickOutside = (event: MouseEvent) => {
-    if (
-      menuRef.current &&
-      !menuRef.current.contains(event.target as Node)
-    ) {
-      setIsMenuOpen(false);
+    if (buttonClicked) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
     }
-    if (
-      searchRef.current &&
-      !searchRef.current.contains(event.target as Node)
-    ) {
-      setIsSearchOpen(false);
-    }
+    setButtonClicked(false);
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mouseup', handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mouseup', handleClickOutside);
     };
-  }, []);
+  }, [buttonClicked]);
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow">
@@ -101,7 +110,7 @@ const Header: React.FC = () => {
           <div className="flex items-center">
           <button
               className="xl:hidden text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 focus:outline-none"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              onClick={() => handleButtonClick(setIsSearchOpen)}
             >
               <svg
                 className="h-6 w-6"
@@ -173,7 +182,7 @@ const Header: React.FC = () => {
             )}
             <button
               className="ml-4 md:hidden text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 focus:outline-none"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => handleButtonClick(setIsMenuOpen)}
             >
               <svg
                 className="h-6 w-6"
@@ -203,7 +212,7 @@ const Header: React.FC = () => {
       </div>
       {isMenuOpen && (
         <div ref={menuRef} className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 mr-2">
             <Link href="/home">
               <span
                 className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 block text-left px-3 py-2 rounded-md text-base font-medium text-right"
@@ -221,7 +230,7 @@ const Header: React.FC = () => {
                 setIsMenuOpen(false);
               }}
               className="block w-full"
-              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium"
+              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
               menuClassName="mt-2 z-10"
             />
             <Dropdown
@@ -233,7 +242,7 @@ const Header: React.FC = () => {
                 setIsMenuOpen(false);
               }}
               className="block w-full"
-              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium"
+              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
               menuClassName="mt-2 z-10"
             />
             <Dropdown
@@ -245,7 +254,7 @@ const Header: React.FC = () => {
                 setIsMenuOpen(false);
               }}
               className="block w-full"
-              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium"
+              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
               menuClassName="mt-2 z-10"
             /> 
           </div>

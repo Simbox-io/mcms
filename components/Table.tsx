@@ -83,7 +83,7 @@ const Table = <T,>({
             <tr
               key={index}
               className={`${
-                onRowClick ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700' : ''
+                onRowClick ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600' : ''
               } ${rowClassName}`}
               onClick={() => onRowClick && onRowClick(row)}
             >
