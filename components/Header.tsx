@@ -85,7 +85,7 @@ const Header: React.FC = () => {
                 onChange={(value) => router.push(`/files/${value.toLowerCase().replace(' ', '-')}`)}
                 className="ml-4"
                 buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                menuClassName="mt-8"
+                menuClassName="mt-2"
               />
               <Dropdown
                 label="Projects"
@@ -94,7 +94,7 @@ const Header: React.FC = () => {
                 onChange={(value) => router.push(`/projects/${value.toLowerCase().replace(' ', '-')}`)}
                 className="ml-4"
                 buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                menuClassName="mt-8"
+                menuClassName="mt-2"
               />
               <Dropdown
                 label="Wikis"
@@ -103,7 +103,7 @@ const Header: React.FC = () => {
                 onChange={(value) => router.push(`/wikis/${value.toLowerCase().replace(' ', '-')}`)}
                 className="ml-4"
                 buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                menuClassName="mt-8"
+                menuClassName="mt-2"
               />
             </nav>
           </div>
