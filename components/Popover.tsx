@@ -1,12 +1,16 @@
 // components/Popover.tsx
-'use client'
-import React, { useState } from 'react';
+'use client';
+import React, { useState, useRef, useEffect } from 'react';
 
 interface PopoverProps {
   trigger: React.ReactNode;
   content: React.ReactNode;
   placement?: 'top' | 'right' | 'bottom' | 'left';
   className?: string;
+  popoverClassName?: string;
+  triggerClassName?: string;
+  onOpen?: () => void;
+  onClose?: () => void;
 }
 
 const Popover: React.FC<PopoverProps> = ({
@@ -14,11 +18,52 @@ const Popover: React.FC<PopoverProps> = ({
   content,
   placement = 'bottom',
   className = '',
+  popoverClassName = '',
+  triggerClassName = '',
+  onOpen,
+  onClose,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        popoverRef.current &&
+        triggerRef.current &&
+        !popoverRef.current.contains(event.target as Node) &&
+        !triggerRef.current.contains(event.target as Node)
+      ) {
+        closePopover();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const openPopover = () => {
+    setIsOpen(true);
+    onOpen && onOpen();
+  };
+
+  const closePopover = () => {
+    setIsOpen(false);
+    onClose && onClose();
+  };
 
   const togglePopover = () => {
-    setIsOpen(!isOpen);
+    if (isOpen) {
+      closePopover();
+    } else {
+      openPopover();
+    }
   };
 
   const getPlacementClasses = () => {
@@ -38,10 +83,17 @@ const Popover: React.FC<PopoverProps> = ({
 
   return (
     <div className={`relative inline-block ${className}`}>
-      <div onClick={togglePopover}>{trigger}</div>
+      <div
+        ref={triggerRef}
+        className={`inline-block ${triggerClassName}`}
+        onClick={togglePopover}
+      >
+        {trigger}
+      </div>
       {isOpen && (
         <div
-          className={`absolute z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ${getPlacementClasses()}`}
+          ref={popoverRef}
+          className={`absolute z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ${getPlacementClasses()} ${popoverClassName}`}
         >
           {content}
         </div>

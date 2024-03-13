@@ -5,12 +5,12 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '../../components/Card';
-import Button from '../../components/Button';
-import Pagination from '../../components/Pagination';
-import Spinner from '../../components/Spinner';
-import { formatDate } from '../../utils/dateUtils';
-import { getImageUrl } from '../../utils/imageUtils';
+import Card from '../../../components/Card';
+import Button from '../../../components/Button';
+import Pagination from '../../../components/Pagination';
+import Spinner from '../../../components/Spinner';
+import { formatDate } from '../../../utils/dateUtils';
+import { getImageUrl } from '../../../utils/imageUtils';
 
 interface File {
   id: number;

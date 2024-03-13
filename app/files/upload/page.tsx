@@ -10,11 +10,7 @@ import Button from '../../../components/Button';
 import Input from '../../../components/Input';
 import Textarea from '../../../components/Textarea';
 import Select from '../../../components/Select';
-
-interface Project {
-  id: string;
-  name: string;
-}
+import { Project } from '@/lib/prisma';
 
 const FileUploadPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -130,7 +126,7 @@ const FileUploadPage: React.FC = () => {
           </div>
           <div className="mb-6">
             <Select
-              title='Visibility'
+              label='Visibility'
               value={isPublic.toString()}
               onChange={(value) => setIsPublic(value === 'true')}
               options={[
@@ -141,10 +137,10 @@ const FileUploadPage: React.FC = () => {
           </div>
           <div className="mb-6">
             <Select
-              title='Project'
-              options={projects && projects.map(project => ({ value: project.id, label: project.name }))}
+              label='Project'
+              options={projects && projects.map(project => ({ value: project.id.toString(), label: project.name }))}
               value={selectedProject !== null ? selectedProject : ''}
-              onChange={(projectId) => {
+              onChange={(projectId: string | string[]) => {
                 if (typeof projectId === 'string') {
                   setSelectedProject(projectId);
                 } else if (Array.isArray(projectId) && projectId.length > 0) {

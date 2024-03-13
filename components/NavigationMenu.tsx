@@ -1,13 +1,24 @@
 // components/NavigationMenu.tsx
-
 'use client';
-
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import Button from './Button';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const NavigationMenu: React.FC = () => {
+interface NavigationItem {
+  label: string;
+  href: string;
+}
+
+interface NavigationMenuProps {
+  items: NavigationItem[];
+  className?: string;
+}
+
+const NavigationMenu: React.FC<NavigationMenuProps> = ({
+  items,
+  className = '',
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -16,66 +27,62 @@ const NavigationMenu: React.FC = () => {
   };
 
   return (
-    <div className="relative">
-      <Button
+    <nav className={`relative ${className}`}>
+      <button
+        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
         onClick={toggleMenu}
-        className="text-gray-500 hover:text-gray-900 focus:outline-none"
+        aria-label="Toggle navigation menu"
       >
         <svg
-          className="h-6 w-6"
+          xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          className="h-6 w-6"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 6h16M4 12h16M4 18h16"
-          />
+          {isOpen ? (
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          ) : (
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          )}
         </svg>
-      </Button>
-      {isOpen && (
-        <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-lg z-10">
-          <Link href="/home">
-            <span
-              className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
-                pathname === '/home' ? 'bg-gray-100' : ''
-              }`}
-            >
-              Posts
-            </span>
-          </Link>
-          <Link href="/files">
-            <span
-              className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
-                pathname === '/files' ? 'bg-gray-100' : ''
-              }`}
-            >
-              Files
-            </span>
-          </Link>
-          <Link href="/projects">
-            <span
-              className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
-                pathname === '/projects' ? 'bg-gray-100' : ''
-              }`}
-            >
-              Projects
-            </span>
-          </Link>
-          <Link href="/wikis">
-            <span
-              className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
-                pathname === '/wikis' ? 'bg-gray-100' : ''
-              }`}
-            >
-              Wikis
-            </span>
-          </Link>
-        </div>
-      )}
-    </div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.ul
+            className="absolute right-0 mt-2 py-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            {items.map((item) => (
+              <li key={item.href}>
+                <Link href={item.href}>
+                  <a
+                    className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      pathname === item.href ? 'bg-gray-100 dark:bg-gray-700' : ''
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                </Link>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </nav>
   );
 };
 

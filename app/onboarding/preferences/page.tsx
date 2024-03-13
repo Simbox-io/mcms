@@ -12,7 +12,8 @@ const PreferencesPage: React.FC = () => {
   const [receiveNotifications, setReceiveNotifications] = useState(true);
   const [receiveUpdates, setReceiveUpdates] = useState(true);
   const router = useRouter();
-  const token = useToken() || ''; // Assign a default value if token is undefined
+
+  const token = useToken();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

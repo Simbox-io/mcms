@@ -23,6 +23,27 @@ const CreatePostPage: React.FC = () => {
   const token = useToken();
 
   useEffect(() => {
+    const fetchTags = async (): Promise<Tag[]> => {
+      try {
+        const response = await fetch('/api/tags', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (response.ok) {
+          const tags: Tag[] = await response.json();
+          return tags;
+        } else {
+          console.error('Error fetching tags:', response.statusText);
+          return [];
+        }
+      } catch (error) {
+        console.error('Error fetching tags:', error);
+        return [];
+      }
+    };
+
     const fetchAndSetTags = async () => {
       const fetchedTags = await fetchTags();
       const options = fetchedTags.map(tag => ({ value: tag.id.toString(), label: tag.name }));
@@ -30,7 +51,7 @@ const CreatePostPage: React.FC = () => {
     };
   
     fetchAndSetTags();
-  }, []);
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,27 +77,6 @@ const CreatePostPage: React.FC = () => {
     }
 
     setIsSubmitting(false);
-  };
-
-  const fetchTags = async (): Promise<Tag[]> => {
-    try {
-      const response = await fetch('/api/tags', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const tags: Tag[] = await response.json();
-        return tags;
-      } else {
-        console.error('Error fetching tags:', response.statusText);
-        return [];
-      }
-    } catch (error) {
-      console.error('Error fetching tags:', error);
-      return [];
-    }
   };
 
   return (
@@ -120,13 +120,14 @@ const CreatePostPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <Select
-              title="Tags"
+            {/*<Select
+              label="Tags"
               options={tags}
+              value
               value={selectedTags}
               onChange={(tags) => setSelectedTags(Array.isArray(tags) ? tags : [tags])}
-              isMulti
-            />
+             isMulti
+            />*/}
           </div>
           <div className="flex justify-end">
             <Button type="submit" variant="primary" disabled={isSubmitting}>

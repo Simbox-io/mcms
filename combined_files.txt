@@ -1,0 +1,2200 @@
+// components/FormGroup.tsx
+
+import React from 'react';
+
+interface FormGroupProps {
+  label: string;
+  children: React.ReactNode;
+  helperText?: string;
+}
+
+const FormGroup: React.FC<FormGroupProps> = ({ label, children, helperText }) => {
+  return (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        {label}
+      </label>
+      {children}
+      {helperText && (
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
+      )}
+    </div>
+  );
+};
+
+export default FormGroup;
+// components/NavigationMenu.tsx
+
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import Button from './Button';
+
+const NavigationMenu: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <div className="relative">
+      <Button
+        onClick={toggleMenu}
+        className="text-gray-500 hover:text-gray-900 focus:outline-none"
+      >
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </Button>
+      {isOpen && (
+        <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-lg z-10">
+          <Link href="/home">
+            <span
+              className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
+                pathname === '/home' ? 'bg-gray-100' : ''
+              }`}
+            >
+              Posts
+            </span>
+          </Link>
+          <Link href="/files">
+            <span
+              className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
+                pathname === '/files' ? 'bg-gray-100' : ''
+              }`}
+            >
+              Files
+            </span>
+          </Link>
+          <Link href="/projects">
+            <span
+              className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
+                pathname === '/projects' ? 'bg-gray-100' : ''
+              }`}
+            >
+              Projects
+            </span>
+          </Link>
+          <Link href="/wikis">
+            <span
+              className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${
+                pathname === '/wikis' ? 'bg-gray-100' : ''
+              }`}
+            >
+              Wikis
+            </span>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default NavigationMenu;
+// components/Pagination.tsx
+
+import React from 'react';
+
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  className?: string;
+}
+
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  className = '',
+}) => {
+  const pageNumbers = [];
+
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+
+  return (
+    <nav className={`flex justify-center ${className}`} aria-label="Pagination">
+      <ul className="inline-flex items-center -space-x-px">
+        <li>
+          <button
+            className={`${
+              currentPage === 1
+                ? 'cursor-not-allowed opacity-50'
+                : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+            } block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400`}
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <span className="sr-only">Previous</span>
+            <svg
+              className="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </li>
+        {pageNumbers.map((pageNumber) => (
+          <li key={pageNumber}>
+            <button
+              className={`${
+                pageNumber === currentPage
+                  ? 'text-blue-600 bg-blue-50 border-blue-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white'
+                  : 'text-gray-500 bg-white border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+              } py-2 px-3 leading-tight border`}
+              onClick={() => onPageChange(pageNumber)}
+            >
+              {pageNumber}
+            </button>
+          </li>
+        ))}
+        <li>
+          <button
+            className={`${
+              currentPage === totalPages
+                ? 'cursor-not-allowed opacity-50'
+                : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+            } block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400`}
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <span className="sr-only">Next</span>
+            <svg
+              className="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  );
+};
+
+export default Pagination;
+// components/Feature.tsx
+
+import React from 'react';
+
+interface FeatureProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+const Feature: React.FC<FeatureProps> = ({ icon, title, description }) => {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="text-4xl mb-4">{icon}</div>
+      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      <p className="text-center">{description}</p>
+    </div>
+  );
+};
+
+export default Feature;
+// components/Tabs.tsx
+'use client'
+import React, { useState } from 'react';
+
+interface Tab {
+  id: string;
+  label: string;
+  content: React.ReactNode;
+}
+
+interface TabsProps {
+  tabs: Tab[];
+  className?: string;
+}
+
+const Tabs: React.FC<TabsProps> = ({ tabs, className = '' }) => {
+  const [activeTab, setActiveTab] = useState(tabs[0].id);
+
+  const handleTabClick = (tabId: string) => {
+    setActiveTab(tabId);
+  };
+
+  return (
+    <div className={`${className}`}>
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`${
+                activeTab === tab.id
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-500'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+              onClick={() => handleTabClick(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+      <div className="mt-4">
+        {tabs.map((tab) => (
+          <div
+            key={tab.id}
+            className={`${activeTab === tab.id ? 'block' : 'hidden'}`}
+          >
+            {tab.content}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Tabs;
+// components/DatePicker.tsx
+'use client'
+import React, { useState } from 'react';
+import { format, isEqual, isSameMonth, isToday, parse } from 'date-fns';
+
+interface DatePickerProps {
+  value: Date | null;
+  onChange: (date: Date | null) => void;
+  className?: string;
+}
+
+const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, className = '' }) => {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(value);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    onChange(date);
+  };
+
+  const handlePrevMonth = () => {
+    setCurrentMonth((prevMonth) => new Date(prevMonth.getFullYear(), prevMonth.getMonth() - 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth((prevMonth) => new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1));
+  };
+
+  const renderHeader = () => (
+    <div className="flex justify-between items-center mb-2">
+      <button
+        type="button"
+        onClick={handlePrevMonth}
+        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+      >
+        &lt;
+      </button>
+      <span className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+        {format(currentMonth, 'MMMM yyyy')}
+      </span>
+      <button
+        type="button"
+        onClick={handleNextMonth}
+        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+      >
+        &gt;
+      </button>
+    </div>
+  );
+
+  const renderDays = () => {
+    const daysInMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      0
+    ).getDate();
+    const days = [];
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i);
+      const isSelected = selectedDate && isEqual(date, selectedDate);
+      const isCurrentMonth = isSameMonth(date, currentMonth);
+      const isCurrentDay = isToday(date);
+
+      days.push(
+        <button
+          key={i}
+          type="button"
+          onClick={() => handleDateClick(date)}
+          className={`w-10 h-10 rounded-full ${
+            isSelected
+              ? 'bg-blue-500 text-white'
+              : isCurrentMonth
+              ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              : 'text-gray-400 dark:text-gray-600'
+          } ${isCurrentDay ? 'font-semibold' : ''}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    return <div className="grid grid-cols-7 gap-1">{days}</div>;
+  };
+
+  return (
+    <div className={`bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md ${className}`}>
+      {renderHeader()}
+      {renderDays()}
+    </div>
+  );
+};
+
+export default DatePicker;
+// components/Card.tsx
+
+import React from 'react';
+
+interface CardProps {
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}
+
+const Card: React.FC<CardProps> = ({ title, children, className = '', onClick }) => {
+  return (
+    <div className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md ${className}`}
+      onClick={onClick}
+    >
+      {title && (
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{title}</h3>
+        </div>
+      )}
+      <div className="px-6 py-4">{children}</div>
+    </div>
+  );
+};
+
+export default Card;
+// components/Slider.tsx
+'use client'
+import React, { useState } from 'react';
+
+interface SliderProps {
+  min: number;
+  max: number;
+  step?: number;
+  value: number;
+  onChange: (value: number) => void;
+  className?: string;
+}
+
+const Slider: React.FC<SliderProps> = ({
+  min,
+  max,
+  step = 1,
+  value,
+  onChange,
+  className = '',
+}) => {
+  const [dragging, setDragging] = useState(false);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = Number(event.target.value);
+    onChange(newValue);
+  };
+
+  const handleMouseDown = () => {
+    setDragging(true);
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
+  };
+
+  const getProgressStyle = () => {
+    const progress = ((value - min) / (max - min)) * 100;
+    return { width: `${progress}%` };
+  };
+
+  return (
+    <div className={`relative ${className}`}>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={handleChange}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+      />
+      <div
+        className="absolute top-0 left-0 h-2 bg-blue-500 rounded-lg"
+        style={getProgressStyle()}
+      ></div>
+      <div
+        className={`absolute top-0 h-4 w-4 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 transform -translate-x-1/2 -translate-y-1/2 transition-transform ${
+          dragging ? 'scale-110' : ''
+        }`}
+        style={{ left: `${getProgressStyle().width}` }}
+      ></div>
+    </div>
+  );
+};
+
+export default Slider;
+// components/Popover.tsx
+'use client'
+import React, { useState } from 'react';
+
+interface PopoverProps {
+  trigger: React.ReactNode;
+  content: React.ReactNode;
+  placement?: 'top' | 'right' | 'bottom' | 'left';
+  className?: string;
+}
+
+const Popover: React.FC<PopoverProps> = ({
+  trigger,
+  content,
+  placement = 'bottom',
+  className = '',
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const togglePopover = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const getPlacementClasses = () => {
+    switch (placement) {
+      case 'top':
+        return 'bottom-full left-1/2 transform -translate-x-1/2 mb-2';
+      case 'right':
+        return 'left-full top-1/2 transform -translate-y-1/2 ml-2';
+      case 'bottom':
+        return 'top-full left-1/2 transform -translate-x-1/2 mt-2';
+      case 'left':
+        return 'right-full top-1/2 transform -translate-y-1/2 mr-2';
+      default:
+        return 'top-full left-1/2 transform -translate-x-1/2 mt-2';
+    }
+  };
+
+  return (
+    <div className={`relative inline-block ${className}`}>
+      <div onClick={togglePopover}>{trigger}</div>
+      {isOpen && (
+        <div
+          className={`absolute z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg ${getPlacementClasses()}`}
+        >
+          {content}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Popover;
+// components/Radio.tsx
+
+import React from 'react';
+
+interface RadioProps {
+  label: string;
+  value: string;
+  checked: boolean;
+  onChange: (value: string) => void;
+}
+
+const Radio: React.FC<RadioProps> = ({ label, value, checked, onChange }) => {
+  const handleChange = () => {
+    onChange(value);
+  };
+
+  return (
+    <label className="inline-flex items-center">
+      <input
+        type="radio"
+        className="form-radio h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+        value={value}
+        checked={checked}
+        onChange={handleChange}
+      />
+      <span className="ml-2 text-gray-700 dark:text-gray-300">{label}</span>
+    </label>
+  );
+};
+
+export default Radio;
+// components/Breadcrumbs.tsx
+
+import React from 'react';
+import Link from 'next/link';
+
+interface BreadcrumbItem {
+  label: string;
+  href: string;
+}
+
+interface BreadcrumbsProps {
+  items: BreadcrumbItem[];
+  className?: string;
+}
+
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' }) => {
+  return (
+    <nav className={`flex ${className}`} aria-label="Breadcrumb">
+      <ol className="inline-flex items-center space-x-1 md:space-x-3">
+        {items.map((item, index) => (
+          <li key={item.href} className="inline-flex items-center">
+            {index > 0 && (
+              <svg
+                className="w-6 h-6 text-gray-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+            )}
+            <Link href={item.href}>
+              <span
+                className={`ml-1 text-sm font-medium ${
+                  index === items.length - 1
+                    ? 'text-gray-500 dark:text-gray-400 md:ml-2'
+                    : 'text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white md:ml-2'
+                }`}
+              >
+                {item.label}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+};
+
+export default Breadcrumbs;
+// components/Accordion.tsx
+'use client';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface AccordionItem {
+  id: string;
+  title: string;
+  content: React.ReactNode;
+}
+
+interface AccordionProps {
+  items: AccordionItem[];
+  className?: string;
+}
+
+const Accordion: React.FC<AccordionProps> = ({ items, className = '' }) => {
+  const [activeItem, setActiveItem] = useState('');
+
+  const handleItemClick = (itemId: string) => {
+    setActiveItem(activeItem === itemId ? '' : itemId);
+  };
+
+  return (
+    <div className={`divide-y divide-gray-200 dark:divide-gray-700 ${className}`}>
+      {items.map((item) => (
+        <div key={item.id} className="py-4">
+          <button
+            className="flex justify-between items-center w-full text-left focus:outline-none"
+            onClick={() => handleItemClick(item.id)}
+          >
+            <span className="text-lg font-medium text-gray-900 dark:text-white transition-colors duration-200">
+              {item.title}
+            </span>
+            <motion.svg
+              className={`w-5 h-5 ml-2`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              initial={{ rotate: 0 }}
+              animate={{ rotate: activeItem === item.id ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </motion.svg>
+          </button>
+          <AnimatePresence>
+            {activeItem === item.id && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="mt-2 overflow-hidden"
+              >
+                <div className="text-gray-600 dark:text-gray-400">{item.content}</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default Accordion;
+// components/ProgressBar.tsx
+
+import React from 'react';
+
+interface ProgressBarProps {
+  progress: number;
+  className?: string;
+}
+
+const ProgressBar: React.FC<ProgressBarProps> = ({ progress, className = '' }) => {
+  const getProgressWidth = () => {
+    return `${progress}%`;
+  };
+
+  return (
+    <div className={`w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 ${className}`}>
+      <div
+        className="bg-blue-600 h-2.5 rounded-full dark:bg-blue-500"
+        style={{ width: getProgressWidth() }}
+      ></div>
+    </div>
+  );
+};
+
+export default ProgressBar;
+// components/Tooltip.tsx
+'use client'
+import React, { useState } from 'react';
+
+interface TooltipProps {
+  content: string;
+  children: React.ReactNode;
+  position?: 'top' | 'right' | 'bottom' | 'left';
+  className?: string;
+}
+
+const Tooltip: React.FC<TooltipProps> = ({
+  content,
+  children,
+  position = 'top',
+  className = '',
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsVisible(false);
+  };
+
+  const getPositionClasses = () => {
+    switch (position) {
+      case 'top':
+        return 'bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2';
+      case 'right':
+        return 'left-full top-1/2 transform -translate-y-1/2 translate-x-2';
+      case 'bottom':
+        return 'top-full left-1/2 transform -translate-x-1/2 translate-y-2';
+      case 'left':
+        return 'right-full top-1/2 transform -translate-y-1/2 -translate-x-2';
+      default:
+        return 'bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2';
+    }
+  };
+
+  return (
+    <div
+      className={`relative inline-block ${className}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
+      {isVisible && (
+        <div
+          className={`absolute z-10 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 ${getPositionClasses()}`}
+        >
+          {content}
+          <div
+            className={`absolute w-0 h-0 ${
+              position === 'top'
+                ? 'border-t-8 border-t-gray-900 border-l-8 border-l-transparent border-r-8 border-r-transparent -bottom-2 left-1/2 transform -translate-x-1/2'
+                : position === 'right'
+                ? 'border-r-8 border-r-gray-900 border-t-8 border-t-transparent border-b-8 border-b-transparent -left-2 top-1/2 transform -translate-y-1/2'
+                : position === 'bottom'
+                ? 'border-b-8 border-b-gray-900 border-l-8 border-l-transparent border-r-8 border-r-transparent -top-2 left-1/2 transform -translate-x-1/2'
+                : 'border-l-8 border-l-gray-900 border-t-8 border-t-transparent border-b-8 border-b-transparent -right-2 top-1/2 transform -translate-y-1/2'
+            }`}
+          ></div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Tooltip;
+// components/Alert.tsx
+
+import React from 'react';
+
+interface AlertProps {
+  children: React.ReactNode;
+  variant?: 'info' | 'success' | 'warning' | 'error';
+  onClose?: () => void;
+  className?: string;
+}
+
+const Alert: React.FC<AlertProps> = ({
+  children,
+  variant = 'info',
+  onClose,
+  className = '',
+}) => {
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'info':
+        return 'bg-blue-100 text-blue-700';
+      case 'success':
+        return 'bg-green-100 text-green-700';
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'error':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-blue-100 text-blue-700';
+    }
+  };
+
+  return (
+    <div
+      className={`p-4 mb-4 rounded-md ${getVariantClasses()} ${className}`}
+      role="alert"
+    >
+      <div className="flex items-center">
+        <div className="flex-shrink-0">
+          {variant === 'info' && (
+            <svg
+              className="w-5 h-5 text-blue-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                clipRule="evenodd"
+              />
+            </svg>
+          )}
+          {variant === 'success' && (
+            <svg
+              className="w-5 h-5 text-green-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+          )}
+          {variant === 'warning' && (
+            <svg
+              className="w-5 h-5 text-yellow-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-7a1 1 0 10-2 0v2a1 1 0 102 0v-2zm-1-5a1 1 0 011 1v.01a1 1 0 11-2 0V7a1 1 0 011-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          )}
+          {variant === 'error' && (
+            <svg
+              className="w-5 h-5 text-red-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
+            </svg>
+          )}
+        </div>
+        <div className="ml-3">
+          <p className="text-sm font-medium">{children}</p>
+        </div>
+        {onClose && (
+          <div className="ml-auto pl-3">
+            <div className="-mx-1.5 -my-1.5">
+              <button
+                type="button"
+                className="inline-flex bg-transparent rounded-md p-1.5 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onClick={onClose}
+              >
+                <span className="sr-only">Dismiss</span>
+                <svg
+                  className="w-5 h-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Alert;
+// components/TimePicker.tsx
+'use client'
+import React, { useState } from 'react';
+
+interface TimePickerProps {
+  value: string;
+  onChange: (time: string) => void;
+  className?: string;
+}
+
+const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, className = '' }) => {
+  const [selectedTime, setSelectedTime] = useState(value);
+
+  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = event.target.value;
+    setSelectedTime(newTime);
+    onChange(newTime);
+  };
+
+  return (
+    <div className={`relative ${className}`}>
+      <input
+        type="time"
+        value={selectedTime}
+        onChange={handleTimeChange}
+        className="w-full px-4 py-2 pr-8 leading-tight text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:focus:ring-blue-600 dark:focus:border-blue-600"
+      />
+      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+        <svg
+          className="w-5 h-5 text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fillRule="evenodd"
+            d="M6 2C5.44772 2 5 2.44772 5 3V4H4C2.89543 4 2 4.89543 2 6V16C2 17.1046 2.89543 18 4 18H16C17.1046 18 18 17.1046 18 16V6C18 4.89543 17.1046 4 16 4H15V3C15 2.44772 14.5523 2 14 2C13.4477 2 13 2.44772 13 3V4H7V3C7 2.44772 6.55228 2 6 2ZM6 7C5.44772 7 5 7.44772 5 8C5 8.55228 5.44772 9 6 9H14C14.5523 9 15 8.55228 15 8C15 7.44772 14.5523 7 14 7H6Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+export default TimePicker;
+// components/Footer.tsx
+
+import React from 'react';
+import Link from 'next/link';
+
+const Footer: React.FC = () => {
+  return (
+    <footer className="bg-gray-200 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-800 sticky bottom-0 ">
+      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between">
+          <div>
+            <p className="text-gray-700 dark:text-gray-300">&copy; {new Date().getFullYear()} <Link href='https://simbox.io'>Simbox.io</Link>. All rights reserved.</p>
+          </div>
+          <div>
+            <nav className="flex space-x-4">
+              <a href="#" className="text-gray-700 dark:text-gray-300 hover:text-gray-900">
+                Terms of Service
+              </a>
+              <a href="#" className="text-gray-700 dark:text-gray-300 hover:text-gray-900">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-gray-700 dark:text-gray-300 hover:text-gray-900">
+                Contact Us
+              </a>
+            </nav>
+          </div>
+        </div>
+      <div className="text-center text-xs text-gray-800 dark:text-gray-200 mt-4">
+        Powered by MCMS from <Link href='https://simbox.io'>Simbox.io</Link>
+        <a href="https://github.com/Simbox-io/mcms" target="_blank" rel="noopener noreferrer" className="ml-2 text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="inline-block w-4 h-4 align-text-bottom" viewBox="0 0 24 24">
+            <path fillRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.09.682-.217.682-.482 0-.237-.009-.866-.014-1.7-2.782.602-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.532 1.03 1.532 1.03.891 1.529 2.341 1.088 2.914.833.091-.646.349-1.086.635-1.335-2.22-.25-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.682-.103-.251-.447-1.265.098-2.634 0 0 .84-.27 2.75 1.02A9.564 9.564 0 0112 7.07c.85.004 1.7.114 2.5.334 1.909-1.29 2.747-1.02 2.747-1.02.546 1.37.202 2.383.1 2.634.64.698 1.028 1.59 1.028 2.682 0 3.841-2.337 4.687-4.565 4.934.359.31.678.92.678 1.852 0 1.335-.012 2.415-.012 2.741 0 .267.18.576.688.479C19.137 20.164 22 16.418 22 12c0-5.523-4.477-10-10-10z"></path>
+          </svg>
+        </a>
+      </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
+// components/FileUpload.tsx
+'use client'
+import React, { useRef } from 'react';
+
+interface FileUploadProps {
+  onFileSelect: (files: FileList | null) => void;
+  accept?: string;
+  multiple?: boolean;
+  className?: string;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({
+  onFileSelect,
+  accept = '*',
+  multiple = false,
+  className = '',
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    onFileSelect(files);
+  };
+
+  return (
+    <div className={`relative ${className}`}>
+      <button
+        type="button"
+        onClick={handleClick}
+        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-transparent rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        Choose File
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        onChange={handleFileChange}
+        className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+      />
+    </div>
+  );
+};
+
+export default FileUpload;
+// components/Dropdown.tsx
+'use client'
+import React, { useState } from 'react';
+import Button from './Button';
+
+interface DropdownProps {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+}
+
+const Dropdown: React.FC<DropdownProps> = ({ label, options, value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleSelect = (selectedValue: string) => {
+    onChange(selectedValue);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative inline-block text-left">
+      <div>
+        <Button variant="dropdown" onClick={handleToggle}>
+          {value || label}
+          <svg
+            className="-mr-1 ml-2 h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </Button>
+      </div>
+
+      {isOpen && (
+        <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+          <div
+            className="py-1"
+            role="menu"
+            aria-orientation="vertical"
+            aria-labelledby="options-menu"
+          >
+            {options.map((option) => (
+              <Button
+                key={option}
+                variant="dropdown"
+                size="small"
+                onClick={() => handleSelect(option)}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                  option === value
+                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                    : 'text-gray-700 dark:text-gray-200'
+                }`}
+              >
+                {option}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Dropdown;
+// components/Avatar.tsx
+
+import React from 'react';
+
+interface AvatarProps {
+  src: string;
+  alt: string;
+  size?: 'small' | 'medium' | 'large';
+  className?: string;
+}
+
+const Avatar: React.FC<AvatarProps> = ({
+  src,
+  alt,
+  size = 'medium',
+  className = '',
+}) => {
+  const getSizeClasses = () => {
+    switch (size) {
+      case 'small':
+        return 'w-8 h-8';
+      case 'medium':
+        return 'w-12 h-12';
+      case 'large':
+        return 'w-16 h-16';
+      default:
+        return 'w-12 h-12';
+    }
+  };
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`inline-block rounded-full ${getSizeClasses()} ${className}`}
+    />
+  );
+};
+
+export default Avatar;
+// components/icons/PlugIcon.tsx
+
+import React from 'react';
+
+const PlugIcon: React.FC = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+      <path d="M12 1.5a.75.75 0 0 1 .75.75V7.5h-1.5V2.25A.75.75 0 0 1 12 1.5zM11.25 7.5v5.69l-1.72-1.72a.75.75 0 0 0-1.06 1.06l3 3a.75.75 0 0 0 1.06 0l3-3a.75.75 0 1 0-1.06-1.06l-1.72 1.72V7.5h3.75a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9a3 3 0 0 1 3-3h3.75z" />
+    </svg>
+  );
+};
+
+export default PlugIcon;
+// components/icons/CloudUploadIcon.tsx
+
+import React from 'react';
+
+const CloudUploadIcon: React.FC = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+      <path d="M7 16a4 4 0 0 1-.88-7.903A5 5 0 1 1 15.9 6h.1a5 5 0 0 1 1 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+    </svg>
+  );
+};
+
+export default CloudUploadIcon;
+// components/icons/CodeBranchIcon.tsx
+
+import React from 'react';
+
+const CodeBranchIcon: React.FC = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+      <path fillRule="evenodd" d="M11.097 1.515a.75.75 0 0 1 .589.882L10.666 7.5h4.47l1.079-5.397a.75.75 0 1 1 1.47.294L16.665 7.5h3.585a.75.75 0 0 1 0 1.5h-3.885l-1.2 6h3.585a.75.75 0 0 1 0 1.5h-3.885l-1.08 5.397a.75.75 0 1 1-1.47-.294l1.02-5.103h-4.47l-1.08 5.397a.75.75 0 0 1-1.47-.294l1.02-5.103H3.75a.75.75 0 1 1 0-1.5h3.885l1.2-6H5.25a.75.75 0 0 1 0-1.5h3.885l1.08-5.397a.75.75 0 0 1 .882-.588zM10.365 9l-1.2 6h4.47l1.2-6h-4.47z" clipRule="evenodd" />
+    </svg>
+  );
+};
+
+export default CodeBranchIcon;
+// components/icons/UsersIcon.tsx
+
+import React from 'react';
+
+const UsersIcon: React.FC = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+      <path d="M4.5 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0zm9.75 2.25a3.375 3.375 0 1 1 6.75 0 3.375 3.375 0 0 1-6.75 0zM1.5 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 0 1-.233.96 10.088 10.088 0 0 0 5.06-1.01.75.75 0 0 0 .42-.643 4.875 4.875 0 0 0-6.957-4.611 8.586 8.586 0 0 1 1.71 5.157v.003z" />
+    </svg>
+  );
+};
+
+export default UsersIcon;
+// components/icons/CommentsIcon.tsx
+
+import React from 'react';
+
+const CommentsIcon: React.FC = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+  );
+};
+
+export default CommentsIcon;
+// components/icons/ChartBarIcon.tsx
+
+import React from 'react';
+
+const ChartBarIcon: React.FC = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+      <path d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75zM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 0 1-1.875-1.875V8.625zM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 0 1 3 19.875v-6.75z" />
+    </svg>
+  );
+};
+
+export default ChartBarIcon;
+// components/Header.tsx
+'use client'
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import NavigationMenu from './NavigationMenu';
+import { User } from '@/lib/prisma';
+
+const Header: React.FC = () => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [searchTerm, setSerachTerm] = useState('');
+  const user = session?.user as User;
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push('/login');
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim() !== '') {
+      router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+    }
+  }
+
+  (session);
+
+  return (
+    <header className="bg-white dark:bg-gray-800 shadow">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <img src="/logo.png" alt="MCMS" className="h-16 w-16" />
+            <div className="flex-shrink-0">
+              <Link href="/">
+
+                <div>
+                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">MCMS</span>
+                </div>
+              </Link>
+            </div>
+            <nav className="hidden md:ml-10 md:flex md:space-x-4">
+              {/* Desktop navigation links */}
+              <Link href="/home">
+                <span className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-sm font-medium">
+                  Home
+                </span>
+              </Link>
+              <Link href="/files">
+                <span className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-sm font-medium">
+                  Files
+                </span>
+              </Link>
+              <Link href="/projects">
+                <span className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-sm font-medium">
+                  Projects
+                </span>
+              </Link>
+              <Link href="/wikis">
+                <span className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-sm font-medium">
+                  Wikis
+                </span>
+              </Link>
+            </nav>
+          </div>
+          <div className="flex items-center">
+            {/*<form onSubmit={handleSearch} className="mr-4">
+              <div className="flex items-center">
+                <Input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search..."
+                  className="w-48"
+                />
+                <Button type="submit" variant="primary" className="ml-2">
+                  Search
+                </Button>
+              </div>
+            </form>*/}
+            {/* User-related actions */}
+            {status === 'loading' ? (
+              <span>Loading...</span>
+            ) : session ? (
+              <>
+                <Link href="/profile">
+                  <span className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-sm font-medium mr-4">
+                    {user?.username}
+                  </span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <span className="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium mr-4">
+                    Login
+                  </span>
+                </Link>
+                <Link href="/register">
+                  <span className="text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                    Register
+                  </span>
+                </Link>
+              </>
+            )}
+            {/* Navigation menu */}
+            <div className="ml-4 md:hidden">
+              <NavigationMenu />
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
+import React from 'react';
+
+interface BadgeProps {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
+  className?: string;
+}
+
+const Badge: React.FC<BadgeProps> = ({ children, variant = 'primary', className = '' }) => {
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'primary':
+        return 'bg-blue-500 text-white';
+      case 'secondary':
+        return 'bg-gray-500 text-white';
+      case 'success':
+        return 'bg-green-500 text-white';
+      case 'danger':
+        return 'bg-red-500 text-white';
+      case 'warning':
+        return 'bg-yellow-500 text-black';
+      case 'info':
+        return 'bg-blue-400 text-white';
+      default:
+        return 'bg-blue-500 text-white';
+    }
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getVariantClasses()} ${className}`}
+    >
+      {children}
+    </span>
+  );
+};
+
+export default Badge;
+// components/Rating.tsx
+'use client'
+import React, { useState } from 'react';
+
+interface RatingProps {
+  value: number;
+  onChange: (rating: number) => void;
+  max?: number;
+  className?: string;
+}
+
+const Rating: React.FC<RatingProps> = ({ value, onChange, max = 5, className = '' }) => {
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+
+  const handleClick = (rating: number) => {
+    onChange(rating);
+  };
+
+  const handleMouseEnter = (rating: number) => {
+    setHoverRating(rating);
+  };
+
+  const handleMouseLeave = () => {
+    setHoverRating(null);
+  };
+
+  const renderStars = () => {
+    const stars = [];
+
+    for (let i = 1; i <= max; i++) {
+      const isActive = i <= (hoverRating || value);
+
+      stars.push(
+        <button
+          key={i}
+          type="button"
+          onClick={() => handleClick(i)}
+          onMouseEnter={() => handleMouseEnter(i)}
+          onMouseLeave={handleMouseLeave}
+          className={`text-2xl ${
+            isActive ? 'text-yellow-400' : 'text-gray-400 dark:text-gray-600'
+          }`}
+        >
+          &#9733;
+        </button>
+      );
+    }
+
+    return stars;
+  };
+
+  return <div className={`inline-flex ${className}`}>{renderStars()}</div>;
+};
+
+export default Rating;
+// components/Table.tsx
+
+import React from 'react';
+
+type ColumnAccessor<T> = (keyof T & string) | ((row: T) => React.ReactNode);
+
+interface TableColumn<T> {
+  header: string;
+  accessor: ColumnAccessor<T>;
+}
+
+interface TableProps<T> {
+  columns: TableColumn<T>[];
+  data: T[];
+  className?: string;
+}
+
+const Table = <T,>({ columns, data, className = '' }: TableProps<T>) => {
+  const getNestedValue = (obj: any, path: string) => {
+    const keys = path.split('.');
+    return keys.reduce((acc, key) => acc && acc[key], obj);
+  };
+
+  const renderCell = (row: T, accessor: ColumnAccessor<T>) => {
+    if (typeof accessor === 'function') {
+      return accessor(row);
+    }
+    return String(getNestedValue(row, accessor));
+  };
+
+  return (
+    <div className={`overflow-x-auto ${className}`}>
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-800">
+          <tr>
+            {columns.map((column) => (
+              <th
+                key={column.header}
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                {column.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {data.map((row, index) => (
+            <tr key={index} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+              {columns.map((column) => (
+                <td
+                  key={column.header}
+                  className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  {renderCell(row, column.accessor)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default Table;
+import React from 'react';
+import Button from './Button';
+
+interface NotificationProps {
+  id: number;
+  userId: number;
+  message: string;
+  link: string;
+  createdAt: Date;
+  read: boolean;
+  onMarkAsRead: (notificationId: number) => void;
+  onSendEmailDigest: (userId: number) => void;
+}
+
+const Notification: React.FC<NotificationProps> = ({
+  id,
+  message,
+  createdAt,
+  read,
+  onMarkAsRead,
+  onSendEmailDigest,
+  userId,
+}) => {
+  const handleMarkAsRead = () => {
+    onMarkAsRead(id);
+  };
+
+  const handleSendEmailDigest = () => {
+    onSendEmailDigest(userId);
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md p-4 mb-4">
+      <div className="flex justify-between items-center">
+        <p className={`text-gray-600 dark:text-gray-400 ${read ? 'opacity-50' : ''}`}>{message}</p>
+        {!read && (
+          <Button variant="secondary" size="small" onClick={handleMarkAsRead}>
+            Mark as Read
+          </Button>
+        )}
+      </div>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+        {createdAt.toLocaleString()}
+      </p>
+      <Button variant="secondary" size="small" onClick={handleSendEmailDigest} className="mt-4">
+        Send Email Digest
+      </Button>
+    </div>
+  );
+};
+
+export default Notification;
+// components/Button.tsx
+
+import React from 'react';
+
+interface ButtonProps {
+  children: React.ReactNode;
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'secondary' | 'danger' | 'dropdown';
+  size?: 'small' | 'medium' | 'large';
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+}
+
+const Button: React.FC<ButtonProps> = ({
+  children,
+  type = 'button',
+  variant = 'primary',
+  size = 'medium',
+  onClick,
+  disabled = false,
+  className = '',
+}) => {
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'primary':
+        return 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-blue-500 dark:focus:ring-blue-600';
+      case 'secondary':
+        return 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 focus:ring-gray-400 dark:focus:ring-gray-500';
+      case 'danger':
+        return 'bg-red-600 dark:bg-red-500 text-white hover:bg-red-700 dark:hover:bg-red-600 focus:ring-red-500 dark:focus:ring-red-600';
+      case 'dropdown':
+        return 'inline-flex justify-center w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 dark:focus:ring-blue-600';
+      default:
+        return '';
+    }
+  };
+
+  const getSizeClasses = () => {
+    switch (size) {
+      case 'small':
+        return 'px-2 py-1 text-sm';
+      case 'medium':
+        return 'px-4 py-2 text-base';
+      case 'large':
+        return 'px-6 py-3 text-lg';
+      default:
+        return '';
+    }
+  };
+
+  const buttonClasses = `rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${getVariantClasses()} ${getSizeClasses()} ${
+    disabled ? 'opacity-50 cursor-not-allowed' : ''
+  } ${className}`;
+
+  return (
+    <button type={type} onClick={onClick} disabled={disabled} className={buttonClasses}>
+      {children}
+    </button>
+  );
+};
+
+export default Button;
+// components/Modal.tsx
+
+import React from 'react';
+
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
+const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  className = '',
+}) => {
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div className="fixed z-10 inset-0 overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div
+          className="fixed inset-0 transition-opacity"
+          aria-hidden="true"
+          onClick={onClose}
+        >
+          <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+
+        <span
+          className="hidden sm:inline-block sm:align-middle sm:h-screen"
+          aria-hidden="true"
+        >
+          &#8203;
+        </span>
+
+        <div
+          className={`inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full ${className}`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-headline"
+        >
+          <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div className="sm:flex sm:items-start">
+              <div className="mt-3 text-center sm:mt-0 sm:text-left">
+                <h3
+                  className="text-lg leading-6 font-medium text-gray-900 dark:text-white"
+                  id="modal-headline"
+                >
+                  {title}
+                </h3>
+                <div className="mt-2">{children}</div>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              type="button"
+              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+              onClick={onClose}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Modal;
+// components/Toast.tsx
+
+import React, { useEffect, useState } from 'react';
+
+interface ToastProps {
+  message: string;
+  duration?: number;
+  onClose: () => void;
+  variant?: 'success' | 'error' | 'warning' | 'info';
+  className?: string;
+}
+
+const Toast: React.FC<ToastProps> = ({
+  message,
+  duration = 3000,
+  onClose,
+  variant = 'info',
+  className = '',
+}) => {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+      onClose();
+    }, duration);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [duration, onClose]);
+
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'success':
+        return 'bg-green-500 text-white';
+      case 'error':
+        return 'bg-red-500 text-white';
+      case 'warning':
+        return 'bg-yellow-500 text-black';
+      case 'info':
+      default:
+        return 'bg-blue-500 text-white';
+    }
+  };
+
+  if (!isVisible) {
+    return null;
+  }
+
+  return (
+    <div
+      className={`fixed bottom-4 right-4 p-4 rounded-md shadow-md ${getVariantClasses()} ${className}`}
+    >
+      <div className="flex items-center">
+        <span className="mr-2">{message}</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="ml-auto text-white hover:text-gray-100 focus:outline-none"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Toast;
+// components/Checkbox.tsx
+
+import React from 'react';
+
+interface CheckboxProps {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}
+
+const Checkbox: React.FC<CheckboxProps> = ({ label, checked, onChange }) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(event.target.checked);
+  };
+
+  return (
+    <div className="flex items-center">
+      <input
+        type="checkbox"
+        id={`checkbox-${label}`}
+        className="form-checkbox h-5 w-5 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-600 border-gray-300 dark:border-gray-700 rounded"
+        checked={checked}
+        onChange={handleChange}
+      />
+      <label
+        htmlFor={`checkbox-${label}`}
+        className="ml-2 block text-sm text-gray-900 dark:text-gray-200"
+      >
+        {label}
+      </label>
+    </div>
+  );
+};
+
+export default Checkbox;
+// components/Stepper.tsx
+
+import React from 'react';
+
+interface Step {
+  label: string;
+  description?: string;
+}
+
+interface StepperProps {
+  steps: Step[];
+  currentStep: number;
+  className?: string;
+}
+
+const Stepper: React.FC<StepperProps> = ({ steps, currentStep, className = '' }) => {
+  const renderSteps = () => {
+    return steps.map((step, index) => {
+      const isActive = index === currentStep;
+      const isPast = index < currentStep;
+
+      return (
+        <li
+          key={index}
+          className={`stepper-item ${isActive ? 'active' : ''} ${isPast ? 'complete' : ''}`}
+        >
+          <div className="stepper-icon">
+            {isPast ? (
+              <svg
+                className="w-6 h-6 text-green-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <span className="stepper-number">{index + 1}</span>
+            )}
+          </div>
+          <div className="stepper-content">
+            <h3 className="stepper-title">{step.label}</h3>
+            {step.description && <p className="stepper-description">{step.description}</p>}
+          </div>
+        </li>
+      );
+    });
+  };
+
+  return (
+    <div className={`stepper ${className}`}>
+      <ul className="stepper-list">{renderSteps()}</ul>
+    </div>
+  );
+};
+
+export default Stepper;
+// components/Spinner.tsx
+
+import React from 'react';
+
+interface SpinnerProps {
+  size?: 'small' | 'medium' | 'large';
+  className?: string;
+}
+
+const Spinner: React.FC<SpinnerProps> = ({ size = 'medium', className = '' }) => {
+  const getSizeClasses = () => {
+    switch (size) {
+      case 'small':
+        return 'w-4 h-4';
+      case 'medium':
+        return 'w-8 h-8';
+      case 'large':
+        return 'w-12 h-12';
+      default:
+        return 'w-8 h-8';
+    }
+  };
+
+  return (
+    <div className={`inline-block ${className}`}>
+      <div
+        className={`animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] ${getSizeClasses()}`}
+        role="status"
+      >
+        <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+          Loading...
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export default Spinner;
+// components/Select.tsx
+
+import React from 'react';
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface SelectProps {
+  title: string;
+  options: Option[];
+  value: string | string[];
+  onChange: (value: string | string[]) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  isMulti?: boolean;
+}
+
+const Select: React.FC<SelectProps> = ({
+  title,
+  options,
+  value,
+  onChange,
+  placeholder = 'Select an option',
+  disabled = false,
+  isMulti = false,
+}) => {
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    if (isMulti) {
+      const selectedOptions = Array.from(
+        event.target.selectedOptions,
+        (option) => option.value
+      );
+      onChange(selectedOptions);
+    } else {
+      onChange(event.target.value);
+    }
+  };
+
+  return (
+    <select
+      title={title}
+      value={value}
+      onChange={handleChange}
+      disabled={disabled}
+      multiple={isMulti}
+      className="block w-full px-4 py-2 pr-8 leading-tight text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:focus:ring-blue-600 dark:focus:border-blue-600"
+    >
+      {placeholder && (
+        <option value="" disabled>
+          {placeholder}
+        </option>
+      )}
+      {options && options.length > 0 && options?.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
+};
+
+export default Select;
+// components/Textarea.tsx
+
+import React from 'react';
+
+interface TextareaProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  rows?: number;
+  disabled?: boolean;
+  id?: string;
+  required?: boolean;
+}
+
+const Textarea: React.FC<TextareaProps> = ({
+  value,
+  onChange,
+  placeholder = '',
+  rows = 3,
+  disabled = false,
+  id,
+  required = false,
+}) => {
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(event.target.value);
+  };
+
+  return (
+    <textarea
+      value={value}
+      onChange={handleChange}
+      placeholder={placeholder}
+      rows={rows}
+      disabled={disabled}
+      id={id}
+      required={required}
+      className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:focus:ring-blue-600 dark:focus:border-blue-600"
+    />
+  );
+};
+
+export default Textarea;
+// components/Input.tsx
+
+import React from 'react';
+
+interface InputProps {
+  label: string;
+  type?: string;
+  name: string;
+  value: string;
+  id: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  required?: boolean;
+  className?: string;
+  placeholder?: string;
+}
+
+const Input: React.FC<InputProps> = ({
+  label,
+  type = 'text',
+  name,
+  value,
+  id,
+  onChange,
+  className = '',
+  required = false,
+  placeholder = '',
+}) => {
+  return (
+    <div className="mb-4">
+      <label
+        htmlFor={name}
+        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+      >
+        {label}
+      </label>
+      <input
+        type={type}
+        id={id}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        placeholder={placeholder}
+        className={"w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-blue-600 dark:focus:border-blue-600" + {className}}
+      />
+    </div>
+  );
+};
+
+export default Input;
+// components/Skeleton.tsx
+
+import React from 'react';
+
+interface SkeletonProps {
+  variant?: 'text' | 'rectangular' | 'circular';
+  width?: string;
+  height?: string;
+  className?: string;
+}
+
+const Skeleton: React.FC<SkeletonProps> = ({
+  variant = 'text',
+  width = '100%',
+  height = '1rem',
+  className = '',
+}) => {
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'text':
+        return 'rounded';
+      case 'rectangular':
+        return 'rounded';
+      case 'circular':
+        return 'rounded-full';
+      default:
+        return 'rounded';
+    }
+  };
+
+  return (
+    <div
+      className={`bg-gray-200 dark:bg-gray-700 animate-pulse ${getVariantClasses()} ${className}`}
+      style={{ width, height }}
+    ></div>
+  );
+};
+
+export default Skeleton;
+// components/Carousel.tsx
+'use client'
+import React, { useState } from 'react';
+
+interface CarouselProps {
+  items: React.ReactNode[];
+  className?: string;
+}
+
+const Carousel: React.FC<CarouselProps> = ({ items, className = '' }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const goToPrevSlide = () => {
+    setActiveIndex((prevIndex) => (prevIndex === 0 ? items.length - 1 : prevIndex - 1));
+  };
+
+  const goToNextSlide = () => {
+    setActiveIndex((prevIndex) => (prevIndex === items.length - 1 ? 0 : prevIndex + 1));
+  };
+
+  return (
+    <div className={`carousel ${className}`}>
+      <div className="carousel-inner">
+        {items.map((item, index) => (
+          <div
+            key={index}
+            className={`carousel-item ${index === activeIndex ? 'active' : ''}`}
+          >
+            {item}
+          </div>
+        ))}
+      </div>
+      <button className="carousel-control prev" onClick={goToPrevSlide}>
+        <span className="carousel-control-icon">
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </span>
+      </button>
+      <button className="carousel-control next" onClick={goToNextSlide}>
+        <span className="carousel-control-icon">
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </span>
+      </button>
+    </div>
+  );
+};
+
+export default Carousel;

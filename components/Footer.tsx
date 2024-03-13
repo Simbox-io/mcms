@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-200 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-800 sticky bottom-0 ">
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <footer className="bg-gray-200 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-800 sticky text-center bottom-0 ">
+      <div className="max-w-7xl mx-auto xs:mr-4 py-6 px-2 sm:px-6 lg:px-8">
         <div className="flex justify-between">
           <div>
             <p className="text-gray-700 dark:text-gray-300">&copy; {new Date().getFullYear()} <Link href='https://simbox.io'>Simbox.io</Link>. All rights reserved.</p>

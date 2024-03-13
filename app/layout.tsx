@@ -5,6 +5,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Providers from "./providers";
 import { Analytics } from "@vercel/analytics/react"
+import Script from "next/script";
+import { ThemeProvider } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 const ibmPlexSans = IBM_Plex_Sans({ weight: ['300', '400', '600'], subsets: ["latin"] });
@@ -20,18 +22,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
-    <html lang="en" className={ibmPlexSans.className}>
-      <Providers>
-      <body className='flex flex-col justify-between h-screen dark:bg-gray-700'>
-      <Header />
-          <main className="flex-grow overflow-auto">
-            {children}
-            <Analytics />
-        </main>
-        <Footer />
+    <html lang="en" className={ibmPlexSans.className} suppressHydrationWarning >
+      <Script src="https://simbox-mcms.statuspage.io/embed/script.js" />
+      <body className='flex flex-col justify-between h-screen bg-gray-100 dark:bg-gray-600'>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem enableColorScheme >
+          <Providers>
+            <Header />
+            <main className="flex-grow overflow-auto">
+              {children}
+              <Analytics />
+            </main>
+            <Footer />
+          </Providers>
+        </ThemeProvider>
       </body>
-      </Providers>
     </html>
   );
 }

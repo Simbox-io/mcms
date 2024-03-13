@@ -1,6 +1,7 @@
 // components/Accordion.tsx
-'use client'
+'use client';
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AccordionItem {
   id: string;
@@ -11,50 +12,70 @@ interface AccordionItem {
 interface AccordionProps {
   items: AccordionItem[];
   className?: string;
+  style?: React.CSSProperties;
+  defaultActiveId?: string;
+  allowMultiple?: boolean;
+  onChange?: (activeIds: string[]) => void;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ items, className = '' }) => {
-  const [activeItem, setActiveItem] = useState('');
+const Accordion: React.FC<AccordionProps> = ({
+  items,
+  className = '',
+  style,
+  defaultActiveId,
+  allowMultiple = false,
+  onChange,
+}) => {
+  const [activeIds, setActiveIds] = useState<string[]>(
+    defaultActiveId ? [defaultActiveId] : []
+  );
 
   const handleItemClick = (itemId: string) => {
-    setActiveItem(activeItem === itemId ? '' : itemId);
+    let updatedActiveIds: string[];
+
+    if (allowMultiple) {
+      updatedActiveIds = activeIds.includes(itemId)
+        ? activeIds.filter((id) => id !== itemId)
+        : [...activeIds, itemId];
+    } else {
+      updatedActiveIds = activeIds.includes(itemId) ? [] : [itemId];
+    }
+
+    setActiveIds(updatedActiveIds);
+
+    if (onChange) {
+      onChange(updatedActiveIds);
+    }
   };
 
   return (
-    <div className={`divide-y divide-gray-200 dark:divide-gray-700 ${className}`}>
+    <div className={`accordion ${className}`} style={style}>
       {items.map((item) => (
-        <div key={item.id} className="py-4">
+        <div key={item.id} className="accordion-item">
           <button
-            className="flex justify-between items-center w-full text-left"
+            className={`accordion-header ${
+              activeIds.includes(item.id) ? 'active' : ''
+            }`}
             onClick={() => handleItemClick(item.id)}
           >
-            <span className="text-lg font-medium text-gray-900 dark:text-white">
-              {item.title}
+            <span className="accordion-title">{item.title}</span>
+            <span className="accordion-icon">
+              {activeIds.includes(item.id) ? '-' : '+'}
             </span>
-            <svg
-              className={`w-5 h-5 ml-2 transition-transform ${
-                activeItem === item.id ? 'transform rotate-180' : ''
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
           </button>
-          <div
-            className={`mt-2 ${
-              activeItem === item.id ? 'block' : 'hidden'
-            } transition-all`}
-          >
-            {item.content}
-          </div>
+          <AnimatePresence>
+            {activeIds.includes(item.id) && (
+              <motion.div
+                className="accordion-content"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {item.content}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       ))}
     </div>

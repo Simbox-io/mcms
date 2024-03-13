@@ -35,7 +35,7 @@ const LandingPage: React.FC = () => {
         </section>
 
         <section className="py-20">
-          <div className="container mx-auto px-4 dark:text-white">
+          <div className="container mx-auto px-4 text-gray-800 dark:text-white">
             <h2 className="text-3xl font-semibold mb-12 text-center">Key Features</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <Feature
@@ -72,7 +72,7 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="bg-gray-100 dark:bg-gray-800 py-20">
+        <section className="bg-gray-200 dark:bg-gray-800 py-20">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-semibold mb-12 text-center text-gray-800 dark:text-white">
               Open Source and Community-Driven

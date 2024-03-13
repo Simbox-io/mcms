@@ -1,13 +1,14 @@
 // app/api/users/[id]/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import prisma from '../../../../lib/prisma';
+import { getSession } from '@/lib/auth';
+import prisma, { User } from '../../../../lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const token = await getToken({ req: request });
+  const session = await getSession(request);
+  const user = session?.user as User;
 
-  if (!token) {
+  if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 

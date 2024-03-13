@@ -31,8 +31,8 @@ const AdminDashboardPage: React.FC = () => {
     const fetchData = async () => {
       try {
         const [usersResponse, postsResponse] = await Promise.all([
-          fetch('/api/admin/users'),
-          fetch('/api/admin/posts'),
+          fetch('/api/users'),
+          fetch('/api/posts'),
         ]);
 
         if (usersResponse.ok) {
@@ -80,8 +80,8 @@ const AdminDashboardPage: React.FC = () => {
           <Spinner size="large" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card title="Users">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
+          <Card title="Users" className='bg-gray-200 dark:bg-gray-700 shadow-lg'>
             <Table
               columns={[
                 { header: 'Username', accessor: 'username' },

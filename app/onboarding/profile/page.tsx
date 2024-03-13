@@ -15,6 +15,8 @@ import { User } from '@/lib/prisma';
 const ProfileSetupPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [avatar, setAvatar] = useState<File | null>(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [bio, setBio] = useState('');
   const router = useRouter();
   const token = useToken();
@@ -32,6 +34,8 @@ const ProfileSetupPage: React.FC = () => {
 
     const formData = new FormData();
     formData.append('username', username);
+    formData.append('firstName', firstName);
+    formData.append('lastName', lastName);
     formData.append('bio', bio);
     if (avatar) {
       formData.append('avatar', avatar);
@@ -70,6 +74,28 @@ const ProfileSetupPage: React.FC = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            className="w-full"
+          />
+        </div>
+        <div className="mb-4">
+          <Input
+            name="firstName"
+            label="First Name"
+            type="text"
+            id="firstName"
+            value={bio}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="w-full"
+          />
+        </div>
+        <div className="mb-4">
+          <Input
+            name="lastName"
+            label="Last Name"
+            type="text"
+            id="lastName"
+            value={bio}
+            onChange={(e) => setLastName(e.target.value)}
             className="w-full"
           />
         </div>
