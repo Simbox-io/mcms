@@ -60,7 +60,7 @@ const Button: React.FC<ButtonProps> = ({
         }, defaultClasses);
         return customClasses;
       case 'dropdown':
-        defaultClasses =  'inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 dark:focus:ring-blue-600';
+        defaultClasses =  'inline-flex justify-center w-full rounded-md px-4 py-2 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 dark:focus:ring-blue-600';
         customClasses = className.split(' ').reduce((acc, cls) => {
           const type = cls.split('-')[0];
           if (defaultClasses.includes(type)) {

@@ -71,7 +71,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       {
         isOpen && (
           <div
-            className={`origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-xl bg-gray-100 dark:bg-gray-600 ring-1 ring-black ring-opacity-5 focus:outline-none ${menuClassName}`}
+            className={`origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-xl bg-gray-100 dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none ${menuClassName}`}
             role="menu"
             aria-orientation="vertical"
             aria-labelledby="options-menu"
@@ -81,7 +81,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                 <button
                   key={option}
                   className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-gray-500 ${option === value
-                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
                     : 'text-gray-700 dark:text-gray-200'
                     } ${menuItemClassName}`}
                   role="menuitem"

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/prisma';
+import { useTheme } from 'next-themes';
 import Dropdown from './Dropdown';
 import Button from './Button';
 
@@ -12,6 +13,8 @@ const Header: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [searchTerm, setSearchTerm] = useState('');
+  const { theme, setTheme } = useTheme();
+  const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false);
   const user = session?.user as User;
 
   const handleLogout = async () => {
@@ -24,6 +27,11 @@ const Header: React.FC = () => {
     if (searchTerm.trim() !== '') {
       router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
     }
+  };
+
+  const toggleTheme = (selectedTheme: string) => {
+    setTheme(selectedTheme);
+    setIsThemeDropdownOpen(false);
   };
 
   return (
@@ -81,7 +89,7 @@ const Header: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search..."
-                  className="w-48 px-3 py-2 border border-gray-300 bg-gray-100 dark:border-gray-700 dark:placeholder-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                  className="w-48 px-3 py-2 border border-gray-300 bg-gray-100 text-gray-700 placeholder-gray-700 dark:border-gray-700 dark:placeholder-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
                 />
                 <Button type="submit" variant="primary" size='medium' className="ml-2 text-white">
                   Search
@@ -91,21 +99,41 @@ const Header: React.FC = () => {
             {status === 'loading' ? (
               <span>Loading...</span>
             ) : session ? (
-              <Dropdown
-                label={user?.username || ''}
-                options={['Dashboard', 'Analytics', 'Reports', 'Profile', 'Settings', 'Logout']}
-                value=""
-                onChange={(value) => {
-                  if (value === 'Logout') {
-                    handleLogout();
-                  } else {
-                    router.push(`/${value.toLowerCase()}`);
-                  }
-                }}
-                className="ml-4"
-                buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-sm font-medium flex items-center"
-                menuClassName="mt-8"
-              />
+              <div className='relative'>
+                <Dropdown
+                  label={user?.username || ''}
+                  options={['Dashboard', 'Analytics', 'Reports', 'Profile', 'Theme', 'Settings', 'Logout']}
+                  value=""
+                  onChange={(value) => {
+                    if (value === 'Logout') {
+                      handleLogout();
+                    } else if (value === 'Theme') {
+                      setIsThemeDropdownOpen(!isThemeDropdownOpen);
+                    } else {
+                      router.push(`/${value.toLowerCase()}`);
+                    }
+                  }}
+                  className="ml-4"
+                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                  menuClassName="mt-8"
+                />
+                {isThemeDropdownOpen && (
+                  <div className="absolute right-0 mt-2 py-2 w-48 bg-gray-200 dark:bg-gray-700 rounded-md shadow-lg z-10">
+                    <button
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 w-full text-left"
+                      onClick={() => toggleTheme('light')}
+                    >
+                      Light
+                    </button>
+                    <button
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 w-full text-left"
+                      onClick={() => toggleTheme('dark')}
+                    >
+                      Dark
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 <Link href="/login">
