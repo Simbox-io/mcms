@@ -102,7 +102,7 @@ const Header: React.FC = () => {
               <div className='relative'>
                 <Dropdown
                   label={user?.username || ''}
-                  options={['Dashboard', 'Analytics', 'Reports', 'Profile', 'Theme', 'Settings', 'Logout']}
+                  options={user?.role === 'ADMIN' ? ['Dashboard', 'Analytics', 'Reports', 'Profile', 'Theme', 'Settings', 'Admin', 'Logout'] : ['Dashboard', 'Analytics', 'Reports', 'Profile', 'Theme', 'Settings', 'Logout']}
                   value=""
                   onChange={(value) => {
                     if (value === 'Logout') {

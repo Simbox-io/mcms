@@ -9,6 +9,7 @@ import Card from '../../../components/Card';
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import Spinner from '../../../components/Spinner';
+import EmptyState from '../../../components/EmptyState';
 import { User } from '@/lib/prisma';
 
 interface SiteSettings {
@@ -99,13 +100,17 @@ const SiteSettingsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card>
-        <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Site Settings</h1>
-        {isLoading ? (
-          <div className="flex justify-center items-center h-screen">
-            <Spinner size="large" />
-          </div>
-        ) : (
+      <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Site Settings</h1>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-screen">
+          <Spinner size="large" />
+        </div>
+      ) : settings === null ? (
+        <EmptyState
+          title="No Settings Found"
+          description="There are no site settings available at the moment."
+        />
+      ) : (
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <Input
@@ -162,7 +167,6 @@ const SiteSettingsPage: React.FC = () => {
             </div>
           </form>
         )}
-      </Card>
     </div>
   );
 };

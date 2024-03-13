@@ -11,16 +11,17 @@ import Spinner from '../../../components/Spinner';
 import { User } from '@/lib/prisma';
 
 const UserManagementPage: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { data: session, status } = useSession();
   const user = session?.user as User;
-
+  const [users, setUsers] = useState<User[]>([]);
+  const userId = '' as String;
+  
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('/api/admin/users');
+        const response = await fetch('/api/users');
 
         if (response.ok) {
           const data = await response.json();
@@ -40,7 +41,7 @@ const UserManagementPage: React.FC = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      const response = await fetch(`/api/users/${userId}`, {
         method: 'DELETE',
       });
 
@@ -83,9 +84,8 @@ const UserManagementPage: React.FC = () => {
             { header: 'Role', accessor: 'role' },
             {
               header: 'Actions',
-              accessor: 'id',
-              cell: (value: string) => (
-                <Button variant="danger" onClick={() => handleDeleteUser(value)}>
+              accessor: (row: User) => (
+                <Button variant="danger" onClick={() => handleDeleteUser(row.id)}>
                   Delete
                 </Button>
               ),
