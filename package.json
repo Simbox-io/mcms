@@ -12,7 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.529.1",
     "@aws-sdk/client-ses": "^3.529.1",
-    "@prisma/client": "^5.10.2",
+    "@prisma/client": "^5.11.0",
     "@sentry/nextjs": "^7.106.1",
     "@tailwindcss/typography": "^0.5.10",
     "@tinymce/tinymce-react": "^4.3.2",
