@@ -12,13 +12,10 @@ const PreferencesPage: React.FC = () => {
   const [receiveNotifications, setReceiveNotifications] = useState(true);
   const [receiveUpdates, setReceiveUpdates] = useState(true);
   const router = useRouter();
-  const token = useToken();
-
-  ('token', token);
+  const token = useToken() || ''; // Assign a default value if token is undefined
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       const response = await fetch('/api/onboarding/preferences', {
         method: 'POST',
@@ -28,7 +25,6 @@ const PreferencesPage: React.FC = () => {
         },
         body: JSON.stringify({ receiveNotifications, receiveUpdates }),
       });
-
       if (response.ok) {
         router.push('/dashboard');
       } else {
@@ -41,7 +37,9 @@ const PreferencesPage: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Preferences</h2>
+      <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+        Preferences
+      </h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <Checkbox
