@@ -54,8 +54,8 @@ const Sidebar: React.FC<SidebarProps> = ({ items, activeItem, onItemClick }) => 
       <Link
         href={`#${item.id}`}
         onClick={() => onItemClick(item.id)}
-        className={`flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${
-          activeItem === item.id ? 'bg-gray-100 dark:bg-gray-700' : ''
+        className={`flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-900 ${
+          activeItem === item.id ? 'bg-gray-200 dark:bg-gray-800' : ''
         }`}
       >
         {item.icon && <span className="mr-2">{item.icon}</span>}
