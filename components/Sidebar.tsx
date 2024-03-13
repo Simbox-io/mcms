@@ -66,12 +66,12 @@ const Sidebar: React.FC<SidebarProps> = ({ items, activeItem, onItemClick }) => 
 
   return (
     <>
-      <div className="hidden md:block w-64 bg-white dark:bg-gray-700 border-r border-gray-200 dark:border-gray-700">
+      <div className="hidden lg:block w-64 h-full bg-white dark:bg-gray-700 border-r border-gray-200 dark:border-gray-700">
         <nav className="py-8">
           <ul className="space-y-2">{items.map(renderSidebarItem)}</ul>
         </nav>
       </div>
-      <div className="md:hidden relative">
+      <div className="lg:hidden relative">
         {showLeftIndicator && (
           <button
             className="absolute left-0 top-0 bottom-0 z-10 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 focus:outline-none"
