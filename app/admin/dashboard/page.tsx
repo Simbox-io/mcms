@@ -31,8 +31,8 @@ const AdminDashboardPage: React.FC = () => {
     const fetchData = async () => {
       try {
         const [usersResponse, postsResponse] = await Promise.all([
-          fetch('/api/admin/users'),
-          fetch('/api/admin/posts'),
+          fetch('/api/users'),
+          fetch('/api/posts'),
         ]);
 
         if (usersResponse.ok) {
