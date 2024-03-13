@@ -6,7 +6,7 @@ interface ButtonProps {
   children?: React.ReactNode;
   type?: 'button' | 'submit' | 'reset';
   variant?: 'primary' | 'secondary' | 'danger' | 'dropdown' | 'outline-primary' | 'outline-secondary' | 'outline-danger';
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'dropdown';
   onClick?: () => void;
   disabled?: boolean;
   className?: string;
@@ -112,6 +112,8 @@ const Button: React.FC<ButtonProps> = ({
         return 'px-4 py-2 text-base';
       case 'large':
         return 'px-6 py-3 text-lg';
+      case 'dropdown':
+        return 'py-2 text-base';
       default:
         return '';
     }

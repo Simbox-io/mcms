@@ -80,8 +80,8 @@ const AdminDashboardPage: React.FC = () => {
           <Spinner size="large" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card title="Users">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 ">
+          <Card title="Users" className='bg-gray-300 dark:bg-gray-700 shadow-lg'>
             <Table
               columns={[
                 { header: 'Username', accessor: 'username' },

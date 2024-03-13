@@ -22,7 +22,7 @@ const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md ${className}`}
+      className={`bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md ${className}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -32,7 +32,7 @@ const Card: React.FC<CardProps> = ({
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{title}</h3>
         </div>
       )}
-      <div className={`px-6 py-4 ${bodyClassName}`}>{children}</div>
+      <div className={`px-4 py-4 ${bodyClassName}`}>{children}</div>
       {footerClassName && <div className={`px-6 py-4 border-t border-gray-200 dark:border-gray-700 ${footerClassName}`}></div>}
     </div>
   );

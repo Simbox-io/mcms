@@ -44,29 +44,46 @@ const AdminConfigurationPage: React.FC = () => {
   }
 
   return (
-    <div className="flex h-full">
-      <Sidebar
-        items={[
-          { id: 'dashboard', label: 'Admin Dashboard' },
-          { id: 'analytics', label: 'Analytics' },
-          { id: 'plugins', label: 'Plugin Management' },
-          { id: 'users', label: 'User Management' },
-          { id: 'settings', label: 'Global Settings' },
-        ]}
-        activeItem={activeSubpage}
-        onItemClick={handleSubpageChange}
-      />
-      <div className="flex-1 p-8">
-        <Card>
-          {activeSubpage === 'dashboard' && <DashboardPage />}
-          {activeSubpage === 'analytics' && <AnalyticsPage />}
-          {activeSubpage === 'plugins' && <PluginsPage />}
-          {activeSubpage === 'users' && <UsersPage />}
-          {activeSubpage === 'settings' && <SettingsPage />}
-        </Card>
+    <div className="flex flex-col lg:flex-row h-full">
+      <div className="md:hidden">
+        <Sidebar
+          items={[
+            { id: 'dashboard', label: 'Admin Dashboard' },
+            { id: 'analytics', label: 'Analytics' },
+            { id: 'plugins', label: 'Plugin Management' },
+            { id: 'users', label: 'User Management' },
+            { id: 'settings', label: 'Global Settings' },
+          ]}
+          activeItem={activeSubpage}
+          onItemClick={handleSubpageChange}
+        />
+      </div>
+      <div className="flex flex-col lg:flex-row h-full">
+        <div className="hidden md:block">
+          <Sidebar
+            items={[
+              { id: 'dashboard', label: 'Admin Dashboard' },
+              { id: 'analytics', label: 'Analytics' },
+              { id: 'plugins', label: 'Plugin Management' },
+              { id: 'users', label: 'User Management' },
+              { id: 'settings', label: 'Global Settings' },
+            ]}
+            activeItem={activeSubpage}
+            onItemClick={handleSubpageChange}
+          />
+        </div>
+        <div className="flex-1 p-8">
+          <Card className="dark:bg-gray-800 shadow-xl">
+            {activeSubpage === 'dashboard' && <DashboardPage />}
+            {activeSubpage === 'analytics' && <AnalyticsPage />}
+            {activeSubpage === 'plugins' && <PluginsPage />}
+            {activeSubpage === 'users' && <UsersPage />}
+            {activeSubpage === 'settings' && <SettingsPage />}
+          </Card>
+        </div>
       </div>
     </div>
-  );
+  )
 };
 
 export default AdminConfigurationPage;

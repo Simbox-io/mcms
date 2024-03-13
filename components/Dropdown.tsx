@@ -52,7 +52,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   return (
     <div ref={dropdownRef} className={`relative inline-block text-left ${className}`}>
-      <Button variant="dropdown" onClick={handleToggle} className={buttonClassName}>
+      <Button variant="dropdown" onClick={handleToggle} className={buttonClassName} size='dropdown'>
         {value || label}
         <svg
           className="-mr-1 ml-2 h-5 w-5"
