@@ -1,15 +1,21 @@
-name: mcms
+name: MCMS
 id: ari:cloud:compass:a51bfe9f-fa11-4033-9a78-22d8848a3b81:component/60b3a67e-b8ef-4fbf-89ef-6d7478d95fcc/d0ffa500-0bd8-4fc4-8d48-7fcc9b406fb2
 description: MCMS
 configVersion: 1
 typeId: APPLICATION
 ownerId: ari:cloud:identity::team/80789da4-0133-450e-9ba9-fed68f5bf661
 fields:
-  tier: 4
+  tier: 1
 links:
   - name: null
     type: REPOSITORY
     url: https://github.com/Simbox-io/mcms
+  - name: MCMS Jira
+    type: PROJECT
+    url: https://simboxio.atlassian.net/jira/software/c/projects/MCMS/
+  - name: MCMS SD
+    type: PROJECT
+    url: https://simboxio.atlassian.net/jira/servicedesk/projects/MCMSSD/
 relationships:
   DEPENDS_ON: []
 labels:
