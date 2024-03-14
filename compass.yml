@@ -12,7 +12,7 @@ links:
     url: https://github.com/Simbox-io/mcms
   - name: MCMS Jira
     type: PROJECT
-    url: https://simboxio.atlassian.net/jira/software/c/projects/MCMS/
+    url: https://simboxio.atlassian.net/jira/software/c/projects/MCMS/boards/33
   - name: MCMS SD
     type: PROJECT
     url: https://simboxio.atlassian.net/jira/servicedesk/projects/MCMSSD/
