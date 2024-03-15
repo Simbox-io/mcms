@@ -131,7 +131,7 @@ const HomePage: React.FC = () => {
                                     onSelect={(category) => console.log('Selected category:', category)}
                                     className="mr-4"
                                 />
-                                <Button variant="secondary" onClick={() => router.push('/projects')}>
+                                <Button variant="secondary" onClick={() => router.push('/project/all-projects')}>
                                     View All
                                 </Button>
                             </div>

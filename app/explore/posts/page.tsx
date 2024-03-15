@@ -84,7 +84,7 @@ const NewsFeed: React.FC = () => {
             </div>
 
             <AnimatePresence>
-                {posts.map((post) => (
+                {posts?.map((post) => (
                     <motion.div
                         key={post.id}
                         initial={{ opacity: 0, y: 50 }}

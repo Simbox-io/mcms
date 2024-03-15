@@ -2,6 +2,7 @@ import {withSentryConfig} from '@sentry/nextjs';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     experimental: {
+        serverActions: true,
         serverActions: {
             allowedOrigins: ['https://vp1ldb7xwny0.statuspage.io'],
         },

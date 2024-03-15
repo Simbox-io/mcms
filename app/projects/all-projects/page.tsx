@@ -65,6 +65,10 @@ const ProjectListPage: React.FC = () => {
     router.push('/projects/create');
   };
 
+  const handleSelectProject = (project: Project) => {
+    router.push(`/projects/${project.id}`);
+  }
+
   if (status === 'loading') {
     return <div>Loading...</div>;
   }
@@ -90,7 +94,7 @@ const ProjectListPage: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project) => (
-              <Card key={project.id}>
+              <Card key={project.id} onClick={() => handleSelectProject}>
                 <div className="p-4">
                   <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
                     {project.name}
