@@ -35,7 +35,6 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
       try {
         const response = await fetch(`/api/users/${params.id}`);
         const data = await response.json();
-        console.log(data);
         setUser(data.user);
         //setPosts(data.posts);
         setProjects(data.projects);
