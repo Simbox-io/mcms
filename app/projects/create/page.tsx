@@ -44,7 +44,7 @@ const CreateProjectPage: React.FC = () => {
       formData.append('repository', repository);
       selectedMembers.forEach((memberId) => formData.append('members[]', memberId));
       selectedFiles.forEach((file) => formData.append('files[]', file));
-      selectedTags.forEach((tag) => formData.append('tags[]', tag));
+      //selectedTags.forEach((tag) => formData.append('tags[]', tag));
 
       const response = await fetch('/api/projects', {
         method: 'POST',
@@ -161,7 +161,7 @@ const CreateProjectPage: React.FC = () => {
                 />
               </FormGroup>
             </div>
-            <FormGroup label="Files" htmlFor="files" className="mt-6">
+            <FormGroup label="Files (This does not work yet)" htmlFor="files" className="mt-6">
               <FileUpload
                 id="files"
                 onFileSelect={handleFileSelect}

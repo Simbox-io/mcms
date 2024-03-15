@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const { name, description, repository, members } = await request.json();
+  const { name, description, repository, members, files, tags } = await request.json();
 
   try {
     const newProject = await prisma.project.create({
@@ -59,6 +59,18 @@ export async function POST(request: NextRequest) {
         name,
         description,
         repository,
+        files: {
+          create: files.map((file: any) => ({
+            name: file.name,
+            url: file.url,
+            description: file.description,
+            isPublic: file.isPublic,
+            uploadedById: user.id,
+            tags: {
+              connect: tags.map((tag: string) => ({ name: tag })),
+            },
+          })),
+        },
         members: {
           connect: members.map((memberId: number) => ({ id: memberId })),
         },
