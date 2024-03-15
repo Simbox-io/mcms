@@ -15,6 +15,7 @@ import Dropdown from '@/components/Dropdown';
 import Alert from '@/components/Alert';
 import EmptyState from '@/components/EmptyState';
 import Skeleton from '@/components/Skeleton';
+import Modal from "@/components/Modal";
 
 interface User {
   id: number;
@@ -72,6 +73,7 @@ const DashboardPage: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAlert, setShowAlert] = useState(true);
   const [ isLoading, setIsLoading ] = useState(true);
+    const [ projectCardOpen, setProjectCardOpen ] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -135,6 +137,7 @@ const DashboardPage: React.FC = () => {
 
   const handleProjectClick = (project: Project) => {
     setSelectedProject(project);
+    setProjectCardOpen(true);
   };
 
   const handleCreateProject = () => {
@@ -237,6 +240,34 @@ const DashboardPage: React.FC = () => {
           )}
         </Card>
       </div>
+      {selectedProject && (
+          <Modal isOpen={projectCardOpen} onClose={() => setProjectCardOpen(false)} title={selectedProject.name}>
+            <p className="text-gray-600 dark:text-gray-400">{selectedProject.description}</p>
+            <p className={`mt-4 text-gray-600 dark:text-gray-400`}>
+                Repository: <a href={
+                    selectedProject.repository
+                } target="_blank" className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500">
+                    {selectedProject.repository}
+                </a>
+            </p>
+            
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Owner: {selectedProject.owner.username}</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Members:</p>
+            <ul className="mb-4">
+              {selectedProject.members.map((member) => (
+                <li key={member.id} className="text-gray-600 dark:text-gray-400">{member.username}</li>
+              ))}
+            </ul>
+            <div className="mt-4">
+              <Button variant="primary" className='mr-4' onClick={() => router.push(`/projects/${selectedProject.id}`)}>
+                View Project
+              </Button>
+              <Button variant="primary" onClick={() => setSelectedProject(null)}>
+                Close
+              </Button>
+            </div>
+          </Modal>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card title="Your Profile">
           {user && (
@@ -250,7 +281,7 @@ const DashboardPage: React.FC = () => {
           )}
           <p className="text-gray-600 dark:text-gray-400">{user?.bio}</p>
           <div className="mt-4">
-            <Button variant="secondary" onClick={handleEditProfile}>
+            <Button variant="primary" onClick={handleEditProfile}>
               Edit Profile
             </Button>
           </div>
@@ -284,16 +315,6 @@ const DashboardPage: React.FC = () => {
           </ul>
         </Card>
       </div>
-      {selectedProject && (
-        <Card title={selectedProject.name} className="mt-8">
-          <p className="text-gray-600 dark:text-gray-400">{selectedProject.description}</p>
-          <div className="mt-4">
-            <Button variant="secondary" onClick={() => setSelectedProject(null)}>
-              Close
-            </Button>
-          </div>
-        </Card>
-      )}
     </div>
   );
 };

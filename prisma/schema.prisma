@@ -25,12 +25,23 @@ model User {
   files                File[]
   ownedProjects        Project[]      @relation("Owned by")
   memberProjects       Project[]      @relation("Member of")
-  wikis                Wiki[]
   followedBy           User[]         @relation("UserFollows")
   following            User[]         @relation("UserFollows")
-  followedWikis        Wiki[]         @relation("UserFollowsWiki")
   permissions          Permission[]   @relation("UserPermissions")
   grantedPermissions   Permission[]   @relation("GrantedPermissions")
+  likedPosts           Post[]         @relation("LikedPosts")
+  likedComments        Comment[]      @relation("LikedComments")
+  likedFiles           File[]         @relation("LikedFiles")
+  likedProjects        Project[]      @relation("LikedProjects")
+  likedSpaces          Space[]        @relation("LikedSpaces")
+  likedPages           Page[]         @relation("LikedPages")
+  likedTags            Tag[]          @relation("LikedTags")
+  followedPosts        Post[]         @relation("FollowedPosts")
+  followedProjects     Project[]      @relation("FollowedProjects")
+  followedSpaces       Space[]        @relation("FollowedSpaces")
+  followedTags         Tag[]          @relation("FollowedTags")
+  spaces               Space[]
+  viewedSpaces         SpaceView[]
   notifications        Notification[]
   activities           Activity[]
   createdAt            DateTime       @default(now())
@@ -86,8 +97,8 @@ model Badge {
   name                String
   description         String
   earnedAt            DateTime          @default(now())
-  User                User?             @relation(fields: [userId], references: [id])
   userId              String?
+  User                User?             @relation(fields: [userId], references: [id])
 }
 
 model Post {
@@ -98,6 +109,12 @@ model Post {
   authorId    String
   tags        Tag[]
   comments    Comment[]
+  likes       Int       @default(0)
+  views       Int       @default(0)
+  isFeatured  Boolean   @default(false)
+  isPinned    Boolean   @default(false)
+  likedBy     User[]    @relation("LikedPosts")
+  followedBy  User[]    @relation("FollowedPosts")
   forum       Boolean   @default(false)
   isPublished Boolean   @default(false)
   publishedAt DateTime?
@@ -114,6 +131,7 @@ model Comment {
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  likedBy   User[]   @relation("LikedComments")
 }
 
 model File {
@@ -129,6 +147,7 @@ model File {
   tags         Tag[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  likedBy      User[]   @relation("LikedFiles")
 }
 
 model Project {
@@ -137,32 +156,24 @@ model Project {
   name        String
   description String?
   repository  String? // URL to external repo
+  image       String?
   owner       User     @relation("Owned by", fields: [ownerId], references: [id])
   files       File[]
   members     User[]   @relation("Member of")
-  wikis       Wiki[]
+  spaces      Space[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-}
-
-model Wiki {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String   @db.Text
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId Int
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
-  followers User[]   @relation("UserFollowsWiki")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  likedBy     User[]   @relation("LikedProjects")
+  followedBy  User[]   @relation("FollowedProjects")
 }
 
 model Tag {
-  id    Int    @id @default(autoincrement())
-  name  String
-  posts Post[]
-  files File[]
+  id         Int    @id @default(autoincrement())
+  name       String
+  posts      Post[]
+  files      File[]
+  likedBy    User[] @relation("LikedTags")
+  followedBy User[] @relation("FollowedTags")
 }
 
 model Notification {
@@ -229,6 +240,43 @@ model Plugin {
   version     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Space {
+  id          Int         @id @default(autoincrement())
+  title       String
+  description String?
+  content     String?
+  author      User        @relation(fields: [authorId], references: [id])
+  authorId    String
+  project     Project?    @relation(fields: [projectId], references: [id])
+  projectId   Int?
+  pages       Page[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  views       SpaceView[]
+  likedBy     User[]      @relation("LikedSpaces")
+  followedBy  User[]      @relation("FollowedSpaces")
+}
+
+model Page {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  space     Space    @relation(fields: [spaceId], references: [id])
+  spaceId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  likedBy   User[]   @relation("LikedPages")
+}
+
+model SpaceView {
+  id       Int      @id @default(autoincrement())
+  space    Space    @relation(fields: [spaceId], references: [id])
+  spaceId  Int
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+  viewedAt DateTime @default(now())
 }
 
 enum Role {

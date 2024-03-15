@@ -1,15 +1,17 @@
 // app/projects/create/page.tsx
-
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
 import Input from '../../../components/Input';
-import Textarea from '../../../components/Textarea';
 import Button from '../../../components/Button';
 import Card from '../../../components/Card';
 import Select from '../../../components/Select';
+import FileUpload from '../../../components/FileUpload';
+import TagInput from '../../../components/TagInput';
+import RichTextEditor from '../../../components/RichTextEditor';
+import FormGroup from '../../../components/FormGroup';
+import { Editor } from '@tinymce/tinymce-react';
 
 interface User {
   id: string;
@@ -21,6 +23,8 @@ const CreateProjectPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [repository, setRepository] = useState('');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const token = useToken();
@@ -31,22 +35,27 @@ const CreateProjectPage: React.FC = () => {
       const fetchedUsers = await fetchUsers();
       setUsers(fetchedUsers);
     };
-
     getUsers();
-  });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('repository', repository);
+      selectedMembers.forEach((memberId) => formData.append('members[]', memberId));
+      selectedFiles.forEach((file) => formData.append('files[]', file));
+      selectedTags.forEach((tag) => formData.append('tags[]', tag));
+
       const response = await fetch('/api/projects', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, description, repository, members: selectedMembers }),
+        body: formData,
       });
 
       if (response.ok) {
@@ -57,7 +66,6 @@ const CreateProjectPage: React.FC = () => {
     } catch (error) {
       console.error('Error creating project:', error);
     }
-
     setIsSubmitting(false);
   };
 
@@ -68,7 +76,6 @@ const CreateProjectPage: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
       if (response.ok) {
         const users: User[] = await response.json();
         return users;
@@ -82,61 +89,97 @@ const CreateProjectPage: React.FC = () => {
     }
   };
 
+  const handleFileSelect = (files: FileList | null) => {
+    if (files) {
+      const selectedFiles = Array.from(files);
+      setSelectedFiles(selectedFiles);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card>
-        <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Create Project</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <Input
-              label="Name"
-              name="name"
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full"
-            />
-          </div>
-          <div className="mb-6">
-            <label htmlFor="description" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Description
-            </label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={setDescription}
-              required
-              rows={4}
-            />
-          </div>
-          <div className="mb-6">
-            <Input
-              label="Repository"
-              name="repository"
-              type="text"
-              id="repository"
-              value={repository}
-              onChange={(e) => setRepository(e.target.value)}
-              className="w-full"
-            />
-          </div>
-          <div className="mb-6">
-            {/*<Select
-              title="Members"
-              options={users.map(user => ({ value: user.id, label: user.username }))}
-              value={selectedMembers}
-              onChange={(memberIds) => setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])}
-              isMulti
-            />*/}
-          </div>
-          <div className="flex justify-end">
-            <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create'}
-            </Button>
-          </div>
-        </form>
+      <Card className="max-w-3xl mx-auto">
+        <div className="bg-gradient-to-r bg-blue-500 px-6 py-4 rounded-t-lg">
+          <h1 className="text-2xl font-semibold text-white">Create Project</h1>
+        </div>
+        <div className="p-6">
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormGroup label="Project Name" htmlFor="name">
+                <Input
+                  name="name"
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </FormGroup>
+              <FormGroup label="Repository" htmlFor="repository">
+                <Input
+                  name="repository"
+                  type="text"
+                  id="repository"
+                  value={repository}
+                  onChange={(e) => setRepository(e.target.value)}
+                  className="w-full"
+                />
+              </FormGroup>
+            </div>
+            <FormGroup label="Description" htmlFor="description" className="mt-6">
+              <Editor
+                apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
+                onEditorChange={(content) => setDescription(content)}
+                init={{
+                  height: 300,
+                  menubar: false,
+                  plugins: [
+                    'advlist autolink lists link image charmap print preview anchor',
+                    'searchreplace visualblocks code fullscreen',
+                    'insertdatetime media table paste code help wordcount',
+                  ],
+                  toolbar:
+                    'undo redo | formatselect | bold italic backcolor | \
+                    alignleft aligncenter alignright alignjustify | \
+                    bullist numlist outdent indent | removeformat | help',
+                }}
+              />
+            </FormGroup>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <FormGroup label="Members" htmlFor="members">
+                <Select
+                  id="members"
+                  options={users.map(user => ({ value: user.id, label: user.username }))}
+                  value={selectedMembers}
+                  onChange={(memberIds) => setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])}
+                  isMulti
+                />
+              </FormGroup>
+              <FormGroup label="Tags" htmlFor="tags">
+                <TagInput
+                  id="tags"
+                  tags={selectedTags}
+                  onChange={setSelectedTags}
+                  placeholder="Add tags..."
+                />
+              </FormGroup>
+            </div>
+            <FormGroup label="Files" htmlFor="files" className="mt-6">
+              <FileUpload
+                id="files"
+                onFileSelect={handleFileSelect}
+                accept=".pdf,.doc,.docx,.txt,.md,.jpg,.jpeg,.png"
+                multiple
+              />
+            </FormGroup>
+            <div className="mt-8">
+              <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? 'Creating...' : 'Create Project'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </Card>
     </div>
   );

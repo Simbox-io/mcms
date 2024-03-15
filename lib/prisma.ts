@@ -11,6 +11,8 @@ export type User = {
   username: string;
   email: string;
   passwordHash: string;
+  firstName?: string | null;
+  lastName?: string | null;
   avatar?: string | null;
   bio?: string | null;
   role: 'ADMIN' | 'MODERATOR' | 'USER';
@@ -19,23 +21,36 @@ export type User = {
   files: File[];
   ownedProjects: Project[];
   memberProjects: Project[];
-  wikis: Wiki[];
   followedBy: User[];
   following: User[];
   permissions: Permission[];
   grantedPermissions: Permission[];
+  likedPosts: Post[];
+  likedComments: Comment[];
+  likedFiles: File[];
+  likedProjects: Project[];
+  likedSpaces: Space[];
+  likedPages: Page[];
+  likedTags: Tag[];
+  followedPosts: Post[];
+  followedProjects: Project[];
+  followedSpaces: Space[];
+  followedTags: Tag[];
+  spaces: Space[];
+  viewedSpaces: SpaceView[];
   notifications: Notification[];
   activities: Activity[];
   createdAt: Date;
   updatedAt: Date;
-  user?: user | null;
+  profile?: Profile | null;
   points: number;
   badges: Badge[];
   level: number;
+  receiveNotifications: boolean;
+  receiveUpdates: boolean;
 }
 
-
-export type user = {
+export type Profile = {
   id: number;
   userId: string;
   bio?: string | null;
@@ -48,20 +63,20 @@ export type user = {
 
 export type SocialLink = {
   id: number;
-  userId: number;
+  profileId: number;
   platform: string;
   url: string;
 }
 
 export type Skill = {
   id: number;
-  userId: number;
+  profileId: number;
   name: string;
 }
 
 export type GamificationStats = {
   id: number;
-  userId: number;
+  profileId: number;
   points: number;
   level: number;
   badges: Badge[];
@@ -81,8 +96,13 @@ export type Post = {
   title: string;
   content: string;
   authorId: string;
+  author: User;
   tags: Tag[];
   comments: Comment[];
+  likes: number;
+  views: number;
+  isFeatured: boolean;
+  isPinned: boolean;
   forum: boolean;
   isPublished: boolean;
   publishedAt?: Date | null;
@@ -95,6 +115,7 @@ export type Comment = {
   content: string;
   postId: number;
   authorId: string;
+  author: User;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -107,6 +128,7 @@ export type File = {
   isPublic: boolean;
   projectId?: number | null;
   uploadedById: string;
+  uploadedBy: User;
   tags: Tag[];
   createdAt: Date;
   updatedAt: Date;
@@ -118,19 +140,11 @@ export type Project = {
   name: string;
   description?: string | null;
   repository?: string | null;
+  image?: string | null;
   files: File[];
   members: User[];
-  wikis: Wiki[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export type Wiki = {
-  id: number;
-  title: string;
-  content: string;
-  projectId: number;
-  authorId: string;
+  spaces: Space[];
+  owner: User;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -204,12 +218,42 @@ export type Plugin = {
   updatedAt: Date;
 }
 
+export type Space = {
+  id: number;
+  title: string;
+  description?: string | null;
+  content?: string | null;
+  authorId: string;
+  author: User;
+  projectId?: number | null;
+  project?: Project | null;
+  pages: Page[];
+  createdAt: Date;
+  updatedAt: Date;
+  views: SpaceView[];
+}
+
+export type Page = {
+  id: number;
+  title: string;
+  content: string;
+  spaceId: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SpaceView = {
+  id: number;
+  spaceId: number;
+  userId: string;
+  viewedAt: Date;
+}
+
 export enum Role {
   ADMIN = 'ADMIN',
   MODERATOR = 'MODERATOR',
   USER = 'USER',
 }
-
 
 
 const prisma = global.prisma || new PrismaClient();

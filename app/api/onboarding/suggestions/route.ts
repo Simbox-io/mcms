@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const suggestedWikis = await prisma.wiki.findMany({
+    const suggestedWikis = await prisma.space.findMany({
       take: 5,
       select: {
         id: true,

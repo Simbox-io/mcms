@@ -7,14 +7,17 @@ interface Option {
 }
 
 interface SelectProps {
-  options: Option[];
-  value: string;
-  onChange: (value: string) => void;
+  options: Option[] | string[] | number[] | boolean[] | object[] | any[] | undefined;
+  value: string[];
+  onChange: (value: string[]) => void;
   label?: string;
   placeholder?: string;
   disabled?: boolean;
   error?: string;
   className?: string;
+  id?: string;
+  isMulti?: boolean;
+  key?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -22,13 +25,17 @@ const Select: React.FC<SelectProps> = ({
   value,
   onChange,
   label,
-  placeholder = 'Select an option',
+  placeholder = 'Select options',
   disabled = false,
   error = '',
   className = '',
+  id,
+  isMulti = false,
+  key,
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onChange(event.target.value);
+    const selectedOptions = Array.from(event.target.selectedOptions, (option) => option.value);
+    onChange(selectedOptions);
   };
 
   return (
@@ -41,6 +48,9 @@ const Select: React.FC<SelectProps> = ({
         </label>
       )}
       <select
+        id={id}
+        key={key}
+        multiple={isMulti}
         value={value}
         onChange={handleChange}
         disabled={disabled}
@@ -49,13 +59,14 @@ const Select: React.FC<SelectProps> = ({
             ? 'border-red-500 dark:border-red-400'
             : 'border-gray-300 dark:border-gray-600'
         } ${disabled ? 'bg-gray-100 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'}`}
+        style={{appearance:"none"}}
       >
         {placeholder && (
           <option value="" disabled>
             {placeholder}
           </option>
         )}
-        {options.map((option) => (
+        {options?.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>

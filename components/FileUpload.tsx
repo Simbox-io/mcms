@@ -10,6 +10,7 @@ interface FileUploadProps {
   label?: string;
   buttonClassName?: string;
   dragActiveClassName?: string;
+  id?: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -20,6 +21,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   label = 'Choose File',
   buttonClassName = '',
   dragActiveClassName = '',
+  id,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropzoneRef = useRef<HTMLDivElement>(null);

@@ -1,4 +1,4 @@
-// components/Button.tsx
+  // components/Button.tsx
 import React from 'react';
 import Spinner from './Spinner';
 
@@ -30,7 +30,7 @@ const Button: React.FC<ButtonProps> = ({
     let customClasses = '';
     switch (variant) {
       case 'primary':
-        defaultClasses = 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-blue-500 dark:focus:ring-blue-600';
+        defaultClasses = 'bg-blue-500 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-blue-500 dark:focus:ring-blue-600';
         customClasses = className.split(' ').reduce((acc, cls) => {
           const type = cls.split('-')[0];
           if (defaultClasses.includes(type)) {
@@ -40,7 +40,7 @@ const Button: React.FC<ButtonProps> = ({
         }, defaultClasses);
         return customClasses;
       case 'secondary':
-        defaultClasses =  'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 focus:ring-gray-400 dark:focus:ring-gray-500';
+        defaultClasses =  'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 focus:ring-gray-400 dark:focus:ring-gray-500';
         customClasses = className.split(' ').reduce((acc, cls) => {
           const type = cls.split('-')[0];
           if (defaultClasses.includes(type)) {

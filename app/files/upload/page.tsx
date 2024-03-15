@@ -127,8 +127,8 @@ const FileUploadPage: React.FC = () => {
           <div className="mb-6">
             <Select
               label='Visibility'
-              value={isPublic.toString()}
-              onChange={(value) => setIsPublic(value === 'true')}
+              value={[isPublic.toString()]}
+              onChange={(value) => setIsPublic(value[0] === 'true')}
               options={[
                 { value: 'true', label: 'Public' },
                 { value: 'false', label: 'Private' },
@@ -139,7 +139,7 @@ const FileUploadPage: React.FC = () => {
             <Select
               label='Project'
               options={projects && projects.map(project => ({ value: project.id.toString(), label: project.name }))}
-              value={selectedProject !== null ? selectedProject : ''}
+              value={selectedProject && [selectedProject !== null] ? [selectedProject[0]] : ['']}
               onChange={(projectId: string | string[]) => {
                 if (typeof projectId === 'string') {
                   setSelectedProject(projectId);

@@ -10,16 +10,27 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
   try {
     const post = await prisma.post.findUnique({
-      where: {
-        id: postId,
-      },
-      include: {
-        author: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        tags: {
           select: {
-            id: true,
-            username: true,
+            name: true,
           },
         },
+        author: {
+            select: {
+                id: true,
+                username: true,
+                avatar: true,
+            },
+        },
+      },
+      where: {
+        id: postId,
       },
     });
 

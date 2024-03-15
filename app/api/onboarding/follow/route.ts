@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       await prisma.user.update({
         where: { email: token.email },
         data: {
-          wikis: {
+          spaces: {
             connect: { id },
           },
         },

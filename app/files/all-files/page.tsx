@@ -11,15 +11,8 @@ import Pagination from '../../../components/Pagination';
 import Spinner from '../../../components/Spinner';
 import { formatDate } from '../../../utils/dateUtils';
 import { getImageUrl } from '../../../utils/imageUtils';
-
-interface File {
-  id: number;
-  name: string;
-  url: string;
-  thumbnail: string;
-  size: number;
-  createdAt: string;
-}
+import FileCard from '@/components/FileCard';
+import { File } from '@/lib/prisma';
 
 const FileListPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -59,6 +52,10 @@ const FileListPage: React.FC = () => {
     router.push('/files/upload');
   };
 
+  const handleOpenFile = (file: File) => {
+    router.push(`/files/${file.id}`);
+  };
+
   if (status === 'loading') {
     return <div>Loading...</div>;
   }
@@ -84,26 +81,7 @@ const FileListPage: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {files.map((file) => (
-              <Card key={file.id}>
-                <div className="flex items-center justify-center h-48 bg-gray-100 dark:bg-gray-800">
-                  <img
-                    src={getImageUrl(file.thumbnail)}
-                    alt={file.name}
-                    className="max-w-full max-h-full"
-                  />
-                </div>
-                <div className="p-4">
-                  <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-                    {file.name}
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400 mb-2">
-                    Size: {formatFileSize(file.size)}
-                  </p>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Uploaded on {formatDate(file.createdAt)}
-                  </p>
-                </div>
-              </Card>
+              <FileCard key={file.id} file={file} description={file.name} onClick={() => handleOpenFile} />
             ))}
           </div>
           <div className="mt-8">
