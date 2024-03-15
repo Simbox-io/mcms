@@ -28,9 +28,9 @@ const HomePage: React.FC = () => {
             try {
                 setIsLoading(true);
                 const [postsResponse, projectsResponse, filesResponse] = await Promise.all([
-                    fetch('/api/posts?featured=true&limit=6'),
-                    fetch('/api/projects?featured=true&limit=6'),
-                    fetch('/api/files?featured=true&limit=6'),
+                    fetch('/api/posts'),
+                    fetch('/api/projects'),
+                    fetch('/api/files'),
                 ]);
 
                 if (postsResponse.ok && projectsResponse.ok && filesResponse.ok) {
@@ -96,11 +96,11 @@ const HomePage: React.FC = () => {
                                     <Skeleton key={index} variant="rectangular" width="100%" height="200px"/>
                                 ))}
                             </div>
-                        ) : featuredPosts.length > 0 ? (
+                        ) : featuredPosts?.length > 0 ? (
                             <>
                                 <div className="hidden md:block">
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                        {featuredPosts.map((post) => (
+                                        {featuredPosts?.map((post) => (
                                             <PostCard key={post.id} post={post}
                                                       onClick={() => handlePostClick(post.id)}/>
                                         ))}
@@ -109,7 +109,7 @@ const HomePage: React.FC = () => {
                                 <div className="md:hidden">
                                     <div className="md:hidden">
                                         <Carousel
-                                            items={featuredPosts.map((post) => (
+                                            items={featuredPosts?.map((post) => (
                                                 <PostCard key={post.id} post={post}
                                                           onClick={() => handlePostClick(post.id)}/>
                                             ))}
@@ -142,11 +142,11 @@ const HomePage: React.FC = () => {
                                     <Skeleton key={index} variant="rectangular" width="100%" height="200px"/>
                                 ))}
                             </div>
-                        ) : featuredProjects.length > 0 ? (
+                        ) : featuredProjects?.length > 0 ? (
                             <>
                                 <div className="hidden md:block">
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                        {featuredProjects.map((project) => (
+                                        {featuredProjects?.map((project) => (
                                             <ProjectCard
                                                 key={project.id}
                                                 project={project}
@@ -157,7 +157,7 @@ const HomePage: React.FC = () => {
                                 </div>
                                 <div className="md:hidden">
                                     <Carousel
-                                        items={featuredProjects.map((project) => (
+                                        items={featuredProjects?.map((project) => (
                                             <ProjectCard
                                                 key={project.id}
                                                 project={project}
@@ -189,7 +189,7 @@ const HomePage: React.FC = () => {
                             <>
                                 <div className="hidden md:block">
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                        {featuredFiles.map((file) => (
+                                        {featuredFiles?.map((file) => (
                                             <FileCard key={file.id} file={file} description={file.name}
                                                       onClick={() => handleFileClick(file.id)}/>
                                         ))}
@@ -197,7 +197,7 @@ const HomePage: React.FC = () => {
                                 </div>
                                 <div className="md:hidden">
                                     <Carousel
-                                        items={featuredFiles.map((file) => (
+                                        items={featuredFiles?.map((file) => (
                                             <FileCard key={file.id} file={file} description={file.name}
                                                       onClick={() => handleFileClick(file.id)}/>
                                         ))}

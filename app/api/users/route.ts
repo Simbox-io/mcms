@@ -14,39 +14,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      username: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      avatar: true,
-      bio: true,
-      role: true,
-      posts: true,
-      comments: true,
-      files: true,
-      ownedProjects: true,
-      memberProjects: true,
-      spaces: true,
-      followedBy: true,
-      following: true,
-      viewedSpaces: true,
-      permissions: true,
-      grantedPermissions: true,
-      notifications: true,
-      activities: true,
-      createdAt: true,
-      updatedAt: true,
-      profile: true,
-      points: true,
-      badges: true,
-      level: true,
-      receiveNotifications: true,
-      receiveUpdates: true,
-    }
-    });
+    const users = await prisma.user.findMany();
 
     return NextResponse.json(users);
   } catch (error) {
