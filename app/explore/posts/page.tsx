@@ -11,6 +11,7 @@ import CommentsIcon from '@/components/icons/CommentsIcon';
 import ThumbUpIcon from '@/components/icons/ThumbUpIcon';
 import EyeIcon from '@/components/icons/EyeIcon';
 import CategoryFilter from "@/components/CategoryFilter";
+import { useRouter } from 'next/navigation';
 
 const NewsFeed: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -20,6 +21,7 @@ const NewsFeed: React.FC = () => {
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const observerRef = useRef<IntersectionObserver | null>(null);
+    const router = useRouter();
 
     const fetchPosts = useCallback(async () => {
         const nextPage = page + 1;
@@ -70,6 +72,10 @@ const NewsFeed: React.FC = () => {
         };
     }, [isLoading, hasMore, posts]);
 
+    const handlePostClick = (post: Post) => {
+        router.push(`/explore/posts/${post.id}`);
+    }
+
     return (
         <div className="container mx-auto px-4 py-8">
 
@@ -93,7 +99,7 @@ const NewsFeed: React.FC = () => {
                         transition={{ duration: 0.3 }}
                         className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8"
                     >
-                        <div className="flex items-center mb-4">
+                        <div className="flex items-center mb-4" onClick={() => handlePostClick}>
                             <Avatar src={post.author.avatar || ''} alt={post.author.username} size="large" />
                             <div className="ml-4">
                                 <h3 className="text-xl font-semibold text-gray-800 dark:text-white">{post.author.username}</h3>
