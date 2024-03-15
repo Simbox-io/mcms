@@ -10,11 +10,8 @@ import Button from '@/components/Button';
 import Avatar from '@/components/Avatar';
 import Spinner from '@/components/Spinner';
 import Table from '@/components/Table';
-import ProgressBar from '@/components/ProgressBar';
-import Dropdown from '@/components/Dropdown';
 import Alert from '@/components/Alert';
 import EmptyState from '@/components/EmptyState';
-import Skeleton from '@/components/Skeleton';
 import Modal from "@/components/Modal";
 
 interface User {
@@ -72,8 +69,8 @@ const DashboardPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAlert, setShowAlert] = useState(true);
-  const [ isLoading, setIsLoading ] = useState(true);
-    const [ projectCardOpen, setProjectCardOpen ] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -81,11 +78,9 @@ const DashboardPage: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        if (status === 'unauthenticated') {
-          if (!session) {
-            router.push('/login');            
-            return;
-          }
+        if (status === 'unauthenticated' && !session) {
+          router.push('/login');
+          return;
         }
 
         const [userResponse, projectsResponse, notificationsResponse, activitiesResponse] = await Promise.all([
@@ -104,13 +99,10 @@ const DashboardPage: React.FC = () => {
 
         if (projectsResponse.ok) {
           const { projects: fetchedProjects } = await projectsResponse.json();
-          if(fetchedProjects) {
-            const myProjects = fetchedProjects.filter((project: Project) => project.owner.id === user?.id || project.members.find((member) => member.id === user?.id));
-            setProjects(myProjects);
-          }
-          else {
-            setProjects([]);
-          }
+          const myProjects = fetchedProjects?.filter((project: Project) =>
+            project.owner.id === user?.id || project.members.some((member) => member.id === user?.id)
+          ) || [];
+          setProjects(myProjects);
         }
 
         if (notificationsResponse.ok) {
@@ -137,7 +129,7 @@ const DashboardPage: React.FC = () => {
 
   const handleProjectClick = (project: Project) => {
     setSelectedProject(project);
-    setProjectCardOpen(true);
+    setProjectModalOpen(true);
   };
 
   const handleCreateProject = () => {
@@ -151,6 +143,12 @@ const DashboardPage: React.FC = () => {
   if (status === 'loading') {
     return <Spinner />;
   }
+
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(projects.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentPageProjects = projects.slice(startIndex, endIndex);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -188,14 +186,14 @@ const DashboardPage: React.FC = () => {
                     ),
                   }
                 ]}
-                data={projects}
+                data={currentPageProjects}
                 onRowClick={handleProjectClick}
-                className="mb-4" 
+                className="mb-4"
               />
               <div className="flex justify-between items-center">
                 <Pagination
                   currentPage={currentPage}
-                  totalPages={Math.ceil(projects.length / 10)}
+                  totalPages={totalPages}
                   onPageChange={handlePageChange}
                 />
                 <Button variant="primary" onClick={handleCreateProject}>
@@ -206,9 +204,7 @@ const DashboardPage: React.FC = () => {
           )}
         </Card>
         <Card title="Notifications">
-          {/*isLoading ? (
-            <Skeleton variant="rectangular" width="100%" height="200px" />
-          ) :*/notifications && notifications.length === 0 ? (
+          {notifications.length === 0 ? (
             <EmptyState
               title="No Notifications"
               description="You don't have any notifications at the moment."
@@ -229,7 +225,7 @@ const DashboardPage: React.FC = () => {
               description="There hasn't been any recent activity."
             />
           ) : (
-            activities && activities.length > 0 && activities.map((activity) => (
+            activities.map((activity) => (
               <div key={activity.id} className="mb-4">
                 <p className="text-gray-600 dark:text-gray-400">
                   <span className="font-semibold">{activity.type}</span> - {activity.message}
@@ -241,32 +237,33 @@ const DashboardPage: React.FC = () => {
         </Card>
       </div>
       {selectedProject && (
-          <Modal isOpen={projectCardOpen} onClose={() => setProjectCardOpen(false)} title={selectedProject.name}>
-            <p className="text-gray-600 dark:text-gray-400">{selectedProject.description}</p>
-            <p className={`mt-4 text-gray-600 dark:text-gray-400`}>
-                Repository: <a href={
-                    selectedProject.repository
-                } target="_blank" className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500">
-                    {selectedProject.repository}
+        <Modal isOpen={projectModalOpen} onClose={() => setProjectModalOpen(false)} title={selectedProject.name}>
+          {selectedProject && (
+            <>
+              <p className="text-gray-600 dark:text-gray-400">{selectedProject.description}</p>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">
+                Repository: <a href={selectedProject.repository} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500">
+                  {selectedProject.repository}
                 </a>
-            </p>
-            
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Owner: {selectedProject.owner.username}</p>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Members:</p>
-            <ul className="mb-4">
-              {selectedProject.members.map((member) => (
-                <li key={member.id} className="text-gray-600 dark:text-gray-400">{member.username}</li>
-              ))}
-            </ul>
-            <div className="mt-4">
-              <Button variant="primary" className='mr-4' onClick={() => router.push(`/projects/${selectedProject.id}`)}>
-                View Project
-              </Button>
-              <Button variant="primary" onClick={() => setSelectedProject(null)}>
-                Close
-              </Button>
-            </div>
-          </Modal>
+              </p>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">Owner: {selectedProject.owner.username}</p>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">Members:</p>
+              <ul className="mb-4">
+                {selectedProject.members.map((member) => (
+                  <li key={member.id} className="text-gray-600 dark:text-gray-400">{member.username}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          <div className="mt-4">
+            <Button variant="primary" className="mr-4" onClick={() => router.push(`/projects/${selectedProject?.id}`)}>
+              View Project
+            </Button>
+            <Button variant="secondary" onClick={() => setProjectModalOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </Modal>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card title="Your Profile">
@@ -291,14 +288,18 @@ const DashboardPage: React.FC = () => {
             <li>
               <a
                 href="https://simboxio.atlassian.net/servicedesk/customer/kb/view/67633849"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500"
               >
                 Documentation
-              </a>  
+              </a>
             </li>
             <li>
               <a
                 href="https://simboxio.atlassian.net/servicedesk/customer/portal/10"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500"
               >
                 Support
