@@ -12,11 +12,7 @@ import TagInput from '../../../components/TagInput';
 import RichTextEditor from '../../../components/RichTextEditor';
 import FormGroup from '../../../components/FormGroup';
 import { Editor } from '@tinymce/tinymce-react';
-
-interface User {
-  id: string;
-  username: string;
-}
+import { User } from '../../../lib/prisma';
 
 const CreateProjectPage: React.FC = () => {
   const [name, setName] = useState('');
