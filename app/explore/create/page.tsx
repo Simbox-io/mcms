@@ -64,7 +64,7 @@ const CreatePostPage: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title, content, tags: selectedTags }),
+        body: JSON.stringify({ title, content, tags: selectedTags || [] }),
       });
 
       if (response.ok) {
