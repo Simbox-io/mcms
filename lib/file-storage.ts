@@ -105,3 +105,16 @@ export class FTPStorageProvider implements FileStorageProvider {
     return `ftp://${process.env.FTP_HOST}/${fileId}`;
   }
 }
+let storageProvider: FileStorageProvider;
+
+if (process.env.STORAGE_PROVIDER === 's3') {
+  storageProvider = new S3StorageProvider();
+} else if (process.env.STORAGE_PROVIDER === 'ftp') {
+  storageProvider = new FTPStorageProvider();
+} else {
+  storageProvider = new LocalStorageProvider();
+}
+
+export async function uploadFile(file: File): Promise<string> {
+  return storageProvider.uploadFile(file);
+}
