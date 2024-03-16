@@ -10,6 +10,7 @@ import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import Spinner from '../../../components/Spinner';
 import EmptyState from '../../../components/EmptyState';
+
 import { User } from '@/lib/prisma';
 
 interface SiteSettings {
@@ -17,6 +18,8 @@ interface SiteSettings {
   description: string;
   logo: string;
   favicon: string;
+  isAIEnabled: boolean;
+  onAIToggle: () => void;
 }
 
 const SiteSettingsPage: React.FC = () => {
@@ -25,6 +28,8 @@ const SiteSettingsPage: React.FC = () => {
     description: '',
     logo: '',
     favicon: '',
+    isAIEnabled: false,
+    onAIToggle: () => { },
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

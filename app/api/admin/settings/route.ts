@@ -1,27 +1,27 @@
 // app/api/admin/settings/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '../../../../lib/prisma';
-import { getSession } from '../../../../lib/auth';
+import prisma from '@/lib/prisma';
+import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
-
-  if (!session || user.role !== 'ADMIN') {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
-
-  try {
-    const settings = await prisma.adminSettings.findUnique({
-      where: { id: 1 },
+// pages/api/admin/settings.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import prisma from '@/lib/prisma';
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'GET') {
+    const adminSettings = await prisma.adminSettings.findUnique({
+      where: { id: 'your-admin-settings-id' },
     });
-
-    return NextResponse.json(settings);
-  } catch (error) {
-    console.error('Error fetching admin settings:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    res.json(adminSettings);
+  } else if (req.method === 'PUT') {
+    const { isAIEnabled } = req.body;
+    const updatedSettings = await prisma.adminSettings.update({
+      where: { id: 'your-admin-settings-id' },
+      data: { isAIEnabled },
+    });
+    res.json(updatedSettings);
+  } else {
+    res.status(405).json({ message: 'Method not allowed' });
   }
 }
 
@@ -33,7 +33,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const { siteTitle, siteDescription, logo, accentColor } = await request.json();
+  const { siteTitle, siteDescription, logo, accentColor, fileStorageProvider } = await request.json();
 
   try {
     const updatedSettings = await prisma.adminSettings.update({
@@ -43,6 +43,7 @@ export async function PUT(request: NextRequest) {
         siteDescription,
         logo,
         accentColor,
+        fileStorageProvider,
       },
     });
 

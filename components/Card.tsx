@@ -23,7 +23,7 @@ const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`w-auto h-auto bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md ${className}`}
+      className={`w-auto h-auto bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md ${className}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}

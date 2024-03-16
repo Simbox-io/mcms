@@ -1,9 +1,7 @@
 // app/api/user/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { uploadImage } from '@/lib/uploadImage';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -17,6 +15,17 @@ export async function GET(request: NextRequest) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userObj.id },
+      include: {
+        profile: true,
+        settings: {
+          include: {
+            notificationPreferences: true,
+            privacySettings: true,
+            passwordResetSettings: true,
+            accountDeletionSettings: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -28,40 +37,44 @@ export async function GET(request: NextRequest) {
     console.error('User data fetch error:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
-} 
-
+}
 
 export async function PUT(request: NextRequest) {
   const session = await getSession(request);
-  const user = session?.user as User;
+  const userObj = session?.user as User;
 
-  if (!user) {
+  if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const formData = await request.formData();
-  const username = formData.get('username') as string;
-  const firstName = formData.get('firstName') as string;
-  const lastName = formData.get('lastName') as string;
-  const email = formData.get('email') as string;
-  const bio = formData.get('bio') as string;
-  const avatar = formData.get('avatar') as File | null;
+  const { username, firstName, lastName, email, bio, avatar } = await request.json();
 
   try {
-    let avatarUrl = null;
-    if (avatar) {
-      avatarUrl = await uploadImage(avatar);
-    }
-
     const updatedUser = await prisma.user.update({
-      where: { email: user.email ?? undefined },
+      where: { id: userObj.id },
       data: {
-        username: username ?? undefined,
-        firstName: firstName ?? undefined,
-        lastName: lastName ?? undefined,
+        username,
+        firstName,
+        lastName,
         email,
         bio,
-        avatar: avatarUrl,
+        avatar,
+        profile: {
+          update: {
+            bio,
+          },
+        },
+      },
+      include: {
+        profile: true,
+        settings: {
+          include: {
+            notificationPreferences: true,
+            privacySettings: true,
+            passwordResetSettings: true,
+            accountDeletionSettings: true,
+          },
+        },
       },
     });
 

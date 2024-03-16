@@ -29,7 +29,7 @@ export default function RootLayout({
       <meta name="viewport" content="width=device-width, initial-scale=1"/>
       </head>
       <Script src="https://simbox-mcms.statuspage.io/embed/script.js" />
-      <body className='flex flex-col justify-between h-screen bg-gray-100 dark:bg-gray-600'>
+      <body className='flex flex-col justify-between h-screen bg-white dark:bg-gray-900'>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem enableColorScheme >
           <Providers>
             <Header />

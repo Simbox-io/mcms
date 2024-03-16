@@ -137,8 +137,8 @@ const Header: React.FC = () => {
                 />
               </svg>
             </button>
-            <div className="hidden lg:block lg:w-64 xl:w-96">
-                  <SearchBar onSearch={() => handleSearch} value={searchTerm} onChange={setSearchTerm} />
+            <div className="hidden flex-grow lg:block w-full">
+                  <SearchBar onSearch={() => handleSearch} value={searchTerm} onChange={setSearchTerm}  />
             </div>
             {status === 'loading' ? (
               <Skeleton variant="rectangular" width='40' height='40' className="ml-4" />
@@ -161,7 +161,7 @@ const Header: React.FC = () => {
                     }
                   }}
                   className="ml-4"
-                  buttonClassName="z-1 text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-0 py-2 rounded-md text-sm font-medium flex items-left "
+                  buttonClassName="z-1 mx-4 text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-0 py-2 rounded-md text-sm font-medium flex items-left "
                   menuClassName="mt-8"
                   arrowEnabled={false}
                 />
@@ -171,7 +171,7 @@ const Header: React.FC = () => {
               <>
                 <Link href="/login">
                   <span
-                      className="text-white hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium mr-4 bg-gray-500">
+                      className="text-white hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium mx-4 bg-gray-500">
                     Login
                   </span>
                 </Link>

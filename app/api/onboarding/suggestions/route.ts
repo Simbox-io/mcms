@@ -1,22 +1,24 @@
 // app/api/onboarding/suggestions/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import prisma from '../../../../lib/prisma';
+import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const session = await getSession(request);
+  const userObj = session?.user as User;
 
-  if (!token) {
+  if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const suggestedWikis = await prisma.space.findMany({
+    const suggestedSpaces = await prisma.space.findMany({
       take: 5,
       select: {
         id: true,
-        title: true,
+        name: true,
+        description: true,
       },
     });
 
@@ -26,10 +28,11 @@ export async function GET(request: NextRequest) {
         id: true,
         username: true,
         avatar: true,
+        bio: true,
       },
     });
 
-    return NextResponse.json({ wikis: suggestedWikis, users: suggestedUsers });
+    return NextResponse.json({ spaces: suggestedSpaces, users: suggestedUsers });
   } catch (error) {
     console.error('Error fetching suggestions:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

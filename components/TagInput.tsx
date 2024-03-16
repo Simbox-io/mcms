@@ -45,7 +45,7 @@ const TagInput: React.FC<TagInputProps> = ({
       {tags.map((tag) => (
         <span
           key={tag}
-          className="bg-blue-500 text-white rounded-md px-2 py-1 text-sm mr-2 mb-2 flex items-center"
+          className="bg-blue-500 text-white rounded-md px-2 py-1 text-sm mr-2 mb-0 flex items-center"
         >
           {tag}
           <button
@@ -63,7 +63,7 @@ const TagInput: React.FC<TagInputProps> = ({
         onChange={handleInputChange}
         onKeyDown={handleInputKeyDown}
         placeholder={placeholder}
-        className="flex-grow focus:outline-none bg-transparent text-gray-800 dark:text-gray-200 px-2 py-1"
+        className="flex-grow focus:outline-none h-6 bg-transparent text-gray-800 dark:text-gray-200 px-2 py-1"
       />
     </div>
   );

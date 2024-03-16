@@ -1,13 +1,14 @@
 // app/api/users/[id]/projects/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import prisma from '../../../../../lib/prisma';
+import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const token = await getToken({ req: request });
+  const session = await getSession(request);
+  const userObj = session?.user as User;
 
-  if (!token) {
+  if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -16,16 +17,38 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   try {
     const projects = await prisma.project.findMany({
       where: {
-        members: {
-          some: {
-            id: userId,
+        OR: [
+          { ownerId: userId },
+          { collaborators: { some: { id: userId } } },
+        ],
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
           },
         },
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
+        collaborators: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        files: true,
+        tags: true,
+        comments: true,
+        spaces: true,
+        bookmarks: true,
+        settings: {
+          include: {
+            visibilitySettings: true,
+            collaborationSettings: true,
+            notificationSettings: true,
+          },
+        },
       },
     });
 

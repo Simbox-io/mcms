@@ -1,11 +1,14 @@
+// app/api/search/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma, { File, Post, Project } from '@/lib/prisma';
-import { getToken } from 'next-auth/jwt';
+import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const session = await getSession(request);
+  const userObj = session?.user as User;
 
-  if (!token) {
+  if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -15,7 +18,7 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const [posts, files, projects] = await Promise.all([
+    const [posts, files, projects, spaces, tutorials] = await Promise.all([
       prisma.post.findMany({
         where: {
           OR: [
@@ -26,6 +29,15 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           title: true,
+          content: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+          tags: true,
         },
         skip: (page - 1) * perPage,
         take: perPage,
@@ -40,6 +52,15 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           name: true,
+          description: true,
+          uploadedBy: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+          tags: true,
         },
         skip: (page - 1) * perPage,
         take: perPage,
@@ -54,17 +75,65 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           name: true,
+          description: true,
+          owner: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+          tags: true,
+        },
+        skip: (page - 1) * perPage,
+        take: perPage,
+      }),
+      prisma.space.findMany({
+        where: {
+          OR: [
+            { name: { contains: query } },
+            { description: { contains: query } },
+          ],
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          owner: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
+        skip: (page - 1) * perPage,
+        take: perPage,
+      }),
+      prisma.tutorial.findMany({
+        where: {
+          OR: [
+            { title: { contains: query } },
+            { content: { contains: query } },
+          ],
+        },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+          tags: true,
         },
         skip: (page - 1) * perPage,
         take: perPage,
       }),
     ]);
-
-    const results = [
-      ...posts.map((post: { id: number; title: string; }) => ({ id: post.id, title: post.title, type: 'post' })),
-      ...files.map((file: { id: number; name: string; }) => ({ id: file.id, name: file.name, type: 'file' })),
-      ...projects.map((project: { id: number; name: string; }) => ({ id: project.id, name: project.name, type: 'project' })),
-    ];
 
     const totalResults = await prisma.post.count({
       where: {
@@ -87,11 +156,33 @@ export async function GET(request: NextRequest) {
           { description: { contains: query } },
         ],
       },
+    }) + await prisma.space.count({
+      where: {
+        OR: [
+          { name: { contains: query } },
+          { description: { contains: query } },
+        ],
+      },
+    }) + await prisma.tutorial.count({
+      where: {
+        OR: [
+          { title: { contains: query } },
+          { content: { contains: query } },
+        ],
+      },
     });
 
     const totalPages = Math.ceil(totalResults / perPage);
 
-    return NextResponse.json({ results, totalPages });
+    return NextResponse.json({
+      posts,
+      files,
+      projects,
+      spaces,
+      tutorials,
+      totalResults,
+      totalPages,
+    });
   } catch (error) {
     console.error('Error searching:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

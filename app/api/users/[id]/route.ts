@@ -1,14 +1,14 @@
 // app/api/users/[id]/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma, { User } from '../../../../lib/prisma';
+import prisma from '@/lib/prisma';
+import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const session = await getSession(request);
-  const user = session?.user as User;
+  const userObj = session?.user as User;
 
-  if (!user) {
+  if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -17,23 +17,30 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-    });
-
-    const projects = await prisma.project.findMany({
-      where: { ownerId: userId },
       include: {
-        owner: true,
-      },
-    });
-
-    const files = await prisma.file.findMany({
-      where: { uploadedById: userId },
-    });
-
-    const spaces = await prisma.space.findMany({
-      where: { authorId: userId },
-      include: {
-        author: true,
+        profile: true,
+        settings: {
+          include: {
+            notificationPreferences: true,
+            privacySettings: true,
+            passwordResetSettings: true,
+            accountDeletionSettings: true,
+          },
+        },
+        posts: true,
+        comments: true,
+        files: true,
+        ownedProjects: true,
+        collaboratedProjects: true,
+        spaces: true,
+        collaboratedSpaces: true,
+        tutorials: true,
+        collaboratedTutorials: true,
+        bookmarks: true,
+        commentReactions: true,
+        fileReactions: true,
+        notifications: true,
+        activities: true,
       },
     });
 
@@ -41,7 +48,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ user, projects, files, spaces });
+    return NextResponse.json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

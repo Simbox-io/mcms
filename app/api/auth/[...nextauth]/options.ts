@@ -20,8 +20,17 @@ const authOptions: NextAuthOptions = {
           where: {
             email: credentials.email,
           },
+          include: {
+            profile: true,
+            settings: {
+              include: {
+                notificationPreferences: true,
+                privacySettings: true,
+              },
+            },
+          },
         });
-        
+
         if (!user || !(await compare(credentials.password, user.passwordHash))) {
           throw new Error('Invalid credentials');
         }
@@ -41,7 +50,6 @@ const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       session.user = token.user as User;
-      session.user.token = token.jwt as string | undefined;
       return session;
     },
   },

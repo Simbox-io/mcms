@@ -4,7 +4,7 @@ const nextConfig = {
     experimental: {
         serverActions: true,
         serverActions: {
-            allowedOrigins: ['https://vp1ldb7xwny0.statuspage.io'],
+            allowedOrigins: ['https://vp1ldb7xwny0.statuspage.io', 'https://simbox-mcms.statuspage.io'],
         },
     },
 };

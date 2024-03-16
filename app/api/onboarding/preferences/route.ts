@@ -1,22 +1,51 @@
 // app/api/onboarding/preferences/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import prisma, { User } from '../../../../lib/prisma';
+import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { User } from '@/lib/prisma';
 
-export async function POST(request: NextRequest) {
-  const token = await getToken({ req: request }) as User;
+export async function PUT(request: NextRequest) {
+  const session = await getSession(request);
+  const userObj = session?.user as User;
 
-  if (!token) {
+  if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const { receiveNotifications, receiveUpdates } = await request.json();
+  const { receiveNotifications, receiveUpdates, languagePreference, themePreference } = await request.json();
 
   try {
     const updatedUser = await prisma.user.update({
-      where: { email: token.email },
-      data: { receiveNotifications, receiveUpdates },
+      where: { id: userObj.id },
+      data: {
+        settings: {
+          update: {
+            notificationPreferences: {
+              update: {
+                email: receiveNotifications,
+                push: receiveNotifications,
+                inApp: receiveNotifications,
+              },
+            },
+            privacySettings: {
+              update: {
+                profileVisibility: 'PUBLIC',
+                activityVisibility: 'PUBLIC',
+              },
+            },
+            languagePreference,
+            themePreference,
+          },
+        },
+      },
+      include: {
+        settings: {
+          include: {
+            notificationPreferences: true,
+            privacySettings: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(updatedUser);

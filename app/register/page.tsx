@@ -11,6 +11,7 @@ import Button from '@/components/Button';
 const RegistrationPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -32,11 +33,11 @@ const RegistrationPage: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, username }),
       });
 
       if (response.ok) {
-        router.push('/onboarding');
+        router.push('/login');
       } else {
         const errorData = await response.json();
         setError(errorData.message);
@@ -70,6 +71,19 @@ const RegistrationPage: React.FC = () => {
               placeholder="Enter your email"
               className="w-full"
             />
+          </div>
+          <div className="mb-6">
+            <Input
+              label="Username"
+              name="username"
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              placeholder="Enter your username"
+              className="w-full"
+            /> 
           </div>
           <div className="mb-6">
             <Input

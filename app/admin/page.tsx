@@ -8,6 +8,7 @@ import Button from '@/components/Button';
 import Sidebar from '@/components/Sidebar';
 import AnalyticsPage from './analytics/page';
 import DashboardPage from './dashboard/page';
+import PostsPage from './posts/page';
 import PluginsPage from './plugins/page';
 import SettingsPage from './settings/page';
 import UsersPage from './users/page';
@@ -49,6 +50,7 @@ const AdminConfigurationPage: React.FC = () => {
         <Sidebar
           items={[
             { id: 'dashboard', label: 'Admin Dashboard' },
+            { id: 'posts', label: 'Posts' },
             { id: 'analytics', label: 'Analytics' },
             { id: 'plugins', label: 'Plugin Management' },
             { id: 'users', label: 'User Management' },
@@ -63,6 +65,7 @@ const AdminConfigurationPage: React.FC = () => {
           <Sidebar
             items={[
               { id: 'dashboard', label: 'Admin Dashboard' },
+              { id: 'posts', label: 'Posts' },
               { id: 'analytics', label: 'Analytics' },
               { id: 'plugins', label: 'Plugin Management' },
               { id: 'users', label: 'User Management' },
@@ -75,6 +78,7 @@ const AdminConfigurationPage: React.FC = () => {
         <div className="flex-1 p-8">
           <Card className="dark:bg-gray-800 shadow-xl">
             {activeSubpage === 'dashboard' && <DashboardPage />}
+            {activeSubpage === 'posts' && <PostsPage />}
             {activeSubpage === 'analytics' && <AnalyticsPage />}
             {activeSubpage === 'plugins' && <PluginsPage />}
             {activeSubpage === 'users' && <UsersPage />}

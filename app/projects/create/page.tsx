@@ -9,10 +9,10 @@ import Card from '../../../components/Card';
 import Select from '../../../components/Select';
 import FileUpload from '../../../components/FileUpload';
 import TagInput from '../../../components/TagInput';
-import RichTextEditor from '../../../components/RichTextEditor';
 import FormGroup from '../../../components/FormGroup';
 import { Editor } from '@tinymce/tinymce-react';
 import { User } from '../../../lib/prisma';
+import { motion } from 'framer-motion';
 
 const CreateProjectPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -37,31 +37,35 @@ const CreateProjectPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('description', description);
-      formData.append('repository', repository);
-      selectedMembers.forEach((memberId) => formData.append('members[]', memberId));
-      selectedFiles.forEach((file) => formData.append('files[]', file));
-      //selectedTags.forEach((tag) => formData.append('tags[]', tag));
+      const formData = {
+        name,
+        description,
+        repository,
+        members: selectedMembers,
+        files: selectedFiles,
+        //tags: selectedTags,
+      };
 
       const response = await fetch('/api/projects', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: formData,
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        router.push('/projects');
+        router.push('/all-projects');
       } else {
         console.error('Error creating project:', response.statusText);
       }
     } catch (error) {
       console.error('Error creating project:', error);
     }
+
     setIsSubmitting(false);
   };
 
@@ -93,9 +97,14 @@ const CreateProjectPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto px-4 py-8"
+    >
       <Card className="max-w-3xl mx-auto">
-        <div className="bg-gradient-to-r bg-blue-500 px-6 py-4 rounded-t-lg">
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4 rounded-t-lg">
           <h1 className="text-2xl font-semibold text-white">Create Project</h1>
         </div>
         <div className="p-6">
@@ -146,9 +155,11 @@ const CreateProjectPage: React.FC = () => {
               <FormGroup label="Members" htmlFor="members">
                 <Select
                   id="members"
-                  options={users.map(user => ({ value: user.id, label: user.username }))}
+                  options={users.map((user) => ({ value: user.id, label: user.username }))}
                   value={selectedMembers}
-                  onChange={(memberIds) => setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])}
+                  onChange={(memberIds) =>
+                    setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])
+                  }
                   isMulti
                 />
               </FormGroup>
@@ -161,7 +172,7 @@ const CreateProjectPage: React.FC = () => {
                 />
               </FormGroup>
             </div>
-            <FormGroup label="Files (This does not work yet)" htmlFor="files" className="mt-6">
+            <FormGroup label="Files" htmlFor="files" className="mt-6">
               <FileUpload
                 id="files"
                 onFileSelect={handleFileSelect}
@@ -177,7 +188,7 @@ const CreateProjectPage: React.FC = () => {
           </form>
         </div>
       </Card>
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,43 +1,45 @@
 // app/api/onboarding/follow/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import prisma from '../../../../lib/prisma';
+import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
-  const token = await getToken({ req: request }) as User;
+  const session = await getSession(request);
+  const userObj = session?.user as User;
 
-  if (!token) {
+  if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const { type, id } = await request.json();
 
   try {
-    if (type === 'wiki') {
+    if (type === 'space') {
       await prisma.user.update({
-        where: { email: token.email },
+        where: { id: userObj.id },
         data: {
-          spaces: {
+          collaboratedSpaces: {
             connect: { id },
           },
         },
       });
     } else if (type === 'user') {
       await prisma.user.update({
-        where: { email: token.email },
+        where: { id: userObj.id },
         data: {
           following: {
             connect: { id },
           },
         },
       });
+    } else {
+      return NextResponse.json({ message: 'Invalid follow type' }, { status: 400 });
     }
 
     return NextResponse.json({ message: 'Followed successfully' });
   } catch (error) {
-    console.error('Error following suggestion:', error);
+    console.error('Error following:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

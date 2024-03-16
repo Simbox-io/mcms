@@ -1,6 +1,8 @@
   // components/Button.tsx
 import React from 'react';
 import Spinner from './Spinner';
+import CheckCircleIcon from './icons/CheckCircleIcon';
+
 
 interface ButtonProps {
   children?: React.ReactNode;
@@ -30,7 +32,7 @@ const Button: React.FC<ButtonProps> = ({
     let customClasses = '';
     switch (variant) {
       case 'primary':
-        defaultClasses = 'bg-blue-500 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-blue-500 dark:focus:ring-blue-600';
+        defaultClasses = 'bg-blue-400 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-blue-500 dark:focus:ring-blue-600';
         customClasses = className.split(' ').reduce((acc, cls) => {
           const type = cls.split('-')[0];
           if (defaultClasses.includes(type)) {

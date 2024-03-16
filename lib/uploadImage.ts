@@ -1,25 +1,17 @@
 // lib/uploadImage.ts
-
-import { createHash } from 'crypto';
 import prisma from './prisma';
 
 export async function uploadImage(file: File): Promise<string> {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-
   if (!allowedTypes.includes(file.type)) {
     throw new Error('Invalid image type. Only JPEG, PNG, and GIF are allowed.');
   }
 
   const fileBuffer = Buffer.from(await file.arrayBuffer());
-  const hash = createHash('sha256');
-  hash.update(fileBuffer);
-  const fileHash = hash.digest('hex');
-
-  const fileName = `${fileHash}.${file.name.split('.').pop()}`;
 
   try {
     const existingImage = await prisma.image.findUnique({
-      where: { fileName },
+      where: { fileName: file.name },
     });
 
     if (existingImage) {
@@ -28,10 +20,10 @@ export async function uploadImage(file: File): Promise<string> {
 
     const newImage = await prisma.image.create({
       data: {
-        fileName,
+        fileName: file.name,
         contentType: file.type,
-        data: Buffer.from(fileBuffer),
-        url: `/api/images/${fileName}`,
+        data: fileBuffer,
+        url: `/api/images/${file.name}`,
       },
     });
 

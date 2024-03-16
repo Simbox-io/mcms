@@ -1,26 +1,46 @@
 // app/api/auth/register/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import prisma from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
-  const { username, email, password } = await request.json();
+  const { email, password, username } = await request.json();
 
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });
-
     if (existingUser) {
       return NextResponse.json({ message: 'Email already exists.' }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const newUser = await prisma.user.create({
       data: {
         username,
         email,
         passwordHash: hashedPassword,
+        firstName: '',
+        lastName: '',
+        settings: {
+          create: {
+            emailVerified: false,
+            notificationPreferences: {
+              create: {
+                email: true,
+                push: true,
+                inApp: true,
+              },
+            },
+            privacySettings: {
+              create: {
+                profileVisibility: 'PUBLIC',
+                activityVisibility: 'PUBLIC',
+              },
+            },
+          },
+        },
+        profile: {
+          create: {},
+        },
       },
     });
 

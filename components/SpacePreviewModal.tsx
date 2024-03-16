@@ -14,7 +14,7 @@ const SpacePreviewModal: React.FC<SpacePreviewModalProps> = ({ isOpen, onClose, 
     }
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={space.title}>
+        <Modal isOpen={isOpen} onClose={onClose} title={space.name}>
             <p className="text-gray-600 mb-4">{space.description}</p>
             {/* Add more preview content as needed */}
         </Modal>

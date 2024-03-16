@@ -1,5 +1,4 @@
 // app/api/projects/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
@@ -17,22 +16,24 @@ export async function GET(request: NextRequest) {
     const projects = await prisma.project.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
+      include: {
+        owner: true,
+        collaborators: true,
+        files: true,
+        tags: true,
+        comments: true,
+        spaces: true,
+        bookmarks: true,
+        settings: {
+          include: {
+            visibilitySettings: true,
+            collaborationSettings: true,
+            notificationSettings: true,
+          },
+        },
+      },
       orderBy: {
         createdAt: 'desc',
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-        members: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
       },
     });
 
@@ -51,32 +52,52 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const { name, description, repository, members, files, tags } = await request.json();
+  const { name, description, collaborators, tags, settings } = await request.json();
 
   try {
     const newProject = await prisma.project.create({
       data: {
         name,
         description,
-        repository,
-        files: {
-          create: files.map((file: any) => ({
-            name: file.name,
-            url: file.url,
-            description: file.description,
-            isPublic: file.isPublic,
-            uploadedById: user.id,
-            tags: {
-              connect: tags.map((tag: string) => ({ name: tag })),
-            },
+        owner: { connect: { id: user.id } },
+        collaborators: {
+          connect: collaborators.map((collaboratorId: string) => ({ id: collaboratorId })),
+        },
+        tags: {
+          connectOrCreate: tags.map((tag: string) => ({
+            where: { name: tag },
+            create: { name: tag },
           })),
         },
-        members: {
-          connect: members.map((memberId: number) => ({ id: memberId })),
-        },
-        owner: {
-          connect: { id: user.id },
-        },
+        settings: settings
+          ? {
+              create: {
+                visibilitySettings: settings.visibilitySettings
+                  ? {
+                      create: {
+                        visibility: settings.visibilitySettings.visibility,
+                      },
+                    }
+                  : undefined,
+                collaborationSettings: settings.collaborationSettings
+                  ? {
+                      create: {
+                        allowCollaborators: settings.collaborationSettings.allowCollaborators,
+                        collaboratorRoles: settings.collaborationSettings.collaboratorRoles,
+                      },
+                    }
+                  : undefined,
+                notificationSettings: settings.notificationSettings
+                  ? {
+                      create: {
+                        notifyOnActivity: settings.notificationSettings.notifyOnActivity,
+                        notifyOnMentions: settings.notificationSettings.notifyOnMentions,
+                      },
+                    }
+                  : undefined,
+              },
+            }
+          : undefined,
       },
     });
 
