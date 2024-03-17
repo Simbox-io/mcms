@@ -45,14 +45,14 @@ export async function POST(request: NextRequest) {
               },
             },
             postSettings: postId
-              ? {
-                  create: {
-                    post: {
-                      connect: { id: postId },
-                    },
-                  },
-                }
-              : undefined,
+  ? {
+      create: {
+        post: {
+          connect: { id: postId },
+        },
+      },
+    }
+  : undefined,
           },
         },
       },
