@@ -408,13 +408,12 @@ model ProjectNotificationSettings {
 }
 
 model AdminSettings {
-  id                  String  @id @default(uuid())
-  siteTitle           String
-  siteDescription     String
-  logo                String
-  accentColor         String
+  id                 Int      @id @default(1) @unique
+  siteTitle          String
+  siteDescription    String
+  logo               String
+  accentColor        String
   fileStorageProvider String
-  isAIEnabled         Boolean @default(false)
 }
 
 model Tag {

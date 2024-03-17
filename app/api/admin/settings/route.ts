@@ -13,9 +13,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const adminSettings = await prisma.adminSettings.findUnique({
-    where: { userId: user.id },
-  });
+  const adminSettings = await prisma.adminSettings.findFirst();
 
   return NextResponse.json(adminSettings);
 }
@@ -31,17 +29,9 @@ export async function PUT(request: NextRequest) {
   const { siteTitle, siteDescription, logo, accentColor, fileStorageProvider } = await request.json();
 
   try {
-    const updatedSettings = await prisma.adminSettings.upsert({
-      where: { userId: user.id },
-      update: {
-        siteTitle,
-        siteDescription,
-        logo,
-        accentColor,
-        fileStorageProvider,
-      },
-      create: {
-        userId: user.id,
+    const updatedSettings = await prisma.adminSettings.update({
+      where: { id: 1 },
+      data: {
         siteTitle,
         siteDescription,
         logo,
@@ -67,7 +57,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     await prisma.adminSettings.delete({
-      where: { userId: user.id },
+      where: { id: 1 },
     });
 
     return NextResponse.json({ message: 'Admin settings deleted successfully' });
