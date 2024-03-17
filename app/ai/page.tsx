@@ -1,3 +1,5 @@
+'use client';
+
 // pages/AIFeaturesDemo.tsx
 import React, { useState } from 'react';
 import AISearch from '@/components/AI/AISearch';
