@@ -1,4 +1,3 @@
-// app/api/comments/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
@@ -47,7 +46,11 @@ export async function POST(request: NextRequest) {
             },
             postSettings: postId
               ? {
-                  connect: { postId },
+                  create: {
+                    post: {
+                      connect: { id: postId },
+                    },
+                  },
                 }
               : undefined,
           },
