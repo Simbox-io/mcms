@@ -38,25 +38,25 @@ const Header: React.FC = () => {
     setStateFunction((prevState) => !prevState);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (buttonClicked) {
-        if (
-          menuRef.current &&
-          !menuRef.current.contains(event.target as Node)
-        ) {
-          setIsMenuOpen(false);
-        }
-        if (
-          searchRef.current &&
-          !searchRef.current.contains(event.target as Node)
-        ) {
-          setIsSearchOpen(false);
-        }
+  const handleClickOutside = (event: MouseEvent) => {
+    if (buttonClicked) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
       }
-      setButtonClicked(false);
-    };
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchOpen(false);
+      }
+    }
+    setButtonClicked(false);
+  };
 
+  useEffect(() => {
     document.addEventListener('mouseup', handleClickOutside);
     return () => {
       document.removeEventListener('mouseup', handleClickOutside);
