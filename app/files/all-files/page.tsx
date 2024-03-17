@@ -1,5 +1,3 @@
-// app/files/page.tsx
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -33,7 +31,6 @@ const FileListPage: React.FC = () => {
     const fetchFiles = async () => {
       try {
         const response = await fetch(`/api/files?page=${currentPage}`);
-
         if (response.ok) {
           const data = await response.json();
           setFiles(data.files);
@@ -47,7 +44,6 @@ const FileListPage: React.FC = () => {
         setIsLoading(false);
       }
     };
-
     fetchFiles();
   }, [currentPage]);
 
@@ -126,11 +122,9 @@ function formatFileSize(size: number): string {
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let unitIndex = 0;
   let fileSize = size;
-
   while (fileSize >= 1024 && unitIndex < units.length - 1) {
     fileSize /= 1024;
     unitIndex++;
   }
-
   return `${fileSize?.toFixed(2)} ${units[unitIndex]}`;
 }
