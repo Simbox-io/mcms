@@ -229,7 +229,7 @@ model Comment {
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
   settings   CommentSettings?
-  tutorial   Tutorial?         @relation(fields: [tutorialId], references: [id])
+  Tutorial   Tutorial?         @relation(fields: [tutorialId], references: [id])
   tutorialId String?
 }
 
@@ -606,7 +606,7 @@ model Tutorial {
   updatedAt     DateTime          @updatedAt
   bookmarks     Bookmark[]
   settings      TutorialSettings?
-  prerequisite  Prerequisite[]
+  prerequisite  prerequisite[]
 }
 
 model TutorialSettings {
