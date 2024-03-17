@@ -81,7 +81,7 @@ const FileListPage: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {files.map((file) => (
-              <FileCard key={file.id} file={file} onClick={() => handleOpenFile} />
+              <FileCard key={file.id} file={file} onClick={() => handleOpenFile(file)} />
             ))}
           </div>
           <div className="mt-8">
@@ -98,17 +98,3 @@ const FileListPage: React.FC = () => {
 };
 
 export default FileListPage;
-
-// Helper function to format file size
-function formatFileSize(size: number): string {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  let unitIndex = 0;
-  let fileSize = size;
-
-  while (fileSize >= 1024 && unitIndex < units.length - 1) {
-    fileSize /= 1024;
-    unitIndex++;
-  }
-
-  return `${fileSize?.toFixed(2)} ${units[unitIndex]}`;
-}

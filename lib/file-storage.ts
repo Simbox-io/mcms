@@ -9,6 +9,7 @@ export interface FileStorageProvider {
   uploadFile(file: File): Promise<string>;
   deleteFile(fileId: string): Promise<void>;
   getFileUrl(fileId: string): string;
+  getFileContent(fileId: string): Promise<string>;
 }
 
 export class LocalStorageProvider implements FileStorageProvider {
@@ -29,6 +30,12 @@ export class LocalStorageProvider implements FileStorageProvider {
 
   getFileUrl(fileId: string): string {
     return `/uploads/${fileId}`;
+  }
+
+  async getFileContent(fileId: string): Promise<string> {
+    const filePath = path.join(this.storagePath, fileId);
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    return fileContent;
   }
 }
 
@@ -67,6 +74,15 @@ export class S3StorageProvider implements FileStorageProvider {
 
   getFileUrl(fileId: string): string {
     return `https://${this.bucketName}.s3.amazonaws.com/${fileId}`;
+  }
+
+  async getFileContent(fileId: string): Promise<string> {
+    const response = await this.s3.getObject({
+      Bucket: this.bucketName,
+      Key: fileId.replace(`https://${this.bucketName}.s3.amazonaws.com/`, '')
+    });
+    const fileContent = await response.Body?.transformToString() || '';
+    return fileContent;
   }
 }
 
@@ -111,6 +127,24 @@ export class FTPStorageProvider implements FileStorageProvider {
   getFileUrl(fileId: string): string {
     return `ftp://${this.ftpHost}/${this.ftpDirectory}/${fileId}`;
   }
+
+  async getFileContent(fileId: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.ftpClient.get(path.join(this.ftpDirectory, fileId), (error, stream) => {
+        if (error) {
+          reject(error);
+        } else {
+          let fileContent = '';
+          stream.on('data', (chunk) => {
+            fileContent += chunk.toString();
+          });
+          stream.on('end', () => {
+            resolve(fileContent);
+          });
+        }
+      });
+    });
+  }
 }
 
 export async function getStorageProvider(adminSettings: AdminSettings): Promise<FileStorageProvider> {
@@ -120,6 +154,7 @@ export async function getStorageProvider(adminSettings: AdminSettings): Promise<
     case 'ftp':
       return new FTPStorageProvider(adminSettings);
     case 'local':
+      return new LocalStorageProvider();
     default:
       return new LocalStorageProvider();
   }

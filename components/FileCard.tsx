@@ -6,12 +6,12 @@ import Badge from '@/components/Badge';
 
 interface FileCardProps {
   file: File;
-  onClick: () => void;
+  onClick: (file: File) => void;
 }
 
 const FileCard: React.FC<FileCardProps> = ({ file, onClick }) => {
   return (
-    <Card onClick={onClick}>
+    <Card onClick={() => onClick(file)}>
       <div className="flex items-center">
         <Avatar src={file.uploadedBy.avatar || ''} alt={file.uploadedBy.username} size="small" />
         <div className="ml-2">

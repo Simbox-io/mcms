@@ -37,6 +37,31 @@ interface AdminSettings {
   enableVersioning: boolean;
 }
 
+const defaultSettings: AdminSettings = {
+  siteTitle: 'My Site',
+  siteDescription: 'A default site description',
+  logo: '/path/to/default/logo.png',
+  accentColor: '#000000',
+  fileStorageProvider: 'local',
+  s3AccessKey: '',
+  s3SecretKey: '',
+  s3BucketName: '',
+  s3Region: '',
+  ftpHost: '',
+  ftpUser: '',
+  ftpPassword: '',
+  ftpDirectory: '',
+  maxFileSize: 10,
+  allowedFileTypes: ['.jpg', '.png', '.pdf'],
+  requireEmailVerification: false,
+  requireAccountApproval: false,
+  enableUserRegistration: true,
+  requireLoginToDownload: false,
+  autoDeleteFiles: false,
+  fileExpirationPeriod: 30,
+  enableVersioning: false,
+};
+
 const AdminSettingsPage: React.FC = () => {
   const [settings, setSettings] = useState<AdminSettings>({
     siteTitle: '',
@@ -74,12 +99,14 @@ const AdminSettingsPage: React.FC = () => {
         const response = await fetch('/api/admin/settings');
         if (response.ok) {
           const data = await response.json();
-          setSettings(data);
+          setSettings(data || defaultSettings);
         } else {
           console.error('Error fetching admin settings:', response.statusText);
+          setSettings(defaultSettings);
         }
       } catch (error) {
         console.error('Error fetching admin settings:', error);
+        setSettings(defaultSettings);
       } finally {
         setIsLoading(false);
       }

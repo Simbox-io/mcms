@@ -43,11 +43,34 @@ export async function PUT(request: NextRequest) {
     fileExpirationPeriod,
     enableVersioning,
   } = await request.json();
-
   try {
-    const updatedSettings = await prisma.adminSettings.update({
+    const updatedSettings = await prisma.adminSettings.upsert({
       where: { id: 1 },
-      data: {
+      update: {
+        siteTitle,
+        siteDescription,
+        logo,
+        accentColor,
+        fileStorageProvider,
+        s3AccessKey,
+        s3SecretKey,
+        s3BucketName,
+        s3Region,
+        ftpHost,
+        ftpUser,
+        ftpPassword,
+        ftpDirectory,
+        maxFileSize,
+        allowedFileTypes,
+        requireEmailVerification,
+        requireAccountApproval,
+        enableUserRegistration,
+        requireLoginToDownload,
+        autoDeleteFiles,
+        fileExpirationPeriod,
+        enableVersioning,
+      },
+      create: {
         siteTitle,
         siteDescription,
         logo,

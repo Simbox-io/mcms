@@ -262,6 +262,8 @@ export type File = {
   id: string;
   name: string;
   type: "file";
+  contentType: string;
+  content: string; // This only exists in the response from the server
   url: string;
   description?: string | null;
   isPublic: boolean;

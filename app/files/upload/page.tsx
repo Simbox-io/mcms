@@ -16,6 +16,7 @@ import FileUpload from '@/components/FileUpload';
 const FileUploadPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [description, setDescription] = useState('');
+  const [name, setName] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -38,6 +39,7 @@ const FileUploadPage: React.FC = () => {
     }
   };
 
+  // app/files/upload/page.tsx
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUploading(true);
@@ -50,8 +52,11 @@ const FileUploadPage: React.FC = () => {
 
     const formData = new FormData();
     formData.append('file', selectedFile);
+    formData.append('name', name);
     formData.append('description', description);
     formData.append('isPublic', String(isPublic));
+    formData.append('contentType', selectedFile.type); // Add content type to form data
+
     if (selectedProject) {
       formData.append('projectId', String(selectedProject));
     }
@@ -66,7 +71,7 @@ const FileUploadPage: React.FC = () => {
       });
 
       if (response.ok) {
-        router.push('/files');
+        router.push('/files/all-files');
       } else {
         console.error('Error uploading file:', response.statusText);
       }
@@ -111,6 +116,16 @@ const FileUploadPage: React.FC = () => {
                   setSelectedFile(files[0]);
                 }
               }}
+            />
+          </div>
+          <div className="mb-6">
+            <label htmlFor="name" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
+              Name
+            </label>
+            <Textarea
+              value={name}
+              onChange={setName}
+              rows={4}
             />
           </div>
           <div className="mb-6">

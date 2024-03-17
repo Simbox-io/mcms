@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
   const formData = await request.formData();
   const files = formData.getAll('file') as File[];
-  const { name, description, isPublic, projectId, parentId, tags } = Object.fromEntries(formData.entries());
+  const { name, description, isPublic, projectId, parentId, tags, contentType } = Object.fromEntries(formData.entries());
 
   try {
     const adminSettings = await prisma.adminSettings.findFirst();
@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
         data: {
           name: name as string,
           url: fileUrl,
+          contentType: contentType as string,
           description: description as string,
           isPublic: isPublic === 'true',
           project: projectId ? { connect: { id: projectId as string } } : undefined,
