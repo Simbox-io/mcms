@@ -1,5 +1,3 @@
-// app/api/admin/settings/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
@@ -79,7 +77,8 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// Old route structure
+// Old route structure (commented out)
+/*
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession(req);
   const user = session?.user as User;
@@ -123,3 +122,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(405).json({ message: 'Method not allowed' });
   }
 }
+*/
