@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
-
+  
   const { content, postId, fileId, projectId, pageId, parentId, tutorialId, settings } = await request.json();
 
   try {
