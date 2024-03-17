@@ -36,6 +36,8 @@ model User {
   updatedAt             DateTime          @updatedAt
   profile               Profile?
   settings              UserSettings?
+  badges                Badge[]
+  points                Int               @default(0)
   spaces                Space[]
   collaboratedSpaces    Space[]           @relation("CollaboratedSpaces")
   viewedSpaces          SpaceView[]
@@ -227,7 +229,7 @@ model Comment {
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
   settings   CommentSettings?
-  Tutorial   Tutorial?         @relation(fields: [tutorialId], references: [id])
+  tutorial   Tutorial?         @relation(fields: [tutorialId], references: [id])
   tutorialId String?
 }
 
@@ -408,12 +410,21 @@ model ProjectNotificationSettings {
 }
 
 model AdminSettings {
-  id                 Int      @id @default(1) @unique
-  siteTitle          String
-  siteDescription    String
-  logo               String
-  accentColor        String
-  fileStorageProvider String
+  id                       Int      @id @unique @default(1)
+  siteTitle                String
+  siteDescription          String
+  logo                     String
+  accentColor              String
+  fileStorageProvider      String
+  maxFileSize              Int
+  allowedFileTypes         String[]
+  requireEmailVerification Boolean  @default(false)
+  requireAccountApproval   Boolean  @default(false)
+  enableUserRegistration   Boolean  @default(true)
+  requireLogintoDownload   Boolean  @default(false)
+  autoDeleteFiles          Boolean  @default(false)
+  fileExpirationPeriod     Int      @default(30) // 30 days 
+  enableVersioning         Boolean  @default(false)
 }
 
 model Tag {
@@ -425,6 +436,16 @@ model Tag {
   tutorials Tutorial[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+}
+
+model Badge {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  icon        String
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Space {
@@ -585,7 +606,7 @@ model Tutorial {
   updatedAt     DateTime          @updatedAt
   bookmarks     Bookmark[]
   settings      TutorialSettings?
-  Prerequisite  Prerequisite[]
+  prerequisite  Prerequisite[]
 }
 
 model TutorialSettings {
