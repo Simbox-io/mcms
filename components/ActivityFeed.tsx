@@ -1,6 +1,6 @@
 // components/ActivityFeed.tsx
 import React, { useState, useEffect } from 'react';
-import { Activity } from '@/lib/prisma';
+import { Activity, ActivityType } from '@/lib/prisma';
 import { formatDistanceToNow } from 'date-fns';
 import Avatar from './Avatar';
 
@@ -37,8 +37,8 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ projectId }) => {
   };
 
   const renderActivity = (activity: Activity) => {
-    switch (activity.type) {
-      case 'FILE_UPLOAD':
+    switch (activity.activityType) {
+      case ActivityType.FILE_UPLOADED:
         return (
           <div className="flex items-center">
             <Avatar src={activity.user.avatar || ''} size="small" />
@@ -47,19 +47,19 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ projectId }) => {
             </span>
           </div>
         );
-      case 'TASK_ASSIGNMENT':
+      case ActivityType.PROJECT_CREATED:
         return (
           <div className="flex items-center">
             <Avatar src={activity.user.avatar || ''} size="small" />
             <span className="ml-2">
-              {activity.user.username} assigned a task to {activity.metadata.assigneeName}
+              {activity.user.username} created project {activity.metadata.projectName}
             </span>
           </div>
         );
-      case 'COMMENT':
+      case ActivityType.COMMENT_CREATED:
         return (
           <div className="flex items-center">
-            <Avatar src={activity.user.avatar} size="small" />
+            <Avatar src={activity.user.avatar || ''} size="small" />
             <span className="ml-2">
               {activity.user.username} commented: {activity.metadata.comment}
             </span>

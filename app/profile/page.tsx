@@ -97,7 +97,7 @@ const UserProfilePage: React.FC = () => {
             <h1 className="text-3xl font-semibold my-1 text-gray-800 dark:text-white">{user.username}</h1>
             <h2 className="text-2xl mt-2 mb-1 text-gray-800 dark:text-white">{user.firstName} {user.lastName}</h2>
             <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
-            <p className="text-gray-600 dark:text-gray-400">Joined on {formatDate(user.createdAt)}</p>
+            <p className="text-gray-600 dark:text-gray-400">Joined on {formatDate(user.createdAt.toString())}</p>
           </div>
         </div>
         <div className="flex justify-end h-10">
@@ -139,7 +139,7 @@ const UserProfilePage: React.FC = () => {
                     <Card className="hover:shadow-md transition-shadow duration-300">
                       <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{post.title}</h3>
                       <p className="text-gray-700 dark:text-gray-300">{post.content}</p>
-                      <p className="text-gray-500 dark:text-gray-400 mt-2">Posted on {formatDate(post.createdAt)}</p>
+                      <p className="text-gray-500 dark:text-gray-400 mt-2">Posted on {formatDate(post.createdAt.toString())}</p>
                     </Card>
                   </li>
                 ))}

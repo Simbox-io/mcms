@@ -117,6 +117,10 @@ const ProjectListPage: React.FC = () => {
     router.push(`/projects/${project.id}`);
   };
 
+  const handleChangeCategory = (category: string) => {
+    console.log(category);
+  };
+
   const toggleView = () => {
     setView(view === 'grid' ? 'list' : 'grid');
   };
@@ -161,7 +165,7 @@ const ProjectListPage: React.FC = () => {
               className=""
             />
           </div>
-          <CategoryFilter options={[{ label: 'test' }, { label: 'test2' }]} className=''/>
+          <CategoryFilter onSelect={handleChangeCategory} options={[{ label: 'test' }, { label: 'test2' }]} className=''/>
         </div>
       </div>
       <AnimatePresence mode="wait">

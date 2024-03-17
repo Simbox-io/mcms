@@ -32,6 +32,10 @@ const RecentlyViewedSpaces: React.FC<RecentlyViewedSpacesProps> = ({ onSpaceClic
         fetchRecentlyViewedSpaces();
     }, []);
 
+    const handleSpaceClick = (spaceId: number) => {
+        onSpaceClick(spaceId);
+    }
+
     if (isLoading) {
         return <Spinner />;
     }
@@ -49,7 +53,7 @@ const RecentlyViewedSpaces: React.FC<RecentlyViewedSpacesProps> = ({ onSpaceClic
         <div className="p-4">
             <h2 className="text-xl font-semibold mb-4">Recently Viewed Spaces</h2>
             {spaces.map((space) => (
-                <SpaceCard key={space.id} space={space}/>
+                <SpaceCard key={space.id} space={space} onClick={() => handleSpaceClick}/>
             ))}
         </div>
     );

@@ -229,7 +229,7 @@ model Comment {
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
   settings   CommentSettings?
-  Tutorial   Tutorial?         @relation(fields: [tutorialId], references: [id])
+  tutorial   Tutorial?         @relation(fields: [tutorialId], references: [id])
   tutorialId String?
 }
 
@@ -246,7 +246,7 @@ model ThreadingSettings {
   commentSettings   CommentSettings @relation(fields: [commentSettingsId], references: [id])
   commentSettingsId String          @unique
   allowNesting      Boolean         @default(true)
-  maxDepth          Int             @default(5)
+  maxDepth          Int             @default(50)
 }
 
 model VotingSettings {
@@ -357,7 +357,7 @@ model FileReaction {
 model Project {
   id            String           @id @default(uuid())
   name          String
-  description   String?
+  description   String
   owner         User             @relation("OwnedProjects", fields: [ownerId], references: [id])
   ownerId       String
   collaborators User[]           @relation("CollaboratedProjects")
@@ -415,15 +415,25 @@ model AdminSettings {
   siteDescription          String
   logo                     String
   accentColor              String
-  fileStorageProvider      String
+  fileStorageProvider      String   @default("local")
+  s3AccessKey              String?
+  s3SecretKey              String?
+  s3BucketName             String?
+  s3Region                 String?
+  ftpHost                  String?
+  ftpUser                  String?
+  ftpPassword              String?
+  ftpDirectory             String?
+  emailDigestSubject       String?
+  emailSignature           String?
   maxFileSize              Int
   allowedFileTypes         String[]
   requireEmailVerification Boolean  @default(false)
   requireAccountApproval   Boolean  @default(false)
   enableUserRegistration   Boolean  @default(true)
-  requireLogintoDownload   Boolean  @default(false)
+  requireLoginToDownload   Boolean  @default(false)
   autoDeleteFiles          Boolean  @default(false)
-  fileExpirationPeriod     Int      @default(30) // 30 days 
+  fileExpirationPeriod     Int      @default(30)
   enableVersioning         Boolean  @default(false)
 }
 
@@ -648,8 +658,8 @@ model NotificationSettings {
   id                String                 @id @default(uuid())
   notification      Notification           @relation(fields: [notificationId], references: [id])
   notificationId    String                 @unique
-  channels          NotificationChannel[]
-  frequency         NotificationFrequency?
+  channels          NotificationChannel[]  @default([EMAIL, PUSH, IN_APP])
+  frequency         NotificationFrequency? @default(REAL_TIME)
   commentSettings   CommentSettings        @relation(fields: [commentSettingsId], references: [id])
   commentSettingsId String                 @unique
   notifyAuthor      Boolean                @default(true)

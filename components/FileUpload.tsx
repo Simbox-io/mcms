@@ -12,7 +12,7 @@ interface FileUploadProps {
   onFileSelect: (files: FileList | null) => void;
   onFileUpload: (files: File[]) => void;
   accept?: string;
-  multiple?: boolean;
+  maxFiles?: number;
   className?: string;
   label?: string;
   sublabel?: string;
@@ -26,7 +26,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   onFileSelect,
   onFileUpload,
   accept = '*',
-  multiple = false,
+  maxFiles = 10,
   className = '',
   label = 'Drag and drop files here or',
   sublabel = 'Upload up to 10 files',
@@ -47,11 +47,29 @@ const FileUpload: React.FC<FileUploadProps> = ({
     const files = event.target.files;
     if (files) {
       const filesArray = Array.from(files);
-      setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
-      onFileSelect(files);
+      if (filesArray.length <= maxFiles) {
+        setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
+        onFileSelect(files);
+      } else {
+        alert(`You can only upload up to ${maxFiles} files.`);
+      }
     }
   };
 
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragActive(false);
+    const files = event.dataTransfer.files;
+    if (files) {
+      const filesArray = Array.from(files);
+      if (filesArray.length <= maxFiles) {
+        setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
+        onFileSelect(files);
+      } else {
+        alert(`You can only upload up to ${maxFiles} files.`);
+      }
+    }
+  };
   const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragActive(true);
@@ -64,17 +82,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-  };
-
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsDragActive(false);
-    const files = event.dataTransfer.files;
-    if (files) {
-      const filesArray = Array.from(files);
-      setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
-      onFileSelect(files);
-    }
   };
 
   const handleRemoveFile = (index: number) => {
@@ -114,7 +121,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         ref={fileInputRef}
         type="file"
         accept={accept}
-        multiple={multiple}
+        multiple={maxFiles > 1}
         onChange={handleFileChange}
         className="sr-only"
         id={id}

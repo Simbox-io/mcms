@@ -53,7 +53,7 @@ const PopularSpaces: React.FC<PopularSpacesProps> = ({ onSpaceClick }) => {
         <div className="p-4">
             <h2 className="text-xl font-semibold mb-4">Popular Spaces</h2>
             {spaces.map((space) => (
-                <SpaceCard key={space.id} space={space} onClick={() => handleCardClick} author={space.owner} pages={space.pages} views={space.views} />
+                <SpaceCard key={space.id} space={space} onClick={() => handleCardClick} />
             ))}
         </div>
     );

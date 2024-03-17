@@ -1,9 +1,9 @@
 // lib/file-storage.ts
-
 import fs from 'fs/promises';
 import path from 'path';
 import { S3 } from '@aws-sdk/client-s3';
 import FTPClient from 'ftp';
+import { AdminSettings } from '@/lib/prisma';
 
 export interface FileStorageProvider {
   uploadFile(file: File): Promise<string>;
@@ -36,15 +36,15 @@ export class S3StorageProvider implements FileStorageProvider {
   private readonly s3: S3;
   private readonly bucketName: string;
 
-  constructor() {
+  constructor(settings: AdminSettings) {
     this.s3 = new S3({
-      region: process.env.AWS_REGION,
+      region: settings.s3Region!,
       credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        accessKeyId: settings.s3AccessKey!,
+        secretAccessKey: settings.s3SecretKey!,
       },
     });
-    this.bucketName = process.env.AWS_BUCKET_NAME!;
+    this.bucketName = settings.s3BucketName!;
   }
 
   async uploadFile(file: File): Promise<string> {
@@ -72,49 +72,55 @@ export class S3StorageProvider implements FileStorageProvider {
 
 export class FTPStorageProvider implements FileStorageProvider {
   private readonly ftpClient: FTPClient;
+  private readonly ftpHost: string;
+  private readonly ftpDirectory: string;
 
-  constructor() {
+  constructor(settings: AdminSettings) {
     this.ftpClient = new FTPClient();
+    this.ftpHost = settings.ftpHost!;
+    this.ftpDirectory = settings.ftpDirectory!;
   }
 
   async uploadFile(file: File): Promise<string> {
     const fileId = `${Date.now()}-${file.name}`;
     const buffer = Buffer.from(await file.arrayBuffer());
-    await this.ftpClient.put(buffer, fileId, (error) => {
-      if (error) {
-        console.error(`Failed to upload file: ${error}`);
-      } else {
-        console.log('File uploaded successfully');
-      }
+    await new Promise<void>((resolve, reject) => {
+      this.ftpClient.put(buffer, path.join(this.ftpDirectory, fileId), (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
     });
-    return `ftp://${process.env.FTP_HOST}/${fileId}`;
+    return `ftp://${this.ftpHost}/${this.ftpDirectory}/${fileId}`;
   }
 
   async deleteFile(fileId: string): Promise<void> {
-    await this.ftpClient.delete(fileId, (error) => {
-      if (error) {
-        console.error(`Failed to delete file: ${error}`);
-      } else {
-        console.log('File deleted successfully');
-      }
+    await new Promise<void>((resolve, reject) => {
+      this.ftpClient.delete(path.join(this.ftpDirectory, fileId), (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
     });
   }
 
-
   getFileUrl(fileId: string): string {
-    return `ftp://${process.env.FTP_HOST}/${fileId}`;
+    return `ftp://${this.ftpHost}/${this.ftpDirectory}/${fileId}`;
   }
 }
-let storageProvider: FileStorageProvider;
 
-if (process.env.STORAGE_PROVIDER === 's3') {
-  storageProvider = new S3StorageProvider();
-} else if (process.env.STORAGE_PROVIDER === 'ftp') {
-  storageProvider = new FTPStorageProvider();
-} else {
-  storageProvider = new LocalStorageProvider();
-}
-
-export async function uploadFile(file: File): Promise<string> {
-  return storageProvider.uploadFile(file);
+export async function getStorageProvider(adminSettings: AdminSettings): Promise<FileStorageProvider> {
+  switch (adminSettings.fileStorageProvider) {
+    case 's3':
+      return new S3StorageProvider(adminSettings);
+    case 'ftp':
+      return new FTPStorageProvider(adminSettings);
+    case 'local':
+    default:
+      return new LocalStorageProvider();
+  }
 }

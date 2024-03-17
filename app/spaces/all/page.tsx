@@ -109,7 +109,7 @@ const SpaceListPage: React.FC = () => {
         }
     };
 
-    const handleJoinSpace = async (spaceId: number) => {
+    const handleJoinSpace = async (spaceId: string) => {
         try {
             const response = await fetch(`/api/spaces/${spaceId}/join`, {
                 method: 'POST',
@@ -128,7 +128,7 @@ const SpaceListPage: React.FC = () => {
         }
     };
 
-    const handleLeaveSpace = async (spaceId: number) => {
+    const handleLeaveSpace = async (spaceId: string) => {
         try {
             const response = await fetch(`/api/spaces/${spaceId}/leave`, {
                 method: 'POST',
@@ -147,7 +147,7 @@ const SpaceListPage: React.FC = () => {
         }
     };
 
-    const handleManageSpace = (spaceId: number) => {
+    const handleManageSpace = (spaceId: string) => {
         router.push(`/spaces/${spaceId}/settings`);
     };
 
@@ -207,10 +207,7 @@ const SpaceListPage: React.FC = () => {
                                 <SpaceCard
                                     key={space.id}
                                     space={space}
-                                    onJoin={() => handleJoinSpace(space.id)}
-                                    onLeave={() => handleLeaveSpace(space.id)}
-                                    onManage={() => handleManageSpace(space.id)}
-                                    onPreview={() => handlePreviewSpace(space)}
+                                    onClick={() => handlePreviewSpace}
                                 />
                             ))}
                         </div>

@@ -6,19 +6,15 @@ import Avatar from '@/components/Avatar';
 interface SpaceCardProps {
   space: Space;
   onClick: () => void;
-  author: User;
-  project?: Project;
-  pages: Page[];
-  views: SpaceView[];
 }
 
-const SpaceCard: React.FC<SpaceCardProps> = ({ space, onClick, author, project, pages, views }) => {
+const SpaceCard: React.FC<SpaceCardProps> = ({ space, onClick }) => {
   return (
     <Card onClick={onClick}>
       <div className="flex items-center">
-        <Avatar src={author.avatar || ''} alt={author.username} size="small" />
+        <Avatar src={space.owner.avatar || ''} alt={space.owner.username} size="small" />
         <div className="ml-2">
-          <h3 className="font-semibold text-gray-800 dark:text-gray-200">{author.username}</h3>
+          <h3 className="font-semibold text-gray-800 dark:text-gray-200">{space.owner.username}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">{new Date(space.createdAt).toLocaleDateString()}</p>
         </div>
       </div>
@@ -26,9 +22,9 @@ const SpaceCard: React.FC<SpaceCardProps> = ({ space, onClick, author, project, 
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{space.name}</h2>
         <p className="mt-2 text-gray-600 dark:text-gray-400">{space.description}</p>
       </div>
-      {project && (
+      {space.project && (
         <div className="mt-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Project: {project.name}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Project: {space.project?.name || 'No project assigned'}</p>
         </div>
       )}
       <div className="mt-4 flex justify-between items-center">
@@ -41,7 +37,7 @@ const SpaceCard: React.FC<SpaceCardProps> = ({ space, onClick, author, project, 
               clipRule="evenodd"
             />
           </svg>
-          <span className="text-sm text-gray-600 dark:text-gray-400">{pages.length}</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">{space.pages.length}</span>
         </div>
         <div className="flex items-center">
           <svg className="w-4 h-4 mr-1 text-gray-600 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -52,7 +48,7 @@ const SpaceCard: React.FC<SpaceCardProps> = ({ space, onClick, author, project, 
               clipRule="evenodd"
             />
           </svg>
-          <span className="text-sm text-gray-600 dark:text-gray-400">{views.length}</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">{space.views.length}</span>
         </div>
       </div>
     </Card>
