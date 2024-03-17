@@ -606,7 +606,7 @@ model Tutorial {
   updatedAt     DateTime          @updatedAt
   bookmarks     Bookmark[]
   settings      TutorialSettings?
-  prerequisite  prerequisite[]
+  prerequisite  Prerequisite[]
 }
 
 model TutorialSettings {
