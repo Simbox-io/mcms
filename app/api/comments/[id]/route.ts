@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         project: true,
         page: true,
         parent: true,
-        tutorial: true
+        tutorial: true,
         settings: {
           include: {
             moderationSettings: true,
