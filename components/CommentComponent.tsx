@@ -34,7 +34,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   };
 
   return (
-    <div className="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg mb-4 flex flex-col">
+    <div className="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg mb-2 flex flex-col">
       <div className="flex">
         <div className="flex flex-col space-y-3">
           <button
@@ -61,7 +61,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
         <div className="flex flex-col space-y-2">
           <div>
             <span className="font-bold text-gray-800 dark:text-gray-200">{comment.author.username}</span>
-            <span className="ml-2 text-sm text-gray-500">{comment.createdAt.toString()}</span>
+            <span className="ml-2 text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
           </div>
           <p className="text-gray-700 dark:text-gray-300 mb-4">{comment.content}</p>
         </div>

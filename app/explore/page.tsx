@@ -162,7 +162,7 @@ const HomePage: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-12"
+      className="container mx-auto px-4 py-12 h-full"
     >
       <div className="flex items-center justify-between mb-12">
         <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200">Explore</h1>
@@ -186,7 +186,7 @@ const HomePage: React.FC = () => {
                     key={`${item.id}-${item.type}`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.95 }}
-                    className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
+                    className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl mb-8"
                   >
                     {renderItem(item)}
                     <div className="flex justify-end items-center px-4 py-2 space-x-12">

@@ -62,7 +62,7 @@ const FileDetailPage: React.FC = () => {
           <span> by {file.uploadedBy.username}</span>
         </p>
         <p className="mb-4">{file.description}</p>
-        <div className="my-8 space-x-4 justify-end flex">
+        <div className="mt-6 space-x-4 justify-end flex">
           <a href={file.url} target="_blank" rel="noopener noreferrer">
             <Button>Download</Button>
           </a>
