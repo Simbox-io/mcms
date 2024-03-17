@@ -44,13 +44,15 @@ const HomePage: React.FC = () => {
       threshold: 1.0,
     });
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
+    const loaderRefCurrent = loaderRef.current;
+
+    if (loaderRefCurrent) {
+      observer.observe(loaderRefCurrent);
     }
 
     return () => {
-      if (loaderRef.current) {
-        observer.unobserve(loaderRef.current);
+      if (loaderRefCurrent) {
+        observer.unobserve(loaderRefCurrent);
       }
     };
   }, [hasMore]);

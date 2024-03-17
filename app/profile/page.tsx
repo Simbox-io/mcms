@@ -74,7 +74,7 @@ const UserProfilePage: React.FC = () => {
     };
 
     fetchUserProfile();
-  }, [session, router, token]);
+  }, [session, router, token, sessionUser.id]);
 
   if (isLoading) {
     return (

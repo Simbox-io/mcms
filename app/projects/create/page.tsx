@@ -27,12 +27,34 @@ const CreateProjectPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
+    const fetchUsers = async (): Promise<User[]> => {
+      try {
+        const response = await fetch('/api/users', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const users: User[] = await response.json();
+          return users;
+        } else {
+          console.error('Error fetching users:', response.statusText);
+          return [];
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        return [];
+      }
+    };
+
+
     const getUsers = async () => {
       const fetchedUsers = await fetchUsers();
       setUsers(fetchedUsers);
     };
+
     getUsers();
-  }, []);
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,26 +108,6 @@ const CreateProjectPage: React.FC = () => {
     }
 
     setIsSubmitting(false);
-  };
-
-  const fetchUsers = async (): Promise<User[]> => {
-    try {
-      const response = await fetch('/api/users', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const users: User[] = await response.json();
-        return users;
-      } else {
-        console.error('Error fetching users:', response.statusText);
-        return [];
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      return [];
-    }
   };
 
   const handleFileSelect = (files: FileList | null) => {
