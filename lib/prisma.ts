@@ -3,7 +3,18 @@
 import { PrismaClient } from '@prisma/client';
 
 declare global {
-  var prisma: PrismaClient;
+  var prisma: PrismaClient | undefined;
+}
+
+let prisma: PrismaClient;
+
+if (process.env.NODE_ENV === 'production') {
+  prisma = new PrismaClient();
+} else {
+  if (!global.prisma) {
+    global.prisma = new PrismaClient();
+  }
+  prisma = global.prisma;
 }
 
 export type User = {
@@ -32,6 +43,7 @@ export type User = {
   updatedAt: Date;
   profile?: Profile | null;
   settings?: UserSettings | null;
+  badges: Badge[];
   spaces: Space[];
   collaboratedSpaces: Space[];
   viewedSpaces: SpaceView[];
@@ -334,7 +346,7 @@ export type Project = {
   id: string;
   name: string;
   type: "project";
-  description?: string | null;
+  description: string;
   owner: User;
   ownerId: string;
   collaborators: User[];
@@ -387,6 +399,16 @@ export type Tag = {
   files: File[];
   projects: Project[];
   tutorials: Tutorial[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type Badge = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  users: User[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -574,6 +596,7 @@ export type Activity = {
   entityId: string;
   entityType: EntityType;
   createdAt: Date;
+  metadata?: any | null;
 };
 
 export type Bookmark = {
@@ -602,6 +625,25 @@ export type AdminSettings = {
   logo: string;
   accentColor: string;
   fileStorageProvider: string;
+  s3AccessKey: string | null;
+  s3SecretKey: string | null;
+  s3BucketName: string | null;
+  s3Region: string | null;
+  ftpHost: string | null;
+  ftpUser: string | null;
+  ftpPassword: string | null;
+  ftpDirectory: string | null;
+  maxFileSize: number;
+  allowedFileTypes: string[];
+  emailDigestSubject: string;
+  emailSignature: string;
+  requireEmailVerification: boolean;
+  requireAccountApproval: boolean;
+  enableUserRegistration: boolean;
+  requireLoginToDownload: boolean;
+  autoDeleteFiles: boolean;
+  fileExpirationPeriod: number;
+  enableVersioning: boolean;
 };
 
 export type Plugin = {
@@ -829,18 +871,6 @@ export enum NotificationFrequency {
   REAL_TIME = 'REAL_TIME',
   DAILY_DIGEST = 'DAILY_DIGEST',
   WEEKLY_DIGEST = 'WEEKLY_DIGEST',
-}
-
-if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient({ 
-  });
-} else {
-  if (!global.prisma) {
-    global.prisma = new PrismaClient({
-    });
-  }
-
-  prisma = global.prisma;
 }
 
 export default prisma;

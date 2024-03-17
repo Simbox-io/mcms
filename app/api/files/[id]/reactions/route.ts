@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   try {
     const existingReaction = await prisma.fileReaction.findUnique({
       where: {
-        fileId_userId: {
+        userId_fileId: {
           fileId,
           userId: userObj.id,
         },

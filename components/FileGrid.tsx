@@ -15,7 +15,7 @@ const FileGrid: React.FC<FileGridProps> = ({ files }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {files.map((file) => (
-        <FileCard key={file.id} file={file} onClick={() => handleFileClick(file)} uploadedBy={file.uploadedBy} tags={file.tags} />
+        <FileCard key={file.id} file={file} onClick={() => handleFileClick(file)} />
       ))}
     </div>
   );

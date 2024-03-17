@@ -27,24 +27,65 @@ const CreateProjectPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
+    const fetchUsers = async (): Promise<User[]> => {
+      try {
+        const response = await fetch('/api/users', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const users: User[] = await response.json();
+          return users;
+        } else {
+          console.error('Error fetching users:', response.statusText);
+          return [];
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        return [];
+      }
+    };
+
+
     const getUsers = async () => {
       const fetchedUsers = await fetchUsers();
       setUsers(fetchedUsers);
     };
+
     getUsers();
-  }, []);
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      // Upload files first
+      const uploadResults = await Promise.all(
+        selectedFiles.map((file) => handleUpload(file))
+      );
+
+      // Filter out successful uploads
+      const successfulUploads = uploadResults.filter((result) => result.success);
+      const filePaths = successfulUploads.map((result) => result.path);
+
+      // Check for failed uploads
+      const failedUploads = uploadResults.filter((result) => !result.success);
+      if (failedUploads.length > 0) {
+        // Display error messages for failed uploads
+        failedUploads.forEach((result) => {
+          console.error(`Error uploading file: ${result.file.name}`, result.error);
+          // You can display the error message to the user using a toast or alert
+        });
+      }
+
       const formData = {
         name,
         description,
         repository,
         members: selectedMembers,
-        files: selectedFiles,
+        files: filePaths,
         //tags: selectedTags,
       };
 
@@ -69,30 +110,36 @@ const CreateProjectPage: React.FC = () => {
     setIsSubmitting(false);
   };
 
-  const fetchUsers = async (): Promise<User[]> => {
-    try {
-      const response = await fetch('/api/users', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const users: User[] = await response.json();
-        return users;
-      } else {
-        console.error('Error fetching users:', response.statusText);
-        return [];
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      return [];
-    }
-  };
-
   const handleFileSelect = (files: FileList | null) => {
     if (files) {
       const selectedFiles = Array.from(files);
       setSelectedFiles(selectedFiles);
+    }
+  };
+
+  const handleUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/files', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, path: data.url, file };
+      } else {
+        console.error('Error uploading file:', response.statusText);
+        return { success: false, error: response.statusText, file };
+      }
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      return { success: false, error: error.message, file };
     }
   };
 
@@ -176,8 +223,9 @@ const CreateProjectPage: React.FC = () => {
               <FileUpload
                 id="files"
                 onFileSelect={handleFileSelect}
+                onFileUpload={() => handleUpload}
                 accept=".pdf,.doc,.docx,.txt,.md,.jpg,.jpeg,.png"
-                multiple
+                maxFiles={10}
               />
             </FormGroup>
             <div className="mt-8">

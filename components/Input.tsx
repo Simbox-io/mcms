@@ -5,7 +5,7 @@ interface InputProps {
   label?: string;
   type?: string;
   name: string;
-  value: string;
+  value: string | string[];
   id: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
@@ -30,6 +30,16 @@ const Input: React.FC<InputProps> = ({
   disabled = false,
   autoComplete = 'off',
 }) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    if (Array.isArray(value)) {
+      const newArray = newValue.split(',');
+      onChange({ ...event, target: { ...event.target, value: newArray.join(',') } });
+    } else {
+      onChange(event);
+    }
+  };
+
   return (
     <div className="mb-4">
       <label
@@ -44,8 +54,8 @@ const Input: React.FC<InputProps> = ({
         type={type}
         id={id}
         name={name}
-        value={value}
-        onChange={onChange}
+        value={Array.isArray(value) ? value.join(',') : value}
+        onChange={handleChange}
         required={required}
         placeholder={placeholder}
         disabled={disabled}

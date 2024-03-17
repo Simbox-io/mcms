@@ -72,7 +72,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       setSearchResults([]);
       setShowDropdown(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, debouncedFetchSearchResults]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

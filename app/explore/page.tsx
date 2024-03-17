@@ -7,13 +7,10 @@ import FileCard from '@/components/FileCard';
 import SpaceCard from '@/components/SpaceCard';
 import Button from '@/components/Button';
 import Skeleton from '@/components/Skeleton';
-import CategoryFilter from '@/components/CategoryFilter';
 import { User } from '@/lib/prisma';
 import { useSession } from "next-auth/react";
 import { File, Post, Project, Space } from '@/lib/prisma';
-import TagInput from '@/components/TagInput';
 import { motion } from 'framer-motion';
-import FeaturedSection from '@/components/FeaturedSection';
 import ShareButton from '@/components/ShareButton';
 import BookmarkButton from '@/components/BookmarkButton';
 import SubscribeButton from '@/components/SubscribeButton';
@@ -23,7 +20,6 @@ import MasonryGrid from '@/components/MasonryGrid';
 import Tabs from '@/components/Tabs';
 
 const HomePage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('featured');
   const [featuredItems, setFeaturedItems] = useState<(Post | Project | File | Space)[]>([]);
   const [trendingItems, setTrendingItems] = useState<(Post | Project | File | Space)[]>([]);
   const [recommendedItems, setRecommendedItems] = useState<(Post | Project | File | Space)[]>([]);
@@ -48,13 +44,15 @@ const HomePage: React.FC = () => {
       threshold: 1.0,
     });
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
+    const loaderRefCurrent = loaderRef.current;
+
+    if (loaderRefCurrent) {
+      observer.observe(loaderRefCurrent);
     }
 
     return () => {
-      if (loaderRef.current) {
-        observer.unobserve(loaderRef.current);
+      if (loaderRefCurrent) {
+        observer.unobserve(loaderRefCurrent);
       }
     };
   }, [hasMore]);
@@ -68,60 +66,28 @@ const HomePage: React.FC = () => {
           fetch('/api/files?page=1&featured=true'),
           fetch('/api/spaces?page=1&featured=true'),
         ]);
-  
+
         const [postsData, projectsData, filesData, spacesData] = await Promise.all([
           postsResponse.json(),
           projectsResponse.json(),
           filesResponse.json(),
           spacesResponse.json(),
         ]);
-  
+
         const featuredPosts = postsData.posts.map((post: Post) => ({ ...post, type: 'post' }));
         const featuredProjects = projectsData.projects.map((project: Project) => ({ ...project, type: 'project' }));
         const featuredFiles = filesData.files.map((file: File) => ({ ...file, type: 'file' }));
         const featuredSpaces = spacesData.spaces.map((space: Space) => ({ ...space, type: 'space' }));
-  
+
         const allFeaturedItems = [...featuredPosts, ...featuredProjects, ...featuredFiles, ...featuredSpaces];
-  
-        switch (activeTab) {
-          case 'featured':
-            setFeaturedItems(allFeaturedItems);
-            break;
-          case 'trending':
-            // Fetch trending items based on the API routes
-            break;
-          case 'recommended':
-            // Fetch recommended items based on the API routes
-            break;
-          default:
-            break;
-        }
+        setFeaturedItems(allFeaturedItems);
       } catch (error) {
-        console.error(`Error fetching ${activeTab} items:`, error);
+        console.error('Error fetching featured items:', error);
       }
     };
-  
-    fetchItems();
-  }, [activeTab]);
 
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    setPage(1);
-    setHasMore(true);
-    switch (tabId) {
-      case 'featured':
-        setFeaturedItems([]);
-        break;
-      case 'trending':
-        setTrendingItems([]);
-        break;
-      case 'recommended':
-        setRecommendedItems([]);
-        break;
-      default:
-        break;
-    }
-  };
+    fetchItems();
+  }, []);
 
   const handleBookmark = async (itemId: string, itemType: string) => {
     try {
@@ -172,9 +138,6 @@ const HomePage: React.FC = () => {
           <ProjectCard
             project={item as Project}
             onClick={() => router.push(`/projects/${item.id}`)}
-            owner={(item as Project).owner}
-            members={(item as Project).collaborators}
-            spaces={(item as Project).spaces}
           />
         );
       case 'file':
@@ -182,9 +145,6 @@ const HomePage: React.FC = () => {
           <FileCard
             file={item as File}
             onClick={() => router.push(`/files/${item.id}`)}
-            uploadedBy={(item as File).uploadedBy}
-            project={(item as File).project || undefined}
-            tags={(item as File).tags}
           />
         );
       case 'space':
@@ -192,40 +152,11 @@ const HomePage: React.FC = () => {
           <SpaceCard
             space={item as Space}
             onClick={() => router.push(`/spaces/${item.id}`)}
-            author={(item as Space).owner}
-            project={(item as Space).project || undefined}
-            pages={(item as Space).pages}
-            views={(item as Space).views}
           />
         );
       default:
         return null;
     }
-  };
-
-  const renderItems = () => {
-    const items = activeTab === 'featured' ? featuredItems : activeTab === 'trending' ? trendingItems : recommendedItems;
-    return (
-      <MasonryGrid
-        items={items.map((item) => (
-          <motion.div
-            key={`${item.id}-${item.type}`}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.95 }}
-            className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
-          >
-            {renderItem(item)}
-            <div className="flex justify-end items-center px-4 py-2 space-x-12">
-              <ShareButton itemId={item.id} itemType={item.type} />
-              <BookmarkButton itemId={item.id} itemType={item.type} onBookmark={handleBookmark} />
-              <SubscribeButton itemId={item.id} itemType={item.type} onSubscribe={handleSubscribe} />
-            </div>
-          </motion.div>
-        ))}
-        columnWidth={300}
-        gap={20}
-      />
-    );
   };
 
   return (
@@ -247,15 +178,83 @@ const HomePage: React.FC = () => {
       </div>
       <Tabs
         tabs={[
-          { id: 'featured', label: 'Featured' },
-          { id: 'trending', label: 'Trending' },
-          { id: 'recommended', label: 'Recommended' },
+          {
+            id: 'featured',
+            label: 'Featured',
+            content: (
+              <MasonryGrid
+                items={featuredItems.map((item) => (
+                  <motion.div
+                    key={`${item.id}-${item.type}`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
+                  >
+                    {renderItem(item)}
+                    <div className="flex justify-end items-center px-4 py-2 space-x-12">
+                      <ShareButton itemId={item.id} itemType={item.type} />
+                      <BookmarkButton itemId={item.id} itemType={item.type} onBookmark={handleBookmark} />
+                      <SubscribeButton itemId={item.id} itemType={item.type} onSubscribe={handleSubscribe} />
+                    </div>
+                  </motion.div>
+                ))}
+                columnWidth={300}
+                gap={20}
+              />
+            ),
+          },
+          {
+            id: 'trending',
+            label: 'Trending',
+            content: (
+              <MasonryGrid
+                items={trendingItems.map((item) => (
+                  <motion.div
+                    key={`${item.id}-${item.type}`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
+                  >
+                    {renderItem(item)}
+                    <div className="flex justify-end items-center px-4 py-2 space-x-12">
+                      <ShareButton itemId={item.id} itemType={item.type} />
+                      <BookmarkButton itemId={item.id} itemType={item.type} onBookmark={handleBookmark} />
+                      <SubscribeButton itemId={item.id} itemType={item.type} onSubscribe={handleSubscribe} />
+                    </div>
+                  </motion.div>
+                ))}
+                columnWidth={300}
+                gap={20}
+              />
+            ),
+          },
+          {
+            id: 'recommended',
+            label: 'Recommended',
+            content: (
+              <MasonryGrid
+                items={recommendedItems.map((item) => (
+                  <motion.div
+                    key={`${item.id}-${item.type}`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
+                  >
+                    {renderItem(item)}
+                    <div className="flex justify-end items-center px-4 py-2 space-x-12">
+                      <ShareButton itemId={item.id} itemType={item.type} />
+                      <BookmarkButton itemId={item.id} itemType={item.type} onBookmark={handleBookmark} />
+                      <SubscribeButton itemId={item.id} itemType={item.type} onSubscribe={handleSubscribe} />
+                    </div>
+                  </motion.div>
+                ))}
+                columnWidth={300}
+                gap={20}
+              />
+            ),
+          },
         ]}
-        activeTab={activeTab}
-        onChange={handleTabChange}
-        className="mb-8"
       />
-      {renderItems()}
       {hasMore && (
         <div ref={loaderRef} className="flex justify-center mt-8">
           <Skeleton count={3} />
@@ -273,6 +272,6 @@ const HomePage: React.FC = () => {
       </div>
     </motion.div>
   );
-};
+}
 
 export default HomePage;

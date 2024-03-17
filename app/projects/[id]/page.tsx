@@ -21,27 +21,8 @@ import ReportDashboard from '@/components/ReportDashboard';
 import ThemeToggle from '@/components/ThemeToggle';
 import Toast from '@/components/Toast';
 import Popover from '@/components/Popover';
-import { File } from '@/lib/prisma';
+import { File as CustomFile, Project } from '@/lib/prisma';
 import EmptyState from '@/components/EmptyState';
-
-interface Project {
-  id: number;
-  name: string;
-  description: string;
-  createdAt: string;
-  owner: {
-    id: number;
-    username: string;
-    avatar: string;
-  };
-  members: {
-    id: number;
-    username: string;
-    avatar: string;
-  }[];
-  files: File[];
-  progress: number;
-}
 
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -87,15 +68,19 @@ const ProjectDetailPage: React.FC = () => {
   const handleFileUpload = async () => {
     try {
       const formData = new FormData();
-      selectedFiles.forEach((file) => formData.append('files[]', file));
-      const response = await fetch(`/api/projects/${project.id}/files`, {
+      selectedFiles.forEach((file) => formData.append('file', file));
+  
+      const response = await fetch(`/api/files`, {
         method: 'POST',
         body: formData,
       });
+  
       if (response.ok) {
-        // Refresh the project data after successful file upload
-        const updatedProject = await response.json();
-        setProject(updatedProject);
+        const newFiles = await response.json();
+        setProject((prevProject) => ({
+          ...prevProject!,
+          files: [...prevProject!.files, ...newFiles],
+        }));
         setSelectedFiles([]);
         setToastMessage('Files uploaded successfully');
       } else {
@@ -107,7 +92,6 @@ const ProjectDetailPage: React.FC = () => {
       setToastMessage('Error uploading files');
     }
   };
-
   const handleAddMembers = async () => {
     try {
       const response = await fetch(`/api/projects/${project.id}/members`, {
@@ -195,9 +179,10 @@ const ProjectDetailPage: React.FC = () => {
             </div>
             <div>
               <FileUpload
-                onFileSelect={(files) => setSelectedFiles(files)}
+                onFileUpload={handleFileUpload}
+                onFileSelect={() => setSelectedFiles}
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                multiple
+                maxFiles={10}
                 className="mb-2"
               />
             </div>
@@ -207,35 +192,35 @@ const ProjectDetailPage: React.FC = () => {
         return (
           <div>
             <div className="mb-6 h-10 w-full flex justify-between align-center">
-                <TagInput
-                  tags={newMembers}
-                  onChange={setNewMembers}
-                  placeholder="Enter member usernames..."
-                  className='fill md:w-1/2 h-auto flex-grow mr-4' 
-                />
-                <Button onClick={handleAddMembers} className="flex flex-shrink">
-                  <div className="flex items-center">
+              <TagInput
+                tags={newMembers}
+                onChange={setNewMembers}
+                placeholder="Enter member usernames..."
+                className='fill md:w-1/2 h-auto flex-grow mr-4'
+              />
+              <Button onClick={handleAddMembers} className="flex flex-shrink">
+                <div className="flex items-center">
                   <FiUserPlus className="mr-2" />
                   Add
-                  </div>
-                </Button>
+                </div>
+              </Button>
             </div>
-            <MembersList
-              members={project.members}
+            {/*<MembersList
+              members={project.collaborators}
               onRemoveMember={handleRemoveMember}
-            />
+        />*/}
           </div>
         );
       case 'activity':
         return (
           <div>
-            <ActivityTimeline projectId={project.id} />
+            {/*Activity timeline component*/}
           </div>
         );
       case 'reports':
         return (
           <div>
-            <ReportDashboard projectId={project.id} />
+            {/*Report dashboard component*/}
           </div>
         );
       default:
@@ -253,12 +238,12 @@ const ProjectDetailPage: React.FC = () => {
       <Card className="mb-2">
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <div className="flex flex-col md:flex-row items-center mb-4 md:mb-0">
-            <Avatar src={project.owner.avatar} alt={project.owner.username} size="large" className="mb-2 md:mb-0 md:mr-4" />
+            <Avatar src={project.owner.avatar || ''} alt={project.owner.username} size="large" className="mb-2 md:mb-0 md:mr-4" />
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">{project.name}</h1>
               <p className="text-gray-600 dark:text-gray-400">Created by {project.owner.username}</p>
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                {formatDate(project.createdAt)}
+                {formatDate(project.createdAt.toString())}
               </p>
             </div>
           </div>
@@ -273,7 +258,7 @@ const ProjectDetailPage: React.FC = () => {
             </Button>
           </div>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 mb-8" dangerouslySetInnerHTML={{ __html: project.description }} />
+        <p className="text-gray-600 dark:text-gray-400 mb-8" dangerouslySetInnerHTML={{ __html: project.description.toString()}} />
       </Card>
       <div className="block md:hidden mb-4">
         <Popover
@@ -349,8 +334,6 @@ const ProjectDetailPage: React.FC = () => {
               content: renderTabContent(),
             },
           ]}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
         />
       </div>
       <div className="block md:hidden">
@@ -361,7 +344,7 @@ const ProjectDetailPage: React.FC = () => {
           <Select
             options={['Read', 'Write', 'Admin']}
             value={permissions}
-            onChange={setPermissions}
+            onChange={() => setPermissions}
             isMulti
           />
         </div>

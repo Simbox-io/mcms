@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   const { content, postId, fileId, projectId, pageId, parentId, tutorialId } = await request.json();
 
   try {
-      const newComment = await prisma.comment.create({
+    const newComment = await prisma.comment.create({
       data: {
         content,
         author: { connect: { id: userObj.id } },
@@ -25,55 +25,8 @@ export async function POST(request: NextRequest) {
         page: pageId ? { connect: { id: pageId } } : undefined,
         parent: parentId ? { connect: { id: parentId } } : undefined,
         tutorial: tutorialId ? { connect: { id: tutorialId } } : undefined,
-        settings: {
-          create: {
-            moderationSettings: {
-              create: {
-                preModeration: false,
-                postModeration: false,
-              },
-            },
-            threadingSettings: {
-              create: {
-                allowNesting: true,
-                maxDepth: 5,
-              },
-            },
-            votingSettings: {
-              create: {
-                allowVoting: true,
-                hideThreshold: -5,
-              },
-            },
-            postSettings: {
-            },
-          },
-        },
-        include: {
-          author: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-            },
-          },
-          post: true,
-          file: true,
-          project: true,
-          page: true,
-          parent: true,
-          tutorial: true,
-          settings: {
-            include: {
-              moderationSettings: true,
-              threadingSettings: true,
-              votingSettings: true,
-            },
-          },
-        },
       },
-      });
-
+    });
     return NextResponse.json(newComment, { status: 201 });
   } catch (error) {
     console.error('Error creating comment:', error);
