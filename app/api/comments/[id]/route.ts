@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
         project: projectId ? { connect: { id: projectId } } : undefined,
         page: pageId ? { connect: { id: pageId } } : undefined,
         parent: parentId ? { connect: { id: parentId } } : undefined,
-        tutorial: tutorialId ? { connect: { id: tutorialId } } : undefined, 
+        tutorial: tutorialId ? { connect: { id: tutorialId } } : undefined,
         settings: {
           create: {
             moderationSettings: {
@@ -45,6 +45,11 @@ export async function POST(request: NextRequest) {
                 hideThreshold: settings?.votingSettings?.hideThreshold || 0,
               },
             },
+            postSettings: postId
+              ? {
+                  connect: { postId },
+                }
+              : undefined,
           },
         },
       },
