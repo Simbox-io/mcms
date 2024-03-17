@@ -226,6 +226,8 @@ model Comment {
   parentId   String?
   children   Comment[]         @relation("CommentParent")
   reactions  CommentReaction[]
+  upvotes    Int               @default(0)
+  downvotes  Int               @default(0)
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
   settings   CommentSettings?

@@ -203,6 +203,8 @@ export type Comment = {
   parent?: Comment | null;
   parentId?: string | null;
   tutorial?: Tutorial | null;
+  upvotes: number;
+  downvotes: number;
   children: Comment[];
   reactions: CommentReaction[];
   createdAt: Date;

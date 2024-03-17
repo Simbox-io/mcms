@@ -24,7 +24,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
 }) => {
   return (
     <nav className={`flex ${className}`} aria-label="Breadcrumb" style={style}>
-      <ol className="inline-flex items-center space-x-1 md:space-x-3">
+      <ol className="inline-flex items-center space-x-1 md:space-x-1">
         {items.map((item, index) => (
           <li key={item.href} className="inline-flex items-center">
             {index > 0 && (
@@ -36,9 +36,9 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               </span>
             ) : (
               <Link href={item.href}>
-                <a className="text-sm font-medium text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                <span className="text-sm font-medium text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                   {item.label}
-                </a>
+                </span>
               </Link>
             )}
           </li>
