@@ -97,24 +97,18 @@ export async function POST(request: NextRequest) {
               },
               downloadSettings: {
                 create: {
-                  requireLogin: settings.requireLogin === 'true',
-                  allowPublicDownload: settings.allowPublicDownload === 'true',
+                  requireLogin: settings.requireLoginToDownload === 'true',
                 },
               },
               expirationSettings: {
                 create: {
-                  autoDelete: settings.autoDelete === 'true',
-                  expirationPeriod: parseInt(settings.expirationPeriod as string),
+                  autoDelete: settings.autoDeleteFiles === 'true',
+                  fileExpirationPeriod: parseInt(settings.fileExpirationPeriod as string),
                 },
               },
               versioningSettings: {
                 create: {
-                  keepVersions: settings.keepVersions === 'true',
-                },
-              },
-              metadataSettings: {
-                create: {
-                  allowCustomMetadata: settings.allowCustomMetadata === 'true',
+                  keepVersions: settings.enableVersioning === 'true',
                 },
               },
             },

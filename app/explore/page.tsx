@@ -210,12 +210,12 @@ const HomePage: React.FC = () => {
         items={items.map((item) => (
           <motion.div
             key={`${item.id}-${item.type}`}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.95 }}
-            className="shadow-lg rounded-lg overflow-hidden transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
+            className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
           >
             {renderItem(item)}
-            <div className="flex justify-between items-center mt-4 px-4 py-2">
+            <div className="flex justify-end items-center px-4 py-2 space-x-12">
               <ShareButton itemId={item.id} itemType={item.type} />
               <BookmarkButton itemId={item.id} itemType={item.type} onBookmark={handleBookmark} />
               <SubscribeButton itemId={item.id} itemType={item.type} onSubscribe={handleSubscribe} />

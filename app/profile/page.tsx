@@ -12,28 +12,7 @@ import Spinner from '../../components/Spinner';
 import { formatDate } from '../../utils/dateUtils';
 import { getImageUrl } from '../../utils/imageUtils';
 import { useToken } from '../../lib/useToken';
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  avatar: string;
-  bio: string;
-  createdAt: string;
-}
-
-interface Project {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  createdAt: string;
-}
+import { User, Project, Post } from '@/lib/prisma';
 
 const UserProfilePage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -108,75 +87,71 @@ const UserProfilePage: React.FC = () => {
   if (!user) {
     return null;
   }
-
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card>
-        <div className="flex items-center mb-8">
-          <Avatar src={getImageUrl(user.avatar)} alt={user.username} size="large" />
-          <div className="ml-6">
-            <h1 className="text-3xl font-semibold mb-2 text-gray-800 dark:text-white">
-              {user.username}
-            </h1>
+      <Card className="max-w-4xl mx-auto">
+        <div className="flex justify-between mb-4">
+        <div className="flex flex-col md:flex-row items-center mb-8">
+          <Avatar src={getImageUrl(user.avatar)} alt={user.username} className="mb-4 md:mb-0 md:mr-8 h-24 w-24" />
+          <div>
+            <h1 className="text-3xl font-semibold my-1 text-gray-800 dark:text-white">{user.username}</h1>
+            <h2 className="text-2xl mt-2 mb-1 text-gray-800 dark:text-white">{user.firstName} {user.lastName}</h2>
             <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
-            <p className="text-gray-600 dark:text-gray-400">
-              Joined on {formatDate(user.createdAt)}
-            </p>
+            <p className="text-gray-600 dark:text-gray-400">Joined on {formatDate(user.createdAt)}</p>
           </div>
         </div>
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Bio</h2>
-          <p className="text-gray-700 dark:text-gray-300">{user.bio}</p>
-        </div>
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Projects</h2>
-          {projects.length > 0 ? (
-            <ul className="space-y-4">
-              {projects.map((project) => (
-                <li key={project.id}>
-                  <Card>
-                    <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">
-                      {project.name}
-                    </h3>
-                    <p className="text-gray-700 dark:text-gray-300">{project.description}</p>
-                  </Card>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-600 dark:text-gray-400">No projects found.</p>
-          )}
-        </div>
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Posts</h2>
-          {posts.length > 0 ? (
-            <ul className="space-y-4">
-              {posts.map((post) => (
-                <li key={post.id}>
-                  <Card>
-                    <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">
-                      {post.title}
-                    </h3>
-                    <p className="text-gray-700 dark:text-gray-300">{post.content}</p>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">
-                      Posted on {formatDate(post.createdAt)}
-                    </p>
-                  </Card>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-600 dark:text-gray-400">No posts found.</p>
-          )}
-        </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end h-10">
           <Button variant="primary" onClick={() => router.push('/profile/edit')}>
             Edit Profile
           </Button>
         </div>
+        </div>
+        {user.bio && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Bio</h2>
+            <p className="text-gray-700 dark:text-gray-300">{user.bio}</p>
+          </div>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Projects</h2>
+            {projects.length > 0 ? (
+              <ul className="space-y-4">
+                {projects.map((project) => (
+                  <li key={project.id}>
+                    <Card className="hover:shadow-md transition-shadow duration-300">
+                      <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{project.name}</h3>
+                      <p className="text-gray-700 dark:text-gray-300">{project.description}</p>
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600 dark:text-gray-400">No projects found.</p>
+            )}
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Posts</h2>
+            {posts.length > 0 ? (
+              <ul className="space-y-4">
+                {posts.map((post) => (
+                  <li key={post.id}>
+                    <Card className="hover:shadow-md transition-shadow duration-300">
+                      <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{post.title}</h3>
+                      <p className="text-gray-700 dark:text-gray-300">{post.content}</p>
+                      <p className="text-gray-500 dark:text-gray-400 mt-2">Posted on {formatDate(post.createdAt)}</p>
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600 dark:text-gray-400">No posts found.</p>
+            )}
+          </div>
+        </div>
       </Card>
     </div>
   );
-};
+}
 
 export default UserProfilePage;

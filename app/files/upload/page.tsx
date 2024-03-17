@@ -11,6 +11,7 @@ import Input from '../../../components/Input';
 import Textarea from '../../../components/Textarea';
 import Select from '../../../components/Select';
 import { Project } from '@/lib/prisma';
+import FileUpload from '@/components/FileUpload';
 
 const FileUploadPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -85,7 +86,7 @@ const FileUploadPage: React.FC = () => {
       });
 
       if (response.ok) {
-        const projects: Project[] = await response.json();
+        const projects: Project[] = await response.json() || [];
         return projects;
       } else {
         console.error('Error fetching projects:', response.statusText);
@@ -103,15 +104,13 @@ const FileUploadPage: React.FC = () => {
         <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Upload File</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <Input
-              label='File'
-              name="file"
-              value={selectedFile?.name || ''}
-              type="file"
-              id="file"
-              onChange={handleFileChange}
-              required
-              className="w-full"
+            <FileUpload
+              onFileUpload={() => handleFileChange}
+              onFileSelect={(files: FileList | null) => {
+                if (files && files.length > 0) {
+                  setSelectedFile(files[0]);
+                }
+              }}
             />
           </div>
           <div className="mb-6">
@@ -138,7 +137,7 @@ const FileUploadPage: React.FC = () => {
           <div className="mb-6">
             <Select
               label='Project'
-              options={projects && projects.map(project => ({ value: project.id.toString(), label: project.name }))}
+              options={projects?.length > 0 && projects?.map(project => ({ value: project?.id.toString(), label: project?.name })) || ['']}
               value={selectedProject && [selectedProject !== null] ? [selectedProject[0]] : ['']}
               onChange={(projectId: string | string[]) => {
                 if (typeof projectId === 'string') {

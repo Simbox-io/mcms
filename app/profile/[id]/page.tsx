@@ -99,7 +99,7 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
         </div>
         <div className="mb-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Badges</h2>
-          {user.badges?.length > 0 ? (
+          {/*user.badges?.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {user.badges?.map((badge) => (
                 <Badge key={badge.id} variant="primary">
@@ -116,8 +116,8 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
           <ProgressBar progress={(user.points % 100) / 100} />
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Level {Math.floor(user.points / 100) + 1} - {user.points} points
-          </p>
-        </div>
+          </p>*/}
+          </div>
         <div>
           <Button variant="primary">Follow</Button>
         </div>

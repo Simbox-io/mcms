@@ -26,7 +26,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick, author, tags, commen
       </div>
       <div className="mt-4">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{post.title}</h2>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">{post.content}</p>
+        <p className="mt-2 text-gray-600 dark:text-gray-400" dangerouslySetInnerHTML={{__html: post.content}}/>
       </div>
       <div className="mt-4 flex flex-wrap">
         {tags.map((tag) => (
@@ -35,7 +35,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onClick, author, tags, commen
           </Badge>
         ))}
       </div>
-      <div className="mt-4 flex justify-between items-center">
+      <div className="mt-4 flex justify-end space-x-12 items-center">
         <div className="flex items-center">
           <svg className="w-4 h-4 mr-1 text-gray-600 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor">
             <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />

@@ -68,7 +68,7 @@ const CreatePostPage: React.FC = () => {
       });
 
       if (response.ok) {
-        router.push('/posts');
+        router.push('/explore/posts');
       } else {
         console.error('Error creating post:', response.statusText);
       }

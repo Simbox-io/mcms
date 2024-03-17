@@ -1,8 +1,9 @@
 // app/api/user/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
-import { User } from '@/lib/prisma';
+import prisma, { User } from '@/lib/prisma';
+import { uploadImage } from '@/lib/uploadImage';
+
 
 export async function GET(request: NextRequest) {
   const session = await getSession(request);
@@ -46,9 +47,24 @@ export async function PUT(request: NextRequest) {
   if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
+  const data = await request.formData();
+  const username = data.get('username') as string;
+  const firstName = data.get('firstName') as string || '';
+  const lastName = data.get('lastName') as string || '';
+  const email = data.get('email') as string;
+  const bio = data.get('bio') as string || '';
+  const avatar = data.get('avatar') as File || null;
 
-  const { username, firstName, lastName, email, bio, avatar } = await request.json();
-
+  let avatarUrl;
+  if (avatar) {
+    try {
+      avatarUrl = await uploadImage(avatar);
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      return NextResponse.json({ message: 'Failed to upload avatar' }, { status: 500 });
+    }
+  }
+  
   try {
     const updatedUser = await prisma.user.update({
       where: { id: userObj.id },
@@ -58,21 +74,10 @@ export async function PUT(request: NextRequest) {
         lastName,
         email,
         bio,
-        avatar,
+        avatar: avatarUrl,
         profile: {
           update: {
             bio,
-          },
-        },
-      },
-      include: {
-        profile: true,
-        settings: {
-          include: {
-            notificationPreferences: true,
-            privacySettings: true,
-            passwordResetSettings: true,
-            accountDeletionSettings: true,
           },
         },
       },

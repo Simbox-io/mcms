@@ -13,20 +13,15 @@ import Spinner from '../../../components/Spinner';
 import { getImageUrl } from '../../../utils/imageUtils';
 import { useToken } from '../../../lib/useToken';
 import Avatar from '@/components/Avatar';
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  avatar: string;
-  bio: string;
-}
+import { User } from '@/lib/prisma';
 
 const EditProfilePage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [avatar, setAvatar] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -53,7 +48,9 @@ const EditProfilePage: React.FC = () => {
           setUser(userData);
           setUsername(userData.username);
           setEmail(userData.email);
-          setBio(userData.bio);
+          setBio(userData.bio ?? '');
+          setFirstName(userData.firstName ?? '');
+          setLastName(userData.lastName ?? '');
           const avatarResponse = await fetch(getImageUrl(userData.avatar), {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -85,6 +82,8 @@ const EditProfilePage: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('username', username);
+      formData.append('firstName', firstName);
+      formData.append('lastName', lastName);
       formData.append('email', email);
       formData.append('bio', bio);
       if (avatar && avatar.name !== user?.avatar) {
@@ -107,6 +106,8 @@ const EditProfilePage: React.FC = () => {
             username: updatedUser.username,
             email: updatedUser.email,
             avatar: updatedUser.avatar,
+            firstName: updatedUser.firstName,
+            lastName: updatedUser.lastName,
           },
         });
         router.push('/profile');
@@ -136,9 +137,53 @@ const EditProfilePage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card>
-        <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Edit Profile</h1>
+      <Card className="max-w-xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Edit Profile</h1>
+          <div className="flex justify-between align-center">
+          <div className='mt-4'>
+            <input
+              type="file"
+              id="avatar"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="hidden"
+            />
+            <label
+              htmlFor="avatar"
+              className="px-4 py-2 mr-4 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+            >
+              Change Avatar
+            </label>
+          </div>
+          <Avatar
+            src={avatar ? URL.createObjectURL(avatar) : user?.avatar || ''}
+            alt={user?.username}
+            size="large"
+          />
+          </div>
+        </div>
         <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            <Input
+              label="First Name"
+              name="firstName"
+              type="text"
+              id="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full"
+            />
+            <Input
+              label="Last Name"
+              name="lastName"
+              type="text"
+              id="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full"
+            />
+          </div>
           <div className="mb-6">
             <Input
               label="Username"
@@ -172,31 +217,8 @@ const EditProfilePage: React.FC = () => {
               value={bio}
               onChange={setBio}
               rows={4}
+              className="dark:bg-gray-800 dark:text-gray-100 w-full rounded-md border-gray-300 dark:border-gray-700 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
             />
-          </div>
-          <div className="mb-6">
-            <label htmlFor="avatar" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Avatar
-            </label>
-            <div className="flex items-center">
-              <Avatar
-                src={avatar ? URL.createObjectURL(avatar) : user?.avatar} alt={user?.username}
-                size="large"
-              />
-              <input
-                type="file"
-                id="avatar"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="hidden"
-              />
-              <label
-                htmlFor="avatar"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
-              >
-                Change Avatar
-              </label>
-            </div>
           </div>
           <div className="flex justify-end">
             <Button type="submit" variant="primary" disabled={isSaving}>

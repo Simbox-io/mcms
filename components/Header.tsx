@@ -1,9 +1,9 @@
 'use client';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import {signOut, useSession} from 'next-auth/react';
-import {useRouter} from 'next/navigation';
-import {User} from '@/lib/prisma';
+import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { User } from '@/lib/prisma';
 import Dropdown from './Dropdown';
 import Button from './Button';
 import SearchBar from "@/components/SearchBar";
@@ -64,32 +64,33 @@ const Header: React.FC = () => {
   }, [buttonClicked]);
 
   return (
-      <header className="bg-white dark:bg-gray-800 shadow z-10">
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-12">
+    <header className="bg-white dark:bg-gray-800 shadow z-10">
+      <div className="max-w-8xl mx-auto px-2 sm:px-6 lg:px-12">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <img src="/logo.png" alt="MCMS" className="h-16 w-16" />
-            <Link href="/">
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">MCMS</span>
-            </Link>
-            <nav className="hidden md:ml-10 md:flex md:space-x-1 xl:space-x-6">
-              <Button
-                variant="dropdown"
-                size="medium"
-                onClick={() => router.push('/explore')}
-                className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 rounded-md text-sm font-medium flex items-center"
-              >
-                Explore
-              </Button>
-              <Button
+          <div className='flex'>
+            <div className="flex flex-shrink space-x-2 items-center">
+              <img src="/logo.png" alt="MCMS" className="h-16 w-16 sm:h-12 sm:w-12" />
+              <Link href="/">
+                <span className="hidden md:block mx-2 text-xl font-bold text-blue-600 dark:text-blue-400">MCMS</span>
+              </Link>
+              <nav className="hidden md:ml-4 md:flex mx-1 space-x-1 xl:space-x-6">
+                <Button
+                  variant="dropdown"
+                  size="medium"
+                  onClick={() => router.push('/explore')}
+                  className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 rounded-md text-sm font-medium flex items-center"
+                >
+                  Explore
+                </Button>
+                <Button
                   variant="dropdown"
                   size="medium"
                   onClick={() => router.push('/explore/posts')}
                   className="hidden ml-4 md:block text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 rounded-md text-sm font-medium flex items-center"
-              >
-                News
-              </Button>
-              <Dropdown
+                >
+                  News
+                </Button>
+                <Dropdown
                   label="Projects"
                   options={['All Projects', 'Trending', 'Recent', 'My Project 1']}
                   value=""
@@ -97,26 +98,27 @@ const Header: React.FC = () => {
                   className="ml-4"
                   buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
                   menuClassName="mt-2"
-              />
-              <Dropdown
-                label="Files"
-                options={['All Files', 'Trending', 'Shared with Me', 'Recent']}
-                value=""
-                onChange={(value) => router.push(`/files/${value.toLowerCase().replace(' ', '-')}`)}
-                className="ml-4"
-                buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                menuClassName="mt-2"
-              />
-              <Dropdown
+                />
+                <Dropdown
+                  label="Files"
+                  options={['All Files', 'Trending', 'Shared with Me', 'Recent']}
+                  value=""
+                  onChange={(value) => router.push(`/files/${value.toLowerCase().replace(' ', '-')}`)}
+                  className="ml-4"
+                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
+                  menuClassName="mt-2"
+                />
+                <Dropdown
                   label="Spaces"
                   options={['All', 'Trending', 'Recent', 'Wiki 1', 'Wiki 2']}
-                value=""
+                  value=""
                   onChange={(value) => router.push(`/spaces/${value.toLowerCase().replace(' ', '-')}`)}
-                className="ml-4"
-                buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                menuClassName="mt-2"
-              />
-            </nav>
+                  className="ml-4"
+                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
+                  menuClassName="mt-2"
+                />
+              </nav>
+            </div>
           </div>
           <div className="flex items-center">
             <button
@@ -138,12 +140,12 @@ const Header: React.FC = () => {
               </svg>
             </button>
             <div className="hidden flex-grow lg:block w-full">
-                  <SearchBar onSearch={() => handleSearch} value={searchTerm} onChange={setSearchTerm}  />
+              <SearchBar onSearch={() => handleSearch} value={searchTerm} onChange={setSearchTerm} />
             </div>
             {status === 'loading' ? (
               <Skeleton variant="rectangular" width='40' height='40' className="ml-4" />
             ) : session ? (
-                <div className="relative flex items-center">
+              <div className="relative flex items-center">
                 <Dropdown
                   label={user?.username || ''}
                   image={user?.avatar || ''}
@@ -160,8 +162,8 @@ const Header: React.FC = () => {
                       router.push(`/${value.toLowerCase()}`);
                     }
                   }}
-                  className="ml-4"
-                  buttonClassName="z-1 mx-4 text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-0 py-2 rounded-md text-sm font-medium flex items-left "
+                  className="ml-4 md:ml-1 "
+                  buttonClassName="z-1 mx-2 text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-0 py-2 rounded-md text-sm font-medium flex items-left "
                   menuClassName="mt-8"
                   arrowEnabled={false}
                 />
@@ -171,7 +173,7 @@ const Header: React.FC = () => {
               <>
                 <Link href="/login">
                   <span
-                      className="text-white hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium mx-4 bg-gray-500">
+                    className="text-white hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium mx-4 bg-gray-500">
                     Login
                   </span>
                 </Link>
@@ -264,7 +266,7 @@ const Header: React.FC = () => {
       )}
       {isSearchOpen && (
         <div ref={searchRef} className="px-4 py-2">
-         <SearchBar onSearch={() => handleSearch} />
+          <SearchBar onSearch={() => handleSearch} />
         </div>
       )}
     </header>
