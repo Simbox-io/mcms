@@ -25,7 +25,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         parent: true,
         children: true,
         reactions: true,
-        tutorial: true,
+        Tutorial: true,
         settings: {
           include: {
             moderationSettings: true,
