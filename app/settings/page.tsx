@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { User, UserSettings, NotificationPreferences, PrivacySettings, ThemePreference } from '@/lib/prisma';
+import { User, UserSettings, NotificationPreferences, PrivacySettings, ThemePreference, Visibility } from '@/lib/prisma';
 
 export default function UserSettingsPage() {
   const { data: session, status } = useSession();
@@ -60,23 +60,33 @@ export default function UserSettingsPage() {
   };
 
   const handleNotificationChange = (field: keyof NotificationPreferences) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSettings((prevSettings) => ({
-      ...prevSettings!,
-      notificationPreferences: {
-        ...prevSettings!.notificationPreferences,
-        [field]: e.target.checked,
-      },
-    }));
+    setSettings((prevSettings) => {
+      if (!prevSettings) {
+        return null;
+      }
+      return {
+        ...prevSettings,
+        notificationPreferences: {
+          ...prevSettings.notificationPreferences,
+          [field]: e.target.checked,
+        } as NotificationPreferences,
+      };
+    });
   };
-
+  
   const handlePrivacyChange = (field: keyof PrivacySettings) => (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSettings((prevSettings) => ({
-      ...prevSettings!,
-      privacySettings: {
-        ...prevSettings!.privacySettings,
-        [field]: e.target.value,
-      },
-    }));
+    setSettings((prevSettings) => {
+      if (!prevSettings) {
+        return null;
+      }
+      return {
+        ...prevSettings,
+        privacySettings: {
+          ...prevSettings.privacySettings,
+          [field]: e.target.value as Visibility,
+        } as PrivacySettings,
+      };
+    });
   };
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -180,7 +190,7 @@ export default function UserSettingsPage() {
         <div>
           <select
             id="themePreference"
-            value={settings?.themePreference}
+            value={settings?.themePreference?.toString()}
             onChange={handleThemeChange}
             className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500"
           >

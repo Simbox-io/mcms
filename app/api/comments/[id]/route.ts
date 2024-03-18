@@ -32,36 +32,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       where: { id: commentId },
       data: {
         content,
-        settings: settings
-          ? {
-              update: {
-                moderationSettings: settings.moderationSettings
-                  ? {
-                      update: {
-                        preModeration: settings.moderationSettings.preModeration,
-                        postModeration: settings.moderationSettings.postModeration,
-                      },
-                    }
-                  : undefined,
-                threadingSettings: settings.threadingSettings
-                  ? {
-                      update: {
-                        allowNesting: settings.threadingSettings.allowNesting,
-                        maxDepth: settings.threadingSettings.maxDepth,
-                      },
-                    }
-                  : undefined,
-                votingSettings: settings.votingSettings
-                  ? {
-                      update: {
-                        allowVoting: settings.votingSettings.allowVoting,
-                        hideThreshold: settings.votingSettings.hideThreshold,
-                      },
-                    }
-                  : undefined,
-              },
-            }
-          : undefined,
       },
       include: {
         author: {
@@ -79,13 +49,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         children: true,
         reactions: true,
         tutorial: true,
-        settings: {
-          include: {
-            moderationSettings: true,
-            threadingSettings: true,
-            votingSettings: true,
-          },
-        },
       },
     });
 

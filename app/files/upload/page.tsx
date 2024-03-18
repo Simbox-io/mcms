@@ -75,7 +75,6 @@ const FileUploadPage: React.FC = () => {
         router.push('/files/all-files');
       } else {
         console.error('Error uploading file:', response.statusText);
-        Toast({message: 'Error uploading file', variant: 'error'});
       }
     } catch (error) {
       console.error('Error uploading file:', error);

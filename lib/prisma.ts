@@ -590,7 +590,7 @@ export type Notification = {
   isHidden: boolean;
   createdAt: Date;
   updatedAt: Date;
-  settings?: NotificationSettings | null;
+  settings?: NotificationSettings;
 };
 
 export type Activity = {
@@ -656,7 +656,7 @@ export type AdminSettings = {
   smtpAuthUser: string;
   smtpAuthPass: string;
   sesRegion: string;
-  sesAccessKeyId: string;
+  sesAccessKey: string;
   sesSecretAccessKey: string;
   emailFrom: string;
 };

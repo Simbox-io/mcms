@@ -33,7 +33,7 @@ export async function sendNotification(userId: string, message: string, email: b
           accessKeyId: config.sesAccessKey || '',
           secretAccessKey: config.sesSecretAccessKey || '',
         },
-        from: config.emailFrom,
+        from: config.emailFrom || '',
       });
   
       console.log('Email set:', emailSet);

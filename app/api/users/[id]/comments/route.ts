@@ -25,13 +25,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         parent: true,
         children: true,
         reactions: true,
-        settings: {
-          include: {
-            moderationSettings: true,
-            threadingSettings: true,
-            votingSettings: true,
-          },
-        },
       },
     });
 

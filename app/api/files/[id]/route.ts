@@ -44,7 +44,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     if (!file) {
       return NextResponse.json({ message: 'File not found' }, { status: 404 });
     }
-    const storageProvider = await getStorageProvider(adminSettings! as AdminSettings);
+    const storageProvider = await getStorageProvider(adminSettings as unknown as AdminSettings);
     const fileUrl = storageProvider.getFileUrl(file.url);
     const fileContent = await storageProvider.getFileContent(file.url);
 

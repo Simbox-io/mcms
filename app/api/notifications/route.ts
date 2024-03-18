@@ -67,7 +67,6 @@ export async function POST(request: NextRequest) {
               create: {
                 notifyAuthor: settings?.commentSettings?.notifyAuthor || false,
                 notifyCommenters: settings?.commentSettings?.notifyCommenters || false,
-                comment: settings?.commentSettings?.comment || 'default',
                 postSettings: settings?.commentSettings?.postSettings || 'default',
               },
             },
