@@ -139,7 +139,7 @@ const FileListPage: React.FC = () => {
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{file.name}</h2>
                   <div className="flex flex-col items-end space-x-2">
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Uploaded {formatDate(file.createdAt)}
+                    Uploaded {formatDate(file.createdAt.toString())}
                   </p>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     by {file.uploadedBy.username}
