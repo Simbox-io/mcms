@@ -52,7 +52,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 
   const projectId = params.id;
-  const { name, description, isPublic, parentId, tags, settings } = await request.json();
+  const { name, description, isPublic, parentId, tags, settings, contentType } = await request.json();
 
   try {
     const project = await prisma.project.findUnique({
@@ -74,6 +74,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         description,
         url: '',
         isPublic,
+        contentType,
         project: { connect: { id: projectId } },
         uploadedBy: { connect: { id: userObj.id } },
         parent: parentId ? { connect: { id: parentId } } : undefined,
