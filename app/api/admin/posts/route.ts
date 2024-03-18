@@ -76,7 +76,6 @@ export async function POST(request: NextRequest) {
                       create: {
                         allowComments: settings.commentSettings.allowComments,
                         moderateComments: settings.commentSettings.moderateComments,
-                        comment: settings.commentSettings.comment,
                       },
                     }
                   : undefined,
