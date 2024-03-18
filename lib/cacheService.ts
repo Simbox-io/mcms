@@ -21,7 +21,11 @@ class CacheService implements CacheServiceInterface {
   }
 
   set<T>(key: string, value: T, ttl?: number): boolean {
-    return this.cache.set(key, value, ttl);
+    if (ttl === undefined) {
+      return this.cache.set(key, value);
+    } else {
+      return this.cache.set(key, value, ttl);
+    }
   }
 
   delete(key: string): void {
