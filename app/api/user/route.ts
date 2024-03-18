@@ -69,7 +69,7 @@ export async function PUT(request: NextRequest) {
     const updatedUser = await prisma.user.update({
       where: { id: userObj.id },
       data: {
-        username,
+        username: username.toLowerCase(),
         firstName,
         lastName,
         email,

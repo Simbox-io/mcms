@@ -15,15 +15,16 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q') || '';
   const page = parseInt(searchParams.get('page') || '1');
-  const perPage = 10;
+  const perPage = 20;
 
   try {
-    const [posts, files, projects, spaces, tutorials] = await Promise.all([
+    const [posts, files, projects, spaces, tutorials, users] = await Promise.all([
       prisma.post.findMany({
         where: {
           OR: [
-            { title: { contains: query } },
-            { content: { contains: query } },
+            { title: { contains: query, mode: 'insensitive' } },
+            { content: { contains: query, mode: 'insensitive' } },
+            { author: { username: { contains: query, mode: 'insensitive' } } },
           ],
         },
         select: {
@@ -45,8 +46,9 @@ export async function GET(request: NextRequest) {
       prisma.file.findMany({
         where: {
           OR: [
-            { name: { contains: query } },
-            { description: { contains: query } },
+            { name: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } },
+            { uploadedBy: { username: { contains: query, mode: 'insensitive' } } },
           ],
         },
         select: {
@@ -68,8 +70,9 @@ export async function GET(request: NextRequest) {
       prisma.project.findMany({
         where: {
           OR: [
-            { name: { contains: query } },
-            { description: { contains: query } },
+            { name: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } },
+            { owner: { username: { contains: query, mode: 'insensitive' } } },
           ],
         },
         select: {
@@ -91,8 +94,9 @@ export async function GET(request: NextRequest) {
       prisma.space.findMany({
         where: {
           OR: [
-            { name: { contains: query } },
-            { description: { contains: query } },
+            { name: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } },
+            { owner: { username: { contains: query, mode: 'insensitive' } } },
           ],
         },
         select: {
@@ -113,8 +117,9 @@ export async function GET(request: NextRequest) {
       prisma.tutorial.findMany({
         where: {
           OR: [
-            { title: { contains: query } },
-            { content: { contains: query } },
+            { title: { contains: query, mode: 'insensitive' } },
+            { content: { contains: query, mode: 'insensitive' } },
+            { author: { username: { contains: query, mode: 'insensitive' } } },
           ],
         },
         select: {
@@ -133,7 +138,74 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * perPage,
         take: perPage,
       }),
+      prisma.user.findMany({
+        where: {
+          OR: [
+            { username: { contains: query, mode: 'insensitive' } },
+            { firstName: { contains: query, mode: 'insensitive' } },
+            { lastName: { contains: query, mode: 'insensitive' } },
+          ],
+        },
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+          bio: true,
+        },
+        skip: (page - 1) * perPage,
+        take: perPage,
+      }),
     ]);
+
+    const results = {
+      posts: posts.map((post) => ({
+        id: post.id,
+        type: 'post',
+        title: post.title,
+        content: post.content || '',
+        url: `/explore/posts/${post.id}`,
+      })),
+      files: files.map((file) => ({
+        id: file.id,
+        type: 'file',
+        title: file.name,
+        content: file.description || '',
+        url: `/files/${file.id}`,
+      })),
+      projects: projects.map((project) => ({
+        id: project.id,
+        type: 'project',
+        title: project.name,
+        content: project.description || '',
+        url: `/projects/${project.id}`,
+      })),
+      spaces: spaces.map((space) => ({
+        id: space.id,
+        type: 'space',
+        title: space.name,
+        content: space.description || '',
+        url: `/spaces/${space.id}`,
+      })),
+      tutorials: tutorials.map((tutorial) => ({
+        id: tutorial.id,
+        type: 'tutorial',
+        title: tutorial.title,
+        content: tutorial.content || '',
+        url: `/tutorials/${tutorial.id}`,
+      })),
+      users: users.map((user) => ({
+        id: user.id,
+        type: 'user',
+        title: `${user.username}`,
+        content: user.bio || '',
+        url: `/profile/${user.username}`,
+        image: user.avatar,
+      })),
+    };
+
+    console.log(results);
 
     const totalResults = await prisma.post.count({
       where: {
@@ -171,17 +243,10 @@ export async function GET(request: NextRequest) {
         ],
       },
     });
-
     const totalPages = Math.ceil(totalResults / perPage);
 
     return NextResponse.json({
-      posts,
-      files,
-      projects,
-      spaces,
-      tutorials,
-      totalResults,
-      totalPages,
+      results
     });
   } catch (error) {
     console.error('Error searching:', error);

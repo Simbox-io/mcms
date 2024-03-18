@@ -4,19 +4,18 @@ import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { username: string } }) {
   const session = await getSession(request);
   const userObj = session?.user as User;
-
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const userId = params.id;
+  const username = params.username;
 
   try {
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { username: username.toLowerCase() },
       include: {
         profile: true,
         settings: {
@@ -27,15 +26,52 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
             accountDeletionSettings: true,
           },
         },
-        posts: true,
+        posts: {
+          include: {
+            author: true,
+            comments: true,
+          },
+        },
         comments: true,
-        files: true,
-        ownedProjects: true,
-        collaboratedProjects: true,
+        files: {
+          include: {
+            uploadedBy: true,
+          },
+        },
+        ownedProjects: {
+          include:
+            { 
+              owner: true,
+              collaborators: true,
+              spaces: true,
+            },
+        },
+        collaboratedProjects: {
+          include: {
+            owner: true,
+            collaborators: true,
+            spaces: true,
+          },
+        },
         spaces: true,
-        collaboratedSpaces: true,
-        tutorials: true,
-        collaboratedTutorials: true,
+        collaboratedSpaces: {
+          include: {
+            owner: true,
+            collaborators: true,
+          },
+        },
+        tutorials: {
+          include: {
+            author: true,
+            collaborators: true,
+          },
+        },
+        collaboratedTutorials: {
+          include: {
+            author: true,
+            collaborators: true,
+          },
+        },
         bookmarks: true,
         commentReactions: true,
         fileReactions: true,

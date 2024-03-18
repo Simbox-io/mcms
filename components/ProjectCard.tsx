@@ -12,6 +12,8 @@ interface ProjectCardProps {
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
   return (
     <Card onClick={onClick}>
+      <div className='flex flex-col justify-between h-48'>
+        <div className="flex flex-col">
       <div className="flex items-center">
         <Avatar src={project.owner.avatar || ''} alt={project.owner.username} size="small" />
         <div className="ml-2">
@@ -22,6 +24,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
       <div className="mt-4">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{project.name}</h2>
         <p className="mt-2 text-gray-600 dark:text-gray-400" dangerouslySetInnerHTML={{__html: project.description}}/>
+      </div>
       </div>
       <div className="mt-4 flex justify-end space-x-6">
         <div className="flex items-center">
@@ -36,6 +39,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
           </svg>
           <span className="text-sm text-gray-600 dark:text-gray-400">{project.spaces.length}</span>
         </div>
+      </div>
       </div>
     </Card>
   );

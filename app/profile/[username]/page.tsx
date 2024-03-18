@@ -1,4 +1,4 @@
-// app/profile/[id]/page.tsx
+// app/profile/[username]/page.tsx
 'use client';
 import React, { useEffect, useState } from 'react';
 import { User, Project, File, Space } from '@/lib/prisma';
@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 
 interface ProfileProps {
   params: {
-    id: string;
+    username: string;
   };
 }
 
@@ -29,19 +29,21 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`/api/users/${params.id}`);
+        const response = await fetch(`/api/users/${params.username}`);
         const data = await response.json();
-        setUser(data.user);
-        setProjects(data.projects);
+        setUser(data);
+        console.log(data);
+        setProjects(data.ownedProjects);
+        console.log(projects);
         setFiles(data.files);
-        setSpaces(data.spaces);
+        setSpaces(data.collaboratedSpaces);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
     };
     fetchUserData();
-  }, [params.id]);
+  }, [params.username]);
 
   const handleProjectClick = (project: Project) => {
     router.push(`/projects/${project.id}`);
@@ -104,7 +106,7 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
             label: 'Projects',
             content: (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {projects.map((project) => (
+                {projects?.map((project) => (
                   <ProjectCard key={project.id} project={project} onClick={() => handleProjectClick(project)} />
                 ))}
               </div>
@@ -115,7 +117,7 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
             label: 'Files',
             content: (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {files.map((file) => (
+                {files?.map((file) => (
                   <FileCard key={file.id} file={file} onClick={() => handleFileClick(file)} />
                 ))}
               </div>
@@ -126,7 +128,7 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
             label: 'Spaces',
             content: (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {spaces.map((space) => (
+                {spaces?.map((space) => (
                   <SpaceCard key={space.id} space={space} onClick={() => handleSpaceClick(space)}/>
                 ))}
               </div>

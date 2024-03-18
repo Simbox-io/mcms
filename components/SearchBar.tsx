@@ -3,15 +3,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { debounce } from 'lodash';
-import Avatar from '@/components/Avatar';
-import Button from '@/components/Button';
 import Skeleton from '@/components/Skeleton';
+import SearchResults from '@/components/SearchResults';
+import { useRouter } from 'next/navigation';
 
 export interface SearchResult {
   id: string;
   type: 'post' | 'project' | 'file' | 'space' | 'profile';
   title: string;
-  description: string;
+  content: string;
   value: string;
   image?: string;
   url: string;
@@ -31,46 +31,56 @@ const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = 'Search...',
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
+  const router = useRouter();
+  const [searchResults, setSearchResults] = useState<{
+    posts: SearchResult[];
+    files: SearchResult[];
+    projects: SearchResult[];
+    spaces: SearchResult[];
+    tutorials: SearchResult[];
+    users: SearchResult[];
+  }>({
+    posts: [],
+    files: [],
+    projects: [],
+    spaces: [],
+    tutorials: [],
+    users: [],
+  });
 
   const fetchSearchResults = async (query: string) => {
     if (query.trim() === '') {
-      setSearchResults([]);
+      setSearchResults({
+        posts: [],
+        files: [],
+        projects: [],
+        spaces: [],
+        tutorials: [],
+        users: [],
+      });
       return;
     }
-
     setIsLoading(true);
-
     try {
       const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
-      setSearchResults(data);
+      setSearchResults(data.results);
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
-
     setIsLoading(false);
   };
 
-  const debouncedFetchSearchResults = debounce(fetchSearchResults, 300);
+  const debouncedFetchSearchResults = debounce(fetchSearchResults);
 
   useEffect(() => {
     if (searchQuery.trim() !== '') {
       debouncedFetchSearchResults(searchQuery);
-      if (dropdownTimeout.current) {
-        clearTimeout(dropdownTimeout.current);
-      }
-      dropdownTimeout.current = setTimeout(() => {
-        setShowDropdown(true);
-      }, 200); // Adjust the delay as needed
     } else {
-      setSearchResults([]);
-      setShowDropdown(false);
+      setSearchResults({posts: [], files: [], projects: [], spaces: [], tutorials: [], users: []})
     }
   }, [searchQuery]);
 
@@ -87,7 +97,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const handleResultClick = (result: SearchResult) => {
     setSearchQuery('');
     setIsOpen(false);
-    window.location.href = result.url;
+    router.push(result.url);
   };
 
   const handleClickOutside = (e: MouseEvent) => {
@@ -137,26 +147,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
             transition={{ duration: 0.3 }}
             className="absolute z-10 mt-2 w-full rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none"
           >
-            {searchResults.length > 0 ? (
-                searchResults.map((result) => (
-                  <div
-                    key={result.id}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => handleResultClick(result)}
-                  >
-                    <div className="flex items-center">
-                      {result.image && <Avatar src={result.image} alt={result.title} size="small" className="mr-2" />}
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{result.title}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{result.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-            ) : (
+            {isLoading ? (
               <div className="px-4 py-2">
-                <p className="text-sm text-gray-500 dark:text-gray-400">No results found.</p>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full mt-2" />
+                <Skeleton className="h-4 w-full mt-2" />
               </div>
+            ) : (
+              <SearchResults results={searchResults} onResultClick={handleResultClick} />
             )}
           </motion.div>
         )}
