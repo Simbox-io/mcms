@@ -13,6 +13,7 @@ import {getImageUrl} from '../../../../utils/imageUtils';
 import {Tag} from '../../../../types/tag';
 import {User} from '@/lib/prisma';
 import Link from 'next/link';
+import Avatar from '../../../../components/Avatar';
 
 interface Post {
   id: number;
@@ -98,11 +99,7 @@ const PostDetailPage: React.FC = () => {
         <div className="flex items-center mb-8">
           {/* eslint-disable-next-line react/jsx-no-undef */}
           <Link href={`/profile/${post.author.id}`}>
-          <img
-            src={getImageUrl(post.author.avatar)}
-            alt={post.author.username}
-            className="w-12 h-12 rounded-full mr-4"
-          />
+          <Avatar src={post.author.avatar} alt={post.author.username} className="w-12 h-12 rounded-full mr-3" />
           </Link>
           <div>
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
@@ -131,6 +128,7 @@ const PostDetailPage: React.FC = () => {
                 {tag.name}
               </span>
             ))}
+            {post.tags.length === 0 && <span>No tags</span>}
           </div>
         </div>
         <div className='flex justify-between mt-8'>
@@ -147,7 +145,7 @@ const PostDetailPage: React.FC = () => {
                       d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
                 </svg>
               </Button>
-              <Button variant="secondary" onClick={handleEdit} className="mr-2">
+              <Button variant="secondary" onClick={handleEdit} className="mx-4">
                 Edit
               </Button>
               <Button variant="danger" onClick={handleDelete}>

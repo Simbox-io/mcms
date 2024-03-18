@@ -123,7 +123,7 @@ const HomePage: React.FC = () => {
         return (
           <PostCard
             post={item as Post}
-            onClick={() => router.push(`/posts/${item.id}`)}
+            onClick={() => router.push(`/explore/posts/${item.id}`)}
             author={(item as Post).author}
             tags={(item as Post).tags}
             comments={(item as Post).comments}
@@ -258,16 +258,6 @@ const HomePage: React.FC = () => {
           <Skeleton count={3} />
         </div>
       )}
-      <div className="flex flex-col md:flex-row justify-center items-center mt-8">
-        <div className="flex items-center mr-4 mb-4 md:mb-0">
-          <BadgeIcon className="w-6 h-6 text-yellow-500 mr-2" />
-          <span className="text-gray-600 dark:text-gray-400">Earn badges for your contributions!</span>
-        </div>
-        <div className="flex items-center">
-          <LeaderboardIcon className="w-6 h-6 text-green-500 mr-2" />
-          <span className="text-gray-600 dark:text-gray-400">Climb the leaderboard and showcase your achievements!</span>
-        </div>
-      </div>
     </motion.div>
   );
 }

@@ -242,14 +242,14 @@ const ProjectListPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="ml-4">
-                      <p className="text-gray-600 dark:text-gray-400 mb-2">Members:</p>
+                      {project.members && (<><p className="text-gray-600 dark:text-gray-400 mb-2">Members:</p>
                       <ul className="list-disc list-inside">
-                        {project.members.map((member) => (
+                        {project.members?.map((member) => (
                           <li key={member.id} className="text-gray-600 dark:text-gray-400">
                             {member.username}
                           </li>
                         ))}
-                      </ul>
+                      </ul></>)}
                     </div>
                   </div>
                 </Card>

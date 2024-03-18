@@ -23,7 +23,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{project.name}</h2>
         <p className="mt-2 text-gray-600 dark:text-gray-400" dangerouslySetInnerHTML={{__html: project.description}}/>
       </div>
-      <div className="mt-4 flex justify-between items-center">
+      <div className="mt-4 flex justify-end space-x-6">
         <div className="flex items-center">
           <svg className="w-4 h-4 mr-1 text-gray-600 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor">
             <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
