@@ -5,6 +5,7 @@ interface CacheServiceInterface {
   get<T>(key: string): T | undefined;
   set<T>(key: string, value: T, ttl?: number): boolean;
   delete(key: string): void;
+  deleteByPattern(pattern: string): void;
   flush(): void;
 }
 
@@ -25,6 +26,15 @@ class CacheService implements CacheServiceInterface {
 
   delete(key: string): void {
     this.cache.del(key);
+  }
+
+  deleteByPattern(pattern: string): void {
+    const keys = this.cache.keys();
+    keys.forEach((key) => {
+      if (key.includes(pattern)) {
+        this.cache.del(key);
+      }
+    });
   }
 
   flush(): void {
