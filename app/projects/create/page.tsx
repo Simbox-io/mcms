@@ -37,17 +37,14 @@ const CreateProjectPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       // Upload files first
       const uploadResults = await Promise.all(
         selectedFiles.map((file) => handleUpload(file))
       );
-
       // Filter out successful uploads
       const successfulUploads = uploadResults.filter((result) => result.success);
       const filePaths = successfulUploads.map((result) => result.path);
-
       // Check for failed uploads
       const failedUploads = uploadResults.filter((result) => !result.success);
       if (failedUploads.length > 0) {
@@ -77,14 +74,13 @@ const CreateProjectPage: React.FC = () => {
       });
 
       if (response.ok) {
-        router.push('/all-projects');
+        router.push(`/projects/${name}`);
       } else {
         console.error('Error creating project:', response.statusText);
       }
     } catch (error) {
       console.error('Error creating project:', error);
     }
-
     setIsSubmitting(false);
   };
 
@@ -95,6 +91,7 @@ const CreateProjectPage: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response.ok) {
         const users: User[] = await response.json();
         return users;
@@ -118,6 +115,11 @@ const CreateProjectPage: React.FC = () => {
   const handleUpload = async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('name', file.name);
+    formData.append('description', '');
+    formData.append('isPublic', 'true');
+    formData.append('contentType', file.type);
+
 
     try {
       const response = await fetch('/api/files', {
@@ -148,8 +150,8 @@ const CreateProjectPage: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="container mx-auto px-4 py-8"
     >
-      <Card className="max-w-3xl mx-auto">
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4 rounded-t-lg">
+      <Card className="max-w-3xl mx-auto shadow-lg">
+        <div className="px-6 py-4">
           <h1 className="text-2xl font-semibold text-white">Create Project</h1>
         </div>
         <div className="p-6">
@@ -206,6 +208,8 @@ const CreateProjectPage: React.FC = () => {
                     setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])
                   }
                   isMulti
+                  placeholder="Select project members"
+                  className="w-full"
                 />
               </FormGroup>
               <FormGroup label="Tags" htmlFor="tags">
@@ -222,8 +226,9 @@ const CreateProjectPage: React.FC = () => {
                 id="files"
                 onFileSelect={handleFileSelect}
                 onFileUpload={() => handleUpload}
-                accept=".pdf,.doc,.docx,.txt,.md,.jpg,.jpeg,.png"
+                accept="*"
                 maxFiles={10}
+                showButton={false}
               />
             </FormGroup>
             <div className="mt-8">

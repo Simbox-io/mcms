@@ -23,6 +23,7 @@ import Toast from '@/components/Toast';
 import Popover from '@/components/Popover';
 import { File as CustomFile, Project } from '@/lib/prisma';
 import EmptyState from '@/components/EmptyState';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -233,9 +234,10 @@ const ProjectDetailPage: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="container rounded-lg mx-auto my-auto mt-8 px-4 py-8 dark:bg-gray-900 dark:text-white"
+      className="container rounded-lg mx-auto my-auto mt-2 px-4 py-8 dark:bg-gray-900 dark:text-white"
     >
-      <Card className="mb-2">
+      <Breadcrumbs items={[{ label: 'Projects', href: '/projects' }, { label: project.name, href: '' }]} className='mb-4'/>
+      <Card className="mb-4">
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <div className="flex flex-col md:flex-row items-center mb-4 md:mb-0">
             <Avatar src={project.owner.avatar || ''} alt={project.owner.username} size="large" className="mb-2 md:mb-0 md:mr-4" />
@@ -249,16 +251,14 @@ const ProjectDetailPage: React.FC = () => {
           </div>
           <div className="flex items-center">
             <Button variant="secondary" onClick={handleEditProject} className="mr-2">
-              <FiEdit className="mr-2" />
-              Edit
+              <FiEdit className="" />
             </Button>
             <Button variant="danger" onClick={handleDeleteProject}>
-              <FiTrash className="mr-2" />
-              Delete
+              <FiTrash className="" />
             </Button>
           </div>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 mb-8" dangerouslySetInnerHTML={{ __html: project.description.toString()}} />
+        <p className="text-gray-800 dark:text-gray-200 mb-8" dangerouslySetInnerHTML={{ __html: project.description.toString()}} />
       </Card>
       <div className="block md:hidden mb-4">
         <Popover

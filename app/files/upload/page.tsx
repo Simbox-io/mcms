@@ -49,7 +49,7 @@ const FileUploadPage: React.FC = () => {
       setIsUploading(false);
       return;
     }
-
+    
     const formData = new FormData();
     formData.append('file', selectedFile);
     formData.append('name', name);

@@ -20,6 +20,7 @@ interface FileUploadProps {
   dragActiveLabel?: string;
   fileActiveLabel?: string;
   id?: string;
+  showButton?: boolean;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -34,6 +35,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   dragActiveLabel = 'Drop the files here',
   fileActiveLabel = 'Files uploaded',
   id,
+  showButton = true,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -198,13 +200,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
             >
               Clear All
             </button>
+            {showButton && (
             <button
               type="button"
               onClick={handleUpload}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Upload Files
-            </button>
+            </button>)}
           </div>
         </motion.div>
       )}

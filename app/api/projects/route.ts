@@ -61,10 +61,10 @@ export async function POST(request: NextRequest) {
         description,
         owner: { connect: { id: user.id } },
         collaborators: {
-          connect: collaborators.map((collaboratorId: string) => ({ id: collaboratorId })),
+          connect: collaborators?.map((collaboratorId: string) => ({ id: collaboratorId })),
         },
         tags: {
-          connectOrCreate: tags.map((tag: string) => ({
+          connectOrCreate: tags?.map((tag: string) => ({
             where: { name: tag },
             create: { name: tag },
           })),

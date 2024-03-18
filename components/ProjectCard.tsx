@@ -21,7 +21,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
       </div>
       <div className="mt-4">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{project.name}</h2>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">{project.description}</p>
+        <p className="mt-2 text-gray-600 dark:text-gray-400" dangerouslySetInnerHTML={{__html: project.description}}/>
       </div>
       <div className="mt-4 flex justify-between items-center">
         <div className="flex items-center">
