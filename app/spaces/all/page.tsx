@@ -165,7 +165,7 @@ const SpaceListPage: React.FC = () => {
           { id: 'categories', label: 'Categories', icon: <TagIcon/>, link: '/spaces/categories' },
         ]} 
             onItemClick={(link) => router.push(link)}
-            activeItem={window.location.pathname}
+            activeItem={''}
         />
       </div>
       <div className="flex-1 overflow-y-auto p-4">
