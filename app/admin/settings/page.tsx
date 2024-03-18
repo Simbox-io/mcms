@@ -416,7 +416,7 @@ const AdminSettingsPage: React.FC = () => {
                   />
                 </>
               )}
-              {settings.emailProvider === 'ses' && (
+              {settings.emailProvider !== 'smtp' && (
                 <>
                   <Input
                     label="SES Region"
