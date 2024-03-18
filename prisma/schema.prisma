@@ -173,8 +173,6 @@ model PostSettings {
 
 model CommentSettings {
   id                   String                @id @default(uuid())
-  comment              Comment               @relation(fields: [commentId], references: [id])
-  commentId            String                @unique
   moderationSettings   ModerationSettings?
   notificationSettings NotificationSettings?
   threadingSettings    ThreadingSettings?
@@ -230,7 +228,6 @@ model Comment {
   downvotes  Int               @default(0)
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
-  settings   CommentSettings?
   tutorial   Tutorial?         @relation(fields: [tutorialId], references: [id])
   tutorialId String?
 }
@@ -438,6 +435,16 @@ model AdminSettings {
   autoDeleteFiles          Boolean  @default(false)
   fileExpirationPeriod     Int      @default(30)
   enableVersioning         Boolean  @default(false)
+  emailProvider            String
+  smtpHost                 String?
+  smtpPort                 Int?
+  smtpSecure               Boolean?
+  smtpAuthUser             String?
+  smtpAuthPass             String?
+  sesRegion                String?
+  sesAccessKey             String?
+  sesSecretAccessKey       String?
+  emailFrom                String?
 }
 
 model Tag {
@@ -652,6 +659,7 @@ model Notification {
   message   String
   link      String?
   isRead    Boolean               @default(false)
+  isHidden  Boolean               @default(false)
   createdAt DateTime              @default(now())
   updatedAt DateTime              @updatedAt
   settings  NotificationSettings?

@@ -35,7 +35,18 @@ interface AdminSettings {
   autoDeleteFiles: boolean;
   fileExpirationPeriod: number;
   enableVersioning: boolean;
+  emailProvider: 'smtp',
+  smtpHost: '',
+  smtpPort: 587,
+  smtpSecure: false,
+  smtpAuthUser: '',
+  smtpAuthPass: '',
+  sesRegion: '',
+  sesAccessKey: '',
+  sesSecretAccessKey: '',
+  emailFrom: '',
 }
+
 
 const defaultSettings: AdminSettings = {
   siteTitle: 'My Site',
@@ -60,6 +71,16 @@ const defaultSettings: AdminSettings = {
   autoDeleteFiles: false,
   fileExpirationPeriod: 30,
   enableVersioning: false,
+  emailProvider: 'smtp',
+  smtpHost: '',
+  smtpPort: 587,
+  smtpSecure: false,
+  smtpAuthUser: '',
+  smtpAuthPass: '',
+  sesRegion: '',
+  sesAccessKey: '',
+  sesSecretAccessKey: '',
+  emailFrom: '',
 };
 
 const AdminSettingsPage: React.FC = () => {
@@ -86,6 +107,16 @@ const AdminSettingsPage: React.FC = () => {
     autoDeleteFiles: false,
     fileExpirationPeriod: 30,
     enableVersioning: false,
+    emailProvider: 'smtp',
+    smtpHost: '',
+    smtpPort: 587,
+    smtpSecure: false,
+    smtpAuthUser: '',
+    smtpAuthPass: '',
+    sesRegion: '',
+    sesAccessKey: '',
+    sesSecretAccessKey: '',
+    emailFrom: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -322,6 +353,109 @@ const AdminSettingsPage: React.FC = () => {
                   />
                 </>
               )}
+            </div>
+          </Card>
+
+          <Card className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Email Settings</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Select
+                label="Email Provider"
+                id="emailProvider"
+                name="emailProvider"
+                value={settings.emailProvider}
+                onChange={(value) => handleSelectChange('emailProvider', value)}
+                options={[
+                  { value: 'smtp', label: 'SMTP' },
+                  { value: 'ses', label: 'Amazon SES' },
+                ]}
+                required
+              />
+              {settings.emailProvider === 'smtp' && (
+                <>
+                  <Input
+                    label="SMTP Host"
+                    type="text"
+                    id="smtpHost"
+                    name="smtpHost"
+                    value={settings.smtpHost}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Input
+                    label="SMTP Port"
+                    type="number"
+                    id="smtpPort"
+                    name="smtpPort"
+                    value={settings.smtpPort.toString()}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Toggle
+                    label="SMTP Secure"
+                    checked={settings.smtpSecure}
+                    onChange={() => handleToggle('smtpSecure')}
+                  />
+                  <Input
+                    label="SMTP Auth User"
+                    type="text"
+                    id="smtpAuthUser"
+                    name="smtpAuthUser"
+                    value={settings.smtpAuthUser}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Input
+                    label="SMTP Auth Password"
+                    type="password"
+                    id="smtpAuthPass"
+                    name="smtpAuthPass"
+                    value={settings.smtpAuthPass}
+                    onChange={handleChange}
+                    required
+                  />
+                </>
+              )}
+              {settings.emailProvider === 'ses' && (
+                <>
+                  <Input
+                    label="SES Region"
+                    type="text"
+                    id="sesRegion"
+                    name="sesRegion"
+                    value={settings.sesRegion}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Input
+                    label="SES Access Key ID"
+                    type="text"
+                    id="sesAccessKey"
+                    name="sesAccessKey"
+                    value={settings.sesAccessKey}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Input
+                    label="SES Secret Access Key"
+                    type="password"
+                    id="sesSecretAccessKey"
+                    name="sesSecretAccessKey"
+                    value={settings.sesSecretAccessKey}
+                    onChange={handleChange}
+                    required
+                  />
+                </>
+              )}
+              <Input
+                label="Email From"
+                type="email"
+                id="emailFrom"
+                name="emailFrom"
+                value={settings.emailFrom}
+                onChange={handleChange}
+                required
+              />
             </div>
           </Card>
 

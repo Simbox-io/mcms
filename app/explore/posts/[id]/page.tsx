@@ -45,7 +45,6 @@ const PostDetailPage: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           setPost(data);
-          console.log(data);
         } else {
           console.error('Error fetching post:', response.statusText);
         }
@@ -60,7 +59,7 @@ const PostDetailPage: React.FC = () => {
   }, [id]);
 
   const handleEdit = () => {
-    router.push(`/posts/${id}/edit`);
+    router.push(`/explore/posts/${id}/edit`);
   };
 
   const handleDelete = async () => {
@@ -70,7 +69,7 @@ const PostDetailPage: React.FC = () => {
       });
 
       if (response.ok) {
-        router.push('/posts');
+        router.push('/explore/posts');
       } else {
         console.error('Error deleting post:', response.statusText);
       }

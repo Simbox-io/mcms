@@ -32,7 +32,7 @@ const UserProfilePage: React.FC = () => {
           return;
         }
 
-        const response = await fetch(`/api/users/${sessionUser.id}`, {
+        const response = await fetch(`/api/user/${sessionUser.username}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

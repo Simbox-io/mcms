@@ -5,6 +5,8 @@ import { getSession } from '@/lib/auth';
 import { User, AdminSettings } from '@/lib/prisma';
 import { getStorageProvider } from '@/lib/file-storage';
 
+export const maxDuration = 60;
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');

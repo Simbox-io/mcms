@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
+import { setEmailConfig } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
   const session = await getSession(request);
@@ -42,6 +43,16 @@ export async function PUT(request: NextRequest) {
     autoDeleteFiles,
     fileExpirationPeriod,
     enableVersioning,
+    emailProvider,
+    smtpHost,
+    smtpPort,
+    smtpAuthUser,
+    smtpAuthPass,
+    smtpSecure,
+    sesRegion,
+    sesAccessKey,
+    sesSecretAccessKey,
+    emailFrom
   } = await request.json();
   try {
     const updatedSettings = await prisma.adminSettings.upsert({
@@ -69,6 +80,16 @@ export async function PUT(request: NextRequest) {
         autoDeleteFiles,
         fileExpirationPeriod,
         enableVersioning,
+        emailProvider,
+        smtpHost,
+        smtpPort,
+        smtpAuthUser,
+        smtpAuthPass,
+        smtpSecure,
+        sesRegion,
+        sesAccessKey,
+        sesSecretAccessKey,
+        emailFrom
       },
       create: {
         siteTitle,
@@ -93,8 +114,19 @@ export async function PUT(request: NextRequest) {
         autoDeleteFiles,
         fileExpirationPeriod,
         enableVersioning,
+        emailProvider,
+        smtpHost,
+        smtpPort,
+        smtpAuthUser,
+        smtpAuthPass,
+        smtpSecure,
+        sesRegion,
+        sesAccessKey,
+        sesSecretAccessKey,
+        emailFrom
       },
     });
+
     return NextResponse.json(updatedSettings);
   } catch (error) {
     console.error('Error updating admin settings:', error);

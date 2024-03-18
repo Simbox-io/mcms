@@ -205,8 +205,6 @@ export async function GET(request: NextRequest) {
       })),
     };
 
-    console.log(results);
-
     const totalResults = await prisma.post.count({
       where: {
         OR: [

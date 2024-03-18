@@ -12,13 +12,30 @@ import Card from '../../../components/Card';
 import Select from '../../../components/Select';
 import { Tag } from '../../../types/tag';
 import { Editor } from '@tinymce/tinymce-react';
+import Accordion, { AccordionItem } from '../../../components/Accordion';
 
 const CreatePostPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tags, setTags] = useState<{value: string, label: string}[]>([]);
+  const [tags, setTags] = useState<{ value: string, label: string }[]>([]);
+  const [settings, setSettings] = useState({
+    defaultVisibility: 'PUBLIC',
+    commentSettings: {
+      allowComments: true,
+      moderateComments: false,
+      comment: '',
+    },
+    sharingSettings: {
+      allowSharing: true,
+      sharePlatforms: [],
+    },
+    revisionHistorySettings: {
+      revisionsToKeep: 10,
+    },
+  });
+
   const router = useRouter();
   const token = useToken();
 
@@ -30,7 +47,7 @@ const CreatePostPage: React.FC = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+
         if (response.ok) {
           const tags: Tag[] = await response.json();
           return tags;
@@ -49,14 +66,13 @@ const CreatePostPage: React.FC = () => {
       const options = fetchedTags.map(tag => ({ value: tag.id.toString(), label: tag.name }));
       setTags(options);
     };
-  
+
     fetchAndSetTags();
   }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       const response = await fetch('/api/posts', {
         method: 'POST',
@@ -64,9 +80,8 @@ const CreatePostPage: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title, content, tags: selectedTags || [] }),
+        body: JSON.stringify({ title, content, tags: selectedTags || [], settings }),
       });
-
       if (response.ok) {
         router.push('/explore/posts');
       } else {
@@ -75,8 +90,14 @@ const CreatePostPage: React.FC = () => {
     } catch (error) {
       console.error('Error creating post:', error);
     }
-
     setIsSubmitting(false);
+  };
+
+  const handleSettingsChange = (field: string, value: any) => {
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      [field]: value,
+    }));
   };
 
   return (
@@ -128,6 +149,98 @@ const CreatePostPage: React.FC = () => {
               onChange={(tags) => setSelectedTags(Array.isArray(tags) ? tags : [tags])}
              isMulti
             />*/}
+          </div>
+          <div className="mb-6">
+            <Accordion>
+              <AccordionItem id="visibility" title="Visibility Settings">
+                <div className="p-4">
+                  <Select
+                    label="Default Visibility"
+                    options={[
+                      { value: 'PUBLIC', label: 'Public' },
+                      { value: 'PRIVATE', label: 'Private' },
+                    ]}
+                    value={settings.defaultVisibility}
+                    onChange={(value) => handleSettingsChange('defaultVisibility', value)}
+                  />
+                </div>
+              </AccordionItem>
+              <AccordionItem id="comments" title="Comment Settings">
+                <div className="p-4">
+                  <div className="mb-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={settings.commentSettings.allowComments}
+                        onChange={(e) =>
+                          handleSettingsChange('commentSettings', {
+                            ...settings.commentSettings,
+                            allowComments: e.target.checked,
+                          })
+                        }
+                        className="form-checkbox"
+                      />
+                      <span className="ml-2">Allow Comments</span>
+                    </label>
+                  </div>
+                  <div className="mb-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={settings.commentSettings.moderateComments}
+                        onChange={(e) =>
+                          handleSettingsChange('commentSettings', {
+                            ...settings.commentSettings,
+                            moderateComments: e.target.checked,
+                          })
+                        }
+                        className="form-checkbox"
+                      />
+                      <span className="ml-2">Moderate Comments</span>
+                    </label>
+                  </div>
+                </div>
+              </AccordionItem>
+              <AccordionItem id="sharing" title="Sharing Settings">
+                <div className="p-4">
+                  <div className="mb-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={settings.sharingSettings.allowSharing}
+                        onChange={(e) =>
+                          handleSettingsChange('sharingSettings', {
+                            ...settings.sharingSettings,
+                            allowSharing: e.target.checked,
+                          })
+                        }
+                        className="form-checkbox"
+                      />
+                      <span className="ml-2">Allow Sharing</span>
+                    </label>
+                  </div>
+                  {/* Add sharing platform options */}
+                </div>
+              </AccordionItem>
+              <AccordionItem id="revisionHistory" title="Revision History Settings">
+                <div className="p-4">
+                  <Input
+                    name="revisionsToKeep"
+                    id="revisionsToKeep"
+                    label="Revisions to Keep"
+                    type="number"
+                    value={settings.revisionHistorySettings.revisionsToKeep.toString()}
+                    onChange={(e) =>
+                      handleSettingsChange('revisionHistorySettings', {
+                        ...settings.revisionHistorySettings,
+                        revisionsToKeep: parseInt(e.target.value),
+                      })
+                    }
+                    className="w-full"
+                  />
+                </div>
+              </AccordionItem>
+            </Accordion>
           </div>
           <div className="flex justify-end">
             <Button type="submit" variant="primary" disabled={isSubmitting}>

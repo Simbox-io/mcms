@@ -45,7 +45,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const { isRead, settings } = await request.json();
+  const { isRead, isHidden, settings } = await request.json();
 
   try {
     const notification = await prisma.notification.findUnique({
@@ -60,6 +60,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       where: { id: notificationId },
       data: {
         isRead,
+        isHidden: isHidden || false,
         settings: settings
           ? {
               update: {

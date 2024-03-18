@@ -79,33 +79,33 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         },
         settings: settings
           ? {
-              update: {
-                defaultVisibility: settings.defaultVisibility,
-                commentSettings: settings.commentSettings
-                  ? {
-                      update: {
-                        allowComments: settings.commentSettings.allowComments,
-                        moderateComments: settings.commentSettings.moderateComments,
-                      },
-                    }
-                  : undefined,
-                sharingSettings: settings.sharingSettings
-                  ? {
-                      update: {
-                        allowSharing: settings.sharingSettings.allowSharing,
-                        sharePlatforms: settings.sharingSettings.sharePlatforms,
-                      },
-                    }
-                  : undefined,
-                revisionHistorySettings: settings.revisionHistorySettings
-                  ? {
-                      update: {
-                        revisionsToKeep: settings.revisionHistorySettings.revisionsToKeep,
-                      },
-                    }
-                  : undefined,
-              },
-            }
+            update: {
+              defaultVisibility: settings.defaultVisibility,
+              commentSettings: settings.commentSettings
+                ? {
+                  update: {
+                    allowComments: settings.commentSettings.allowComments,
+                    moderateComments: settings.commentSettings.moderateComments,
+                  },
+                }
+                : undefined,
+              sharingSettings: settings.sharingSettings
+                ? {
+                  update: {
+                    allowSharing: settings.sharingSettings.allowSharing,
+                    sharePlatforms: settings.sharingSettings.sharePlatforms,
+                  },
+                }
+                : undefined,
+              revisionHistorySettings: settings.revisionHistorySettings
+                ? {
+                  update: {
+                    revisionsToKeep: settings.revisionHistorySettings.revisionsToKeep,
+                  },
+                }
+                : undefined,
+            },
+          }
           : undefined,
       },
     });
@@ -129,7 +129,17 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   try {
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      include: { author: true },
+      include: {
+        author: true,
+        comments: true,
+        settings: {
+          include: {
+            sharingSettings: true,
+            revisionHistorySettings: true,
+            commentSettings: true,
+          },
+        }
+      },
     });
 
     if (!post) {
@@ -139,6 +149,30 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     if (post.author.id !== user.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
+
+    await prisma.sharingSettings.delete({
+      where: { id: post.settings?.sharingSettings?.id }
+    });
+
+    await prisma.revisionHistorySettings.delete({
+      where: { id: post.settings?.revisionHistorySettings?.id },
+    });
+
+    await prisma.commentSettings.delete({
+      where: { id: post.settings?.commentSettings?.id },  
+    });
+
+    await prisma.postSettings.delete({
+      where: { postId },
+    });
+
+    await prisma.comment.deleteMany({
+      where: { postId },
+    });
+
+    await prisma.bookmark.deleteMany({
+      where: { postId },
+    });
 
     await prisma.post.delete({
       where: { id: postId },

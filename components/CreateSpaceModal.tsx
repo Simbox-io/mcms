@@ -11,7 +11,7 @@ import { Project } from '@/lib/prisma';
 interface CreateSpaceModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (title: string, description: string, projectId: number | null) => void;
+    onSubmit: (title: string, description: string, projectId: string | null) => void;
     projects: Project[];
 }
 
@@ -23,7 +23,7 @@ const CreateSpaceModal: React.FC<CreateSpaceModalProps> = ({
                                                            }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [projectId, setProjectId] = useState<number | null>(null);
+    const [projectId, setProjectId] = useState<string | null>(null);
 
     const handleSubmit = () => {
         onSubmit(title, description, projectId);
@@ -53,9 +53,14 @@ const CreateSpaceModal: React.FC<CreateSpaceModalProps> = ({
             </FormGroup>
             <FormGroup>
                 <Select
-                    options={{...projects.map((project) => ({ value: project.id, label: project.name }))}}
-                    value={[projectId] ?[] : []}
-                    onChange={(value) => setProjectId}
+                    options={projects.map((project) => ({
+                        value: project.id.toString(),
+                        label: project.name,
+                    }))}
+                    label={'Project'}
+                    value={projectId ? projectId.toString() : ''}
+                    placeholder="Select a project"
+                    onChange={(value) => setProjectId(projectId ? String(value) : null)}
                 />
             </FormGroup>
             <div className="flex justify-end">

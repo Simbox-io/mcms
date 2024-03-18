@@ -587,6 +587,7 @@ export type Notification = {
   message: string;
   link?: string | null;
   isRead: boolean;
+  isHidden: boolean;
   createdAt: Date;
   updatedAt: Date;
   settings?: NotificationSettings | null;
@@ -648,6 +649,16 @@ export type AdminSettings = {
   autoDeleteFiles: boolean;
   fileExpirationPeriod: number;
   enableVersioning: boolean;
+  emailProvider: string;
+  smtpHost: string;
+  smtpPort: number;
+  smtpSecure: boolean;
+  smtpAuthUser: string;
+  smtpAuthPass: string;
+  sesRegion: string;
+  sesAccessKeyId: string;
+  sesSecretAccessKey: string;
+  emailFrom: string;
 };
 
 export type Plugin = {

@@ -53,7 +53,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
   try {
     const updatedSettings = await prisma.userSettings.update({
-      where: { userId },
+      where: { id: userId },
       data: {
         notificationPreferences: notificationPreferences
           ? {

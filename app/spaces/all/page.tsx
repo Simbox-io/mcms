@@ -183,7 +183,7 @@ const SpaceListPage: React.FC = () => {
               onSortOptionChange={handleSortOptionChange}
             />
             <Button onClick={() => setIsCreateModalOpen(true)} className="ml-4">
-              Create Space
+              +
             </Button>
           </div>
         </div>
@@ -219,7 +219,7 @@ const SpaceListPage: React.FC = () => {
       <CreateSpaceModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreateSpace}
+        onSubmit={() => handleCreateSpace}
         projects={projects}
       />
       <SpacePreviewModal

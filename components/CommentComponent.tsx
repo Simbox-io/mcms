@@ -36,7 +36,23 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
   return (
     <div className="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg mb-2 flex flex-col">
       <div className="flex">
-        <div className="flex flex-col space-y-3">
+        <div className='flex w-full'>
+        <div className="flex flex-col space-y-2">
+          <div>
+            <span className="font-bold text-gray-800 dark:text-gray-200">{comment.author.username}</span>
+            <span className="ml-2 text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
+          </div>
+          <p className="text-gray-700 dark:text-gray-300 mb-4">{comment.content}</p>
+        </div>
+        {comment.children && comment.children.length > 0 && (
+          <div className="ml-8 mt-4">
+            {comment.children.map((childComment) => (
+              <CommentComponent key={childComment.id} comment={childComment} />
+            ))}
+          </div>
+        )}
+        </div>
+        <div className="flex flex-col space-y-3 justify-end">
           <button
             className={`mr-4 mt-4 focus:outline-none ${isDownvoted ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'
               }`}
@@ -58,22 +74,8 @@ const CommentComponent: React.FC<CommentProps> = ({ comment }) => {
             </div>
           </button>
         </div>
-        <div className="flex flex-col space-y-2">
-          <div>
-            <span className="font-bold text-gray-800 dark:text-gray-200">{comment.author.username}</span>
-            <span className="ml-2 text-sm text-gray-500">{new Date(comment.createdAt).toLocaleString()}</span>
-          </div>
-          <p className="text-gray-700 dark:text-gray-300 mb-4">{comment.content}</p>
-        </div>
-        {comment.children && comment.children.length > 0 && (
-          <div className="ml-8 mt-4">
-            {comment.children.map((childComment) => (
-              <CommentComponent key={childComment.id} comment={childComment} />
-            ))}
-          </div>
-        )}
       </div>
-      <div className="flex mt-4 ml-12">
+      <div className="flex mt-4 ml-12 justify-end">
         <button
           className={`mr-4 focus:outline-none ${isSaved ? 'text-yellow-500' : 'text-gray-500 dark:text-gray-400'
             }`}

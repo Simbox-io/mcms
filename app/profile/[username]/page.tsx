@@ -29,12 +29,10 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`/api/users/${params.username}`);
+        const response = await fetch(`/api/user/${params.username}`);
         const data = await response.json();
         setUser(data);
-        console.log(data);
         setProjects(data.ownedProjects);
-        console.log(projects);
         setFiles(data.files);
         setSpaces(data.collaboratedSpaces);
         setIsLoading(false);
@@ -92,7 +90,6 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
           </div>
         </div>
         <div className="mb-4">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Bio</h2>
           <p className="text-gray-600 dark:text-gray-400">{user.bio || 'No bio available.'}</p>
         </div>
         <div>

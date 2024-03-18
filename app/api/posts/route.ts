@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
+import { activityListener } from '@/listeners/activityListener';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -45,8 +46,22 @@ export async function POST(request: NextRequest) {
   const session = await getSession(request);
   const user = session?.user as User;
 
+  console.log(user)
+
   if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (!user || !user.id) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { id: user.id },
+  });
+
+  if (!existingUser) {
+    return NextResponse.json({ message: 'User not found' }, { status: 404 });
   }
 
   const { title, content, tags, settings } = await request.json();
@@ -76,7 +91,6 @@ export async function POST(request: NextRequest) {
                       create: {
                         allowComments: settings.commentSettings.allowComments,
                         moderateComments: settings.commentSettings.moderateComments,
-                        comment: settings.commentSettings.comment,
                       },
                     }
                   : undefined,
@@ -101,6 +115,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log(newPost);
+    await activityListener('POST_CREATED', newPost.id, 'POST', newPost.authorId);
     return NextResponse.json(newPost, { status: 201 });
   } catch (error) {
     console.error('Error creating post:', error);
