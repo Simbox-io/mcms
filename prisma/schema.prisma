@@ -43,6 +43,7 @@ model User {
   viewedSpaces          SpaceView[]
   tutorials             Tutorial[]
   collaboratedTutorials Tutorial[]        @relation("CollaboratedTutorials")
+  quillPosts            QuillPost[]
 }
 
 model UserSettings {
@@ -169,6 +170,24 @@ model PostSettings {
   commentSettings         CommentSettings?
   sharingSettings         SharingSettings?
   revisionHistorySettings RevisionHistorySettings?
+}
+
+model QuillPost {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plugin {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  active    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CommentSettings {
