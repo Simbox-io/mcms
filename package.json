@@ -26,6 +26,7 @@
     "@types/react-beautiful-dnd": "^13.1.8",
     "@types/tinymce": "^4.6.9",
     "@vercel/analytics": "^1.2.2",
+    "@vercel/speed-insights": "^1.0.10",
     "ai": "^3.0.12",
     "apexcharts": "^3.47.0",
     "bcrypt": "^5.1.1",

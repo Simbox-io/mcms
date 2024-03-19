@@ -7,6 +7,7 @@ import Providers from "./providers";
 import { Analytics } from "@vercel/analytics/react"
 import Script from "next/script";
 import { ThemeProvider } from "./providers";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ subsets: ["latin"] });
 const ibmPlexSans = IBM_Plex_Sans({ weight: ['300', '400', '600'], subsets: ["latin"] });
@@ -36,6 +37,7 @@ export default function RootLayout({
             <main className="flex-grow overflow-auto">
               {children}
               <Analytics />
+              <SpeedInsights />
             </main>
             <Footer />
           </Providers>
