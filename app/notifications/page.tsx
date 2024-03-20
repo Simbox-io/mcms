@@ -6,6 +6,7 @@ import { User, Notification } from '@/lib/prisma';
 import Link from 'next/link';
 import Skeleton from '@/components/Skeleton';
 
+
 const NotificationsPage: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -25,7 +26,7 @@ const NotificationsPage: React.FC = () => {
         setIsLoading(false);
       }
     };
-    
+
     if (user) {
       fetchNotifications();
     }
@@ -84,7 +85,7 @@ const NotificationsPage: React.FC = () => {
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className={`p-4 rounded-lg shadow ${
+              className={`p-4 rounded-lg shadow mb-4 ${
                 notification.isRead ? 'bg-white dark:bg-gray-800' : 'bg-blue-50'
               }`}
             >
