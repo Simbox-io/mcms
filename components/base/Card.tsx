@@ -60,7 +60,7 @@ const Card: React.FC<CardProps> = ({
         </div>
       )}
     </motion.div>) : (
-      <>
+      <div className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden ${className}`}>
        {image && (
         <div className={`relative ${imageClassName}`}>
           <img src={image} alt={imageAlt} className="w-full h-auto" />
@@ -81,7 +81,7 @@ const Card: React.FC<CardProps> = ({
           {footer}
         </div>
       )}
-    </>
+    </div>
   )}
   </>
 )};

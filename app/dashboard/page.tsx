@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '@/components/Card';
+import Card from '@/components/base/Card';
 import Badge from '@/components/Badge';
 import Pagination from '@/components/Pagination';
 import Button from '@/components/Button';
@@ -163,7 +163,8 @@ const DashboardPage: React.FC = () => {
       )}
       <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Welcome, {user?.firstName}!</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-        <Card title="Projects">
+        <Card effects={false} header="Projects" content={
+          <>
           {projects.length === 0 ? (
             <EmptyState
               title="No Projects"
@@ -202,8 +203,10 @@ const DashboardPage: React.FC = () => {
               </div>
             </>
           )}
-        </Card>
-        <Card title="Notifications">
+          </>}
+        />
+        <Card effects={false} header="Notifications" content={
+          <>
           {notifications.length === 0 ? (
             <EmptyState
               title="No Notifications"
@@ -217,8 +220,10 @@ const DashboardPage: React.FC = () => {
               </div>
             ))
           )}
-        </Card>
-        <Card title="Activity">
+          </>}
+        />
+        <Card effects={false} header="Activity" content={
+          <>
           {activities.length === 0 ? (
             <EmptyState
               title="No Recent Activity"
@@ -234,7 +239,8 @@ const DashboardPage: React.FC = () => {
               </div>
             ))
           )}
-        </Card>
+          </>}
+        />
       </div>
       {selectedProject && (
         <Modal isOpen={projectModalOpen} onClose={() => setProjectModalOpen(false)} title={selectedProject.name}>
@@ -266,7 +272,8 @@ const DashboardPage: React.FC = () => {
         </Modal>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card title="Your Profile">
+        <Card effects={false} header="Your Profile" content={
+        <>
           {user && (
             <div className="flex items-center mb-4">
               <Avatar src={user.avatar} alt={user.username} size="large" />
@@ -282,8 +289,9 @@ const DashboardPage: React.FC = () => {
               Edit Profile
             </Button>
           </div>
-        </Card>
-        <Card title="Quick Links">
+          </>}
+        />
+        <Card effects={false} header="Resources" content={
           <ul className="space-y-2">
             <li>
               <a
@@ -314,7 +322,8 @@ const DashboardPage: React.FC = () => {
               </a>
             </li>
           </ul>
-        </Card>
+        }
+        />
       </div>
     </div>
   );

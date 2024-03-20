@@ -165,6 +165,7 @@ export async function GET(request: NextRequest) {
         type: 'post',
         title: post.title,
         content: post.content || '',
+        author: post.author.username,
         url: `/explore/posts/${post.id}`,
       })),
       files: files.map((file) => ({
@@ -172,6 +173,7 @@ export async function GET(request: NextRequest) {
         type: 'file',
         title: file.name,
         content: file.description || '',
+        author: file.uploadedBy.username,
         url: `/files/${file.id}`,
       })),
       projects: projects.map((project) => ({
@@ -179,6 +181,7 @@ export async function GET(request: NextRequest) {
         type: 'project',
         title: project.name,
         content: project.description || '',
+        author: project.owner.username,
         url: `/projects/${project.id}`,
       })),
       spaces: spaces.map((space) => ({
@@ -186,6 +189,7 @@ export async function GET(request: NextRequest) {
         type: 'space',
         title: space.name,
         content: space.description || '',
+        author: space.owner.username,
         url: `/spaces/${space.id}`,
       })),
       tutorials: tutorials.map((tutorial) => ({
@@ -193,6 +197,7 @@ export async function GET(request: NextRequest) {
         type: 'tutorial',
         title: tutorial.title,
         content: tutorial.content || '',
+        author: tutorial.author.username,
         url: `/tutorials/${tutorial.id}`,
       })),
       users: users.map((user) => ({

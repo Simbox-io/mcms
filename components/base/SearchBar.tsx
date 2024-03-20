@@ -1,5 +1,5 @@
 // components/SearchBar.tsx
-'use client'
+'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { debounce } from 'lodash';
@@ -12,6 +12,7 @@ export interface SearchResult {
   type: 'post' | 'project' | 'file' | 'space' | 'profile';
   title: string;
   content: string;
+  author?: string;
   value: string;
   image?: string;
   url: string;
@@ -34,6 +35,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchResultsRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [searchResults, setSearchResults] = useState<{
     posts: SearchResult[];
@@ -63,6 +65,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       });
       return;
     }
+
     setIsLoading(true);
     try {
       const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
@@ -74,13 +77,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setIsLoading(false);
   };
 
-  const debouncedFetchSearchResults = debounce(fetchSearchResults);
+  const debouncedFetchSearchResults = debounce(fetchSearchResults, 500);
 
   useEffect(() => {
     if (searchQuery.trim() !== '') {
       debouncedFetchSearchResults(searchQuery);
     } else {
-      setSearchResults({posts: [], files: [], projects: [], spaces: [], tutorials: [], users: []})
+      setSearchResults({ posts: [], files: [], projects: [], spaces: [], tutorials: [], users: [] });
     }
   }, [searchQuery]);
 
@@ -101,7 +104,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   const handleClickOutside = (e: MouseEvent) => {
-    if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
+    if (
+      inputRef.current &&
+      !inputRef.current.contains(e.target as Node) &&
+      searchResultsRef.current &&
+      !searchResultsRef.current.contains(e.target as Node)
+    ) {
       setIsOpen(false);
     }
   };
@@ -141,11 +149,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={searchResultsRef}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="absolute z-10 mt-2 w-full md:w-96 rounded-md shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none"
+            className="absolute right-3 top-12 z-10 mt-2 w-full md:w-auto rounded-md shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none"
           >
             {isLoading ? (
               <div className="px-4 py-2">
