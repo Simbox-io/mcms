@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -31,6 +32,13 @@ const Popover: React.FC<PopoverProps> = ({
   const popoverRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
 
+  const closePopover = () => {
+    setIsOpen(false);
+    if (onClose) {
+      onClose();
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -56,13 +64,6 @@ const Popover: React.FC<PopoverProps> = ({
     setIsOpen(true);
     if (onOpen) {
       onOpen();
-    }
-  };
-
-  const closePopover = () => {
-    setIsOpen(false);
-    if (onClose) {
-      onClose();
     }
   };
 
@@ -104,7 +105,6 @@ const Popover: React.FC<PopoverProps> = ({
           return {};
       }
     }
-
     return {};
   };
 
