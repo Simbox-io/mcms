@@ -268,6 +268,8 @@ export type File = {
   content: string; // This only exists in the response from the server
   url: string;
   description?: string | null;
+  likes: number;
+  views: number;
   isPublic: boolean;
   project?: Project | null;
   projectId?: string | null;
@@ -354,6 +356,8 @@ export type Project = {
   owner: User;
   ownerId: string;
   collaborators: User[];
+  likes: number;
+  views: number;
   files: File[];
   tags: Tag[];
   comments: Comment[];
@@ -428,6 +432,7 @@ export type Space = {
   pages: Page[];
   project?: Project | null;
   projectId?: string | null;
+  likes: number;
   views: SpaceView[];
   createdAt: Date;
   updatedAt: Date;

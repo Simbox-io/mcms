@@ -293,6 +293,8 @@ model File {
   url          String
   description  String?
   contentType  String
+  likes        Int            @default(0)
+  views        Int            @default(0)
   isPublic     Boolean        @default(false)
   project      Project?       @relation(fields: [projectId], references: [id])
   projectId    String?
@@ -379,6 +381,8 @@ model Project {
   description   String
   owner         User             @relation("OwnedProjects", fields: [ownerId], references: [id])
   ownerId       String
+  likes         Int              @default(0)
+  views         Int              @default(0)
   collaborators User[]           @relation("CollaboratedProjects")
   files         File[]
   tags          Tag[]
@@ -493,6 +497,7 @@ model Space {
   description   String?
   owner         User           @relation(fields: [ownerId], references: [id])
   ownerId       String
+  likes         Int            @default(0)
   collaborators User[]         @relation("CollaboratedSpaces")
   pages         Page[]
   project       Project?       @relation(fields: [projectId], references: [id])
@@ -574,6 +579,8 @@ model Page {
   content   String
   space     Space         @relation(fields: [spaceId], references: [id])
   spaceId   String
+  likes     Int           @default(0)
+  views     Int           @default(0)
   comments  Comment[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
