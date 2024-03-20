@@ -39,7 +39,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
     };
 
     const renderResults = (items: SearchResult[]) => {
-        if (items?.length === 0 || !items ) {
+        if (items?.length === 0 || !items || !items.length || items === undefined || results === undefined || results === null) {
             return (
                 <div className="px-4 py-2">
                     <p className="text-lg text-center text-gray-500 dark:text-gray-400">No results found.</p>
@@ -50,7 +50,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
         return items?.map((result) => (
             <div
                 key={result.id}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 h-16"
+                className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 h-16"
                 onClick={() => onResultClick(result)}
             >
                 <div className="flex justify-between">
@@ -88,7 +88,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
     ];
 
     return (
-        <div className="bg-white w-full dark:bg-gray-900 shadow-md rounded-md overflow-hidden">
+        <div className="bg-white w-full dark:bg-gray-800 shadow-md rounded-md overflow-hidden">
             <Tabs tabs={tabs} className="h-[512px] overflow-y-auto" />
         </div>
     );
