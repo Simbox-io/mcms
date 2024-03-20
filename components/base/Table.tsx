@@ -52,11 +52,15 @@ const Table = <T,>({
     }
   };
 
-  const renderCell = (row: T, accessor: TableColumn<T>['accessor']) => {
+  const renderCell = (row: T, accessor: TableColumn<T>['accessor']): React.ReactNode => {
     if (typeof accessor === 'function') {
       return accessor(row);
     }
-    return row[accessor as keyof T];
+    const value = row[accessor as keyof T];
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      return value.toString();
+    }
+    return null;
   };
 
   return (
