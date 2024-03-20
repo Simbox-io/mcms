@@ -5,12 +5,16 @@ import { useRouter } from 'next/navigation';
 import { User, Notification } from '@/lib/prisma';
 import Link from 'next/link';
 import Skeleton from '@/components/Skeleton';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+const MAX_NOTIFICATIONS = 5;
 
 const NotificationsPage: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [displayedNotifications, setDisplayedNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const user = session?.user as User;
 
@@ -31,6 +35,23 @@ const NotificationsPage: React.FC = () => {
       fetchNotifications();
     }
   }, [user]);
+
+  useEffect(() => {
+    setDisplayedNotifications(notifications.slice(0, MAX_NOTIFICATIONS));
+  }, [notifications]);
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const latestNotification = notifications[0];
+      toast(latestNotification.message, {
+        onClick: () => {
+          if (latestNotification.link) {
+            router.push(latestNotification.link);
+          }
+        },
+      });
+    }
+  }, [notifications, router]);
 
   const markNotificationAsRead = async (notificationId: string) => {
     try {
@@ -64,6 +85,13 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
+  const loadMoreNotifications = () => {
+    setDisplayedNotifications((prevNotifications) => [
+      ...prevNotifications,
+      ...notifications.slice(prevNotifications.length, prevNotifications.length + MAX_NOTIFICATIONS),
+    ]);
+  };
+
   if (status === 'loading') {
     return <Skeleton variant="rectangular" width="100%" height="400px" />;
   }
@@ -78,14 +106,14 @@ const NotificationsPage: React.FC = () => {
       <h1 className="text-3xl font-bold mb-4">Notifications</h1>
       {isLoading ? (
         <Skeleton variant="rectangular" width="100%" height="400px" />
-      ) : notifications.length === 0 ? (
+      ) : displayedNotifications.length === 0 ? (
         <p className="text-gray-500 dark:text-gray-200">No notifications found.</p>
       ) : (
         <div className="space-y-4">
-          {notifications.map((notification) => (
+          {displayedNotifications.map((notification) => (
             <div
               key={notification.id}
-              className={`p-4 rounded-lg shadow mb-4 ${
+              className={`p-4 rounded-lg shadow mb-6 ${
                 notification.isRead ? 'bg-white dark:bg-gray-800' : 'bg-blue-50'
               }`}
             >
@@ -146,6 +174,15 @@ const NotificationsPage: React.FC = () => {
           ))}
         </div>
       )}
+      {displayedNotifications.length < notifications.length && (
+        <button
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+          onClick={loadMoreNotifications}
+        >
+          Load More
+        </button>
+      )}
+      <ToastContainer />
     </div>
   );
 };
