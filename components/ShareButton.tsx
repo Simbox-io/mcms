@@ -19,7 +19,6 @@ const ShareButton: React.FC<ShareButtonProps> = ({ itemId, itemType }) => {
       onClick={handleShare}
     >
       <ShareIcon className="w-5 h-5 mr-1" />
-      <span>Share</span>
     </button>
   );
 };

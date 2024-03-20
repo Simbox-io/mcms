@@ -68,16 +68,18 @@ const Avatar: React.FC<AvatarProps> = ({
 };
 
 const DefaultAvatar: React.FC = () => (
-  <svg
-    className="w-full h-full text-gray-400"
-    fill="currentColor"
-    viewBox="0 0 24 24"
+<svg
     xmlns="http://www.w3.org/2000/svg"
+    className={`w-full h-full text-gray`}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
   >
     <path
-      fillRule="evenodd"
-      d="M12 2C6.477 2 2 6.477 2 12c0 5.522 4.477 10 10 10s10-4.478 10-10c0-5.523-4.477-10-10-10zm0 18a8 8 0 100-16 8 8 0 000 16zm-4.293-9.707a1 1 0 011.414 0L11 12.586l1.879-1.879a1 1 0 111.414 1.414L12.414 14l1.879 1.879a1 1 0 01-1.414 1.414L11 15.414l-1.879 1.879a1 1 0 01-1.414-1.414L9.586 14l-1.879-1.879a1 1 0 010-1.414z"
-      clipRule="evenodd"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 7a7 7 0 00-7 7h14a7 7 0 00-7-7z"
     />
   </svg>
 );

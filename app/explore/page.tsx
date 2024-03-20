@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import PostCard from '@/components/PostCard';
+import Card from '@/components/base/Card';
 import ProjectCard from '@/components/ProjectCard';
 import FileCard from '@/components/FileCard';
 import SpaceCard from '@/components/SpaceCard';
@@ -18,6 +18,9 @@ import BadgeIcon from '@/components/icons/BadgeIcon';
 import LeaderboardIcon from '@/components/icons/LeaderboardIcon';
 import MasonryGrid from '@/components/MasonryGrid';
 import Tabs from '@/components/Tabs';
+import Avatar from '@/components/base/Avatar';
+import CommentsIcon from '@/components/icons/CommentsIcon';
+import ThumbUpIcon from '@/components/icons/ThumbUpIcon';
 
 const HomePage: React.FC = () => {
   const [featuredItems, setFeaturedItems] = useState<(Post | Project | File | Space)[]>([]);
@@ -121,14 +124,71 @@ const HomePage: React.FC = () => {
     switch (item.type) {
       case 'post':
         return (
-          <PostCard
-            post={item as Post}
+          <Card
+            effects={false}
+            headerClassName='border-hidden'
+            header={
+              <div className="flex flex-col justify-between items-left h-8">
+                <div className='flex content-center items-center h-12'>
+                <Avatar src={item.author.avatar || ''} size='small' />
+                  <span className='ml-4'>{item.author.username}</span>
+                  <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">{new Date(item.createdAt).toLocaleDateString()}</span>
+                </div>
+                <h2 className="mt-4 text-xl font-bold text-gray-800 dark:text-gray-200">{item.title}</h2>
+                
+              </div>
+            }
+            content={
+              <>
+                <div className="flex flex-row justify-between items-center mt-8 mb-4">
+                  <div>
+                    <span dangerouslySetInnerHTML={{ __html: item.content }} />
+                  </div>
+                  
+                </div>
+              </>
+            }
             onClick={() => router.push(`/explore/posts/${item.id}`)}
-            author={(item as Post).author}
-            tags={(item as Post).tags}
-            comments={(item as Post).comments}
-            views={(item as Post).views}
-            likes={(item as Post).likes}
+            footer={
+              <div className='flex flex-col items-end'>
+                <div className="flex flex-grow items-end h-auto space-x-4">
+                  <div className="flex items-center space-x-2">
+                  <ThumbUpIcon className="w-4 h-4" />
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                      {item.likes} likes
+                    </span>
+                    <CommentsIcon className="w-5 h-5" />
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                      {item.comments.length} comments
+                    </span>
+                    <LeaderboardIcon className="w-4 h-4" />
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{item.views} views</span>
+                  </div>
+                  <div className='flex flex-row content-end space-x-4'>
+                    <ShareButton
+                      itemId={item.id}
+                      itemType="post"
+                    />
+                    <BookmarkButton
+                      itemId={item.id}
+                      itemType="post"
+                      onClick={() => handleBookmark(item.id, 'post')}
+                    />
+                    <SubscribeButton
+                      itemId={item.id}
+                      itemType="post"
+                      onClick={() => handleSubscribe(item.id, 'post')}
+                    />
+                  </div>
+                </div>
+
+                
+              </div>
+            }
+          /*tags={(item as Post).tags}
+          comments={(item as Post).comments}
+          views={(item as Post).views}
+          likes={(item as Post).likes}*/
           />
         );
       case 'project':
@@ -158,10 +218,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+    <div
       className="container mx-auto px-4 py-12 h-full"
     >
       <div className="flex items-center justify-between mb-12">
@@ -184,16 +241,11 @@ const HomePage: React.FC = () => {
                 items={featuredItems.map((item) => (
                   <motion.div
                     key={`${item.id}-${item.type}`}
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.005 }}
                     whileTap={{ scale: 0.95 }}
-                    className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl mb-8"
+                    className="mx-6 shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl mb-8"
                   >
                     {renderItem(item)}
-                    <div className="flex justify-end items-center px-4 py-2 space-x-12">
-                      <ShareButton itemId={item.id} itemType={item.type} />
-                      <BookmarkButton itemId={item.id} itemType={item.type} onBookmark={handleBookmark} />
-                      <SubscribeButton itemId={item.id} itemType={item.type} onSubscribe={handleSubscribe} />
-                    </div>
                   </motion.div>
                 ))}
                 columnWidth={300}
@@ -214,11 +266,6 @@ const HomePage: React.FC = () => {
                     className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
                   >
                     {renderItem(item)}
-                    <div className="flex justify-end items-center px-4 py-2 space-x-12">
-                      <ShareButton itemId={item.id} itemType={item.type} />
-                      <BookmarkButton itemId={item.id} itemType={item.type} onBookmark={handleBookmark} />
-                      <SubscribeButton itemId={item.id} itemType={item.type} onSubscribe={handleSubscribe} />
-                    </div>
                   </motion.div>
                 ))}
                 columnWidth={300}
@@ -239,11 +286,6 @@ const HomePage: React.FC = () => {
                     className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
                   >
                     {renderItem(item)}
-                    <div className="flex justify-end items-center px-4 py-2 space-x-12">
-                      <ShareButton itemId={item.id} itemType={item.type} />
-                      <BookmarkButton itemId={item.id} itemType={item.type} onBookmark={handleBookmark} />
-                      <SubscribeButton itemId={item.id} itemType={item.type} onSubscribe={handleSubscribe} />
-                    </div>
                   </motion.div>
                 ))}
                 columnWidth={300}
@@ -258,7 +300,7 @@ const HomePage: React.FC = () => {
           <Skeleton count={3} />
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 

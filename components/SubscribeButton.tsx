@@ -24,7 +24,6 @@ const SubscribeButton: React.FC<SubscribeButtonProps> = ({ itemId, itemType, onS
       onClick={handleSubscribe}
     >
       <BellIcon className="w-5 h-5 mr-1" />
-      <span>{isSubscribed ? 'Subscribed' : 'Subscribe'}</span>
     </button>
   );
 };
