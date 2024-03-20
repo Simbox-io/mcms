@@ -50,7 +50,7 @@ const Popover: React.FC<PopoverProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, closePopover]);
 
   const openPopover = () => {
     setIsOpen(true);
