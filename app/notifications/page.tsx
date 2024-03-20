@@ -26,6 +26,7 @@ const NotificationsPage: React.FC = () => {
       }
     };
 
+    
     if (user) {
       fetchNotifications();
     }
