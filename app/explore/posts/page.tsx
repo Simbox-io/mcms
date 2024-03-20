@@ -100,7 +100,7 @@ const NewsFeed: React.FC = () => {
                         className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8"
                     >
                         <div className="flex items-center mb-4" onClick={() => handlePostClick}>
-                            <Avatar src={post.author.avatar || ''} alt={post.author.username} size="large" />
+                            <Avatar src={post.author.avatar || ''} alt={post.author.username} size="medium" />
                             <div className="ml-4">
                                 <h3 className="text-xl font-semibold text-gray-800 dark:text-white">{post.author.username}</h3>
                                 <p className="text-gray-500 dark:text-gray-400">{new Date(post.createdAt).toLocaleDateString()}</p>

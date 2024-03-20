@@ -29,8 +29,8 @@ const Header: React.FC = () => {
   };
 
   const { data: notificationsData, error, mutate } = useSWR('/api/notifications', fetcher);
-  const notifications = notificationsData?.notifications.filter((notification: Notification) => !notification.isRead) || [];
-  const unreadCount = notificationsData?.notifications.filter((notification: Notification) => !notification.isRead).length || 0;
+  const notifications = notificationsData?.notifications?.filter((notification: Notification) => !notification.isRead) || [];
+  const unreadCount = notificationsData?.notifications?.filter((notification: Notification) => !notification.isRead).length || 0;
 
   const handleLogout = async () => {
     await signOut();

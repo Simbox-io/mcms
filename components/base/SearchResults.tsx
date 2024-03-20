@@ -39,10 +39,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
     };
 
     const renderResults = (items: SearchResult[]) => {
-        if (items?.length === 0) {
+        if (items?.length === 0 || !items ) {
             return (
                 <div className="px-4 py-2">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">No results found.</p>
+                    <p className="text-lg text-center text-gray-500 dark:text-gray-400">No results found.</p>
                 </div>
             );
         }
@@ -79,12 +79,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
     };
 
     const tabs = [
-        { id: 'posts', label: 'Posts', icon: renderIcon('Posts'), content: renderResults(results.posts), count: results.posts.length },
-        { id: 'files', label: 'Files', icon: renderIcon('Files'), content: renderResults(results.files), count: results.files.length },
-        { id: 'projects', label: 'Projects', icon: renderIcon('Projects'), content: renderResults(results.projects), count: results.projects.length },
-        { id: 'spaces', label: 'Spaces', icon: renderIcon('Spaces'), content: renderResults(results.spaces), count: results.spaces.length },
-        { id: 'tutorials', label: 'Tutorials', icon: renderIcon('Tutorials'), content: renderResults(results.tutorials), count: results.tutorials.length },
-        { id: 'users', label: 'Users', icon: renderIcon('Users'), content: renderResults(results.users), count: results.users.length },
+        { id: 'posts', label: 'Posts', icon: renderIcon('Posts'), content: renderResults(results?.posts), count: results?.posts?.length },
+        { id: 'files', label: 'Files', icon: renderIcon('Files'), content: renderResults(results?.files), count: results?.files?.length },
+        { id: 'projects', label: 'Projects', icon: renderIcon('Projects'), content: renderResults(results?.projects), count: results?.projects?.length },
+        { id: 'spaces', label: 'Spaces', icon: renderIcon('Spaces'), content: renderResults(results?.spaces), count: results?.spaces?.length },
+        { id: 'tutorials', label: 'Tutorials', icon: renderIcon('Tutorials'), content: renderResults(results?.tutorials), count: results?.tutorials?.length },
+        { id: 'users', label: 'Users', icon: renderIcon('Users'), content: renderResults(results?.users), count: results?.users?.length },
     ];
 
     return (

@@ -49,6 +49,7 @@ export type User = {
   viewedSpaces: SpaceView[];
   tutorials: Tutorial[];
   collaboratedTutorials: Tutorial[];
+  isImpersonated: boolean;
 };
 
 export type UserSettings = {
