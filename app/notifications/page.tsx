@@ -25,7 +25,6 @@ const NotificationsPage: React.FC = () => {
         setIsLoading(false);
       }
     };
-
     
     if (user) {
       fetchNotifications();
