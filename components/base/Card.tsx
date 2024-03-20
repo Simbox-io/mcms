@@ -81,7 +81,6 @@ const Card: React.FC<CardProps> = ({
           {footer}
         </div>
       )}
-    )
     </>
   )}
   </>

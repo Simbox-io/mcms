@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/base/Header";
+import Footer from "@/components/base/Footer";
 import Providers from "./providers";
 import { Analytics } from "@vercel/analytics/react"
 import Script from "next/script";

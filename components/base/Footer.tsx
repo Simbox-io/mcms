@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-200 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-800 sticky text-center bottom-0 ">
+    <footer className="flex bg-gray-200 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-800 sticky justify-center bottom-0 ">
       <div className="max-w-7xl xs:mr-4 py-4 px-2 sm:px-6 lg:px-8">
         {/*<div className="flex justify-between hidden">
           <div>
@@ -25,7 +25,7 @@ const Footer: React.FC = () => {
             </nav>
           </div>
         </div>*/}
-        <div className="text-center text-xs text-gray-800 dark:text-gray-200">
+        <div className="text-xs text-gray-800 dark:text-gray-200">
           Powered by MCMS from <Link href='https://simbox.io'>Simbox.io</Link>
           <a href="https://github.com/Simbox-io/mcms" target="_blank" rel="noopener noreferrer" className="ml-2 text-gray-500 hover:text-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="inline-block w-4 h-4 align-text-bottom" viewBox="0 0 24 24">

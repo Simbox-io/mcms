@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '@/components/Card';
+import Card from '@/components/base/Card';
 import Button from '@/components/Button';
 import Sidebar from '@/components/Sidebar';
 import AnalyticsPage from './analytics/page';
@@ -76,18 +76,21 @@ const AdminConfigurationPage: React.FC = () => {
           />
         </div>
         <div className="flex-1 p-8">
-          <Card className="dark:bg-gray-800 shadow-xl">
+          <Card className="dark:bg-gray-800 shadow-xl" effects={false} content={
+            <>
             {activeSubpage === 'dashboard' && <DashboardPage />}
             {activeSubpage === 'posts' && <PostsPage />}
             {activeSubpage === 'analytics' && <AnalyticsPage />}
             {activeSubpage === 'plugins' && <PluginsPage />}
             {activeSubpage === 'users' && <UsersPage />}
             {activeSubpage === 'settings' && <SettingsPage />}
-          </Card>
+            </>
+          }
+          />
         </div>
       </div>
     </div>
-  )
+  );
 };
 
 export default AdminConfigurationPage;
