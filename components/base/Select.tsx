@@ -100,7 +100,7 @@ const Select: React.FC<SelectProps> = ({
               className="text-blue-500 dark:text-blue-400 hover:underline"
               onClick={handleCreate}
             >
-              Create "{searchTerm}"
+              Create &quot;{searchTerm}&quot;
             </button>
           ) : (
             'No options found'
