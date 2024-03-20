@@ -5,9 +5,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '../../../components/Card';
-import Table from '../../../components/Table';
-import Spinner from '../../../components/Spinner';
+import Card from '@/components/base/Card';
+import Table from '@/components/base/Table';
+import Spinner from '@/components/base/Spinner';
 import { User  } from '@/lib/prisma';
 
 interface Post {
@@ -81,7 +81,8 @@ const AdminDashboardPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
-          <Card title="Users" className='bg-gray-200 dark:bg-gray-700 shadow-lg'>
+          <Card header="Users" className='bg-gray-200 dark:bg-gray-700 shadow-lg'
+          content={
             <Table
               columns={[
                 { header: 'Username', accessor: 'username' },
@@ -89,9 +90,9 @@ const AdminDashboardPage: React.FC = () => {
                 { header: 'Role', accessor: 'role' },
               ]}
               data={users}
-            />
-          </Card>
-          <Card title="Recent Posts">
+            />}
+          />
+          <Card header="Recent Posts" content={
             <Table
               columns={[
                 { header: 'Title', accessor: 'title' },
@@ -99,8 +100,8 @@ const AdminDashboardPage: React.FC = () => {
                 { header: 'Created At', accessor: 'createdAt' },
               ]}
               data={posts}
-            />
-          </Card>
+            />}
+          />
         </div>
       )}
     </div>

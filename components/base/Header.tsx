@@ -8,6 +8,7 @@ import Dropdown from './Dropdown';
 import Button from './Button';
 import SearchBar from "@/components/base/SearchBar";
 import Skeleton from './Skeleton';
+import useSWR from 'swr';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -15,15 +16,21 @@ const Header: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [buttonClicked, setButtonClicked] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const user = session?.user as User;
-  const visibleNotifications = notifications?.filter(notification => !notification.isHidden);
+
+  const fetcher = async (url: string) => {
+    const res = await fetch(url);
+    const data = await res.json();
+    return data;
+  };
+
+  const { data: notificationsData, error, mutate } = useSWR('/api/notifications', fetcher);
+  const notifications = notificationsData?.notifications.filter((notification: Notification) => !notification.isRead) || [];
+  const unreadCount = notificationsData?.notifications.filter((notification: Notification) => !notification.isRead).length || 0;
 
   const handleLogout = async () => {
     await signOut();
@@ -37,61 +44,55 @@ const Header: React.FC = () => {
     }
   };
 
-  const handleButtonClick = (setStateFunction: React.Dispatch<React.SetStateAction<boolean>>) => {
-    setButtonClicked(true);
-    setStateFunction((prevState) => !prevState);
+  const handleToggle = (
+    isOpen: boolean,
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
+    setIsOpen(!isOpen);
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (buttonClicked) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
-        setIsMenuOpen(false);
-      }
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setIsSearchOpen(false);
-      }
-      if (
-        notificationsRef.current &&
-        !notificationsRef.current.contains(event.target as Node)
-      ) {
-        setIsNotificationsOpen(false);
-      }
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(event.target as Node) &&
+      isMenuOpen
+    ) {
+      setIsMenuOpen(false);
     }
-    setButtonClicked(false);
+    if (
+      searchRef.current &&
+      !searchRef.current.contains(event.target as Node) &&
+      isSearchOpen
+    ) {
+      setIsSearchOpen(false);
+    }
+    if (
+      notificationsRef.current &&
+      !notificationsRef.current.contains(event.target as Node) &&
+      isNotificationsOpen
+    ) {
+      setIsNotificationsOpen(false);
+    }
   };
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch('/api/notifications');
-        const data = await res.json();
-        setNotifications(data.visibleNotifications);
-        setUnreadCount(data.visibleNotifications?.filter((notification: Notification) => !notification.isRead).length);
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
-    };
-
-    if (user) {
-      fetchNotifications();
-    }
-  }, [user]);
 
   useEffect(() => {
     document.addEventListener('mouseup', handleClickOutside);
     return () => {
       document.removeEventListener('mouseup', handleClickOutside);
     };
-  }, [buttonClicked]);
+  });
 
   const markNotificationAsRead = async (notificationId: string) => {
     try {
+      mutate(
+        (prevData: any) => ({
+          ...prevData,
+          notifications: prevData.notifications.map((notification: Notification) =>
+            notification.id === notificationId ? { ...notification, isRead: true } : notification
+          ),
+        }),
+        false
+      );
       await fetch(`/api/notifications/${notificationId}`, {
         method: 'PUT',
         headers: {
@@ -99,37 +100,44 @@ const Header: React.FC = () => {
         },
         body: JSON.stringify({ isRead: true }),
       });
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((notification) =>
-          notification.id === notificationId ? { ...notification, isRead: true } : notification
-        )
-      );
-      setUnreadCount((prevCount) => prevCount - 1);
+      mutate();
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
   };
 
-  const handleClearNotifications = async (visibleNotifications: Notification[]) => {
+  const handleClearNotifications = async () => {
     try {
-      if (!visibleNotifications || visibleNotifications.length === 0) return;
-      for (const notification of visibleNotifications) {
+      if (!notifications || notifications.length === 0) return;
+      mutate(
+        (prevData: any) => ({
+          ...prevData,
+          notifications: prevData.notifications.map((notification: Notification) =>
+            notifications.some((notification: Notification) => notification.id === notification.id)
+              ? { ...notification, isRead: true }
+              : notification
+          ),
+        }),
+        false
+      );
+      for (const notification of notifications) {
         await fetch(`/api/notifications/${notification.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ isHidden: true }),
+          body: JSON.stringify({ isRead: true }),
         });
-        setNotifications((prevNotifications) =>
-          prevNotifications.map((notification) => ({ ...notification, isHidden: true }))
-        );
-        setUnreadCount(0);
       }
+      mutate();
     } catch (error) {
       console.error('Error clearing notifications:', error);
     }
   };
+
+  if (error) {
+    console.error('Error fetching notifications:', error);
+  }
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow z-10">
@@ -137,9 +145,11 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           <div className='flex'>
             <div className="flex flex-shrink space-x-1 items-center">
-              <img src="/logo.png" alt="MCMS" className="h-16 w-16 sm:h-12 sm:w-12" />
               <Link href="/">
-                <span className="hidden md:block mx-1 mr-4 text-xl font-bold text-blue-600 dark:text-blue-400">MCMS</span>
+                <div className='flex items-between items-center'>
+                  <img src="/logo.png" alt="" className="h-16 w-16 sm:h-12 sm:w-12" />
+                  <span className="hidden md:block mx-1 mr-4 text-xl font-bold text-blue-600 dark:text-blue-400">MCMS</span>
+                </div>
               </Link>
               <nav className="hidden md:ml-4 md:flex mx-1 space-x-1 xl:space-x-6">
                 <Button
@@ -191,7 +201,7 @@ const Header: React.FC = () => {
           <div className="flex items-center">
             <button
               className="lg:hidden text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 focus:outline-none"
-              onClick={() => handleButtonClick(setIsSearchOpen)}
+              onClick={() => handleToggle(isSearchOpen, setIsSearchOpen)}
             >
               <svg
                 className="h-6 w-6"
@@ -216,7 +226,7 @@ const Header: React.FC = () => {
               <div className="relative flex justify-between items-center md:ml-4">
                 <button
                   className="relative z-10 mx-3 text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-0 py-2 rounded-md text-sm font-medium flex items-left"
-                  onClick={() => handleButtonClick(setIsNotificationsOpen)}
+                  onClick={() => handleToggle(isNotificationsOpen, setIsNotificationsOpen)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -241,65 +251,63 @@ const Header: React.FC = () => {
                 {isNotificationsOpen && (
                   <div
                     ref={notificationsRef}
-                    className="origin-top-right absolute right-0 mt-32 w-80 max-h-96 overflow-y-auto rounded-md shadow-xl bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none z-20"
+                    className="origin-top-right absolute right-0 top-full mt-2 w-80 rounded-md shadow-xl bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none"
                   >
                     <div className="py-1">
-                      {(!visibleNotifications || visibleNotifications.length === 0) && (
+                      {(!notifications || notifications.length === 0) && (
                         <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-200">
                           No notifications
                         </div>
                       )}
-                      {visibleNotifications &&(<Button
-                        variant="outline"
-                        size="small"
-                        onClick={() => handleClearNotifications(notifications)}
-                        className='flex justify-end w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 hover:dark:bg-gray-600 dark:focus:ring-0'
-                      >
-                        Mark all as read
-                      </Button>)}
-                      {visibleNotifications && visibleNotifications.length > 0 && (
-                        notifications.map((notification) => (
-                          notification.isHidden ? (null || false) : (
-                            <div
-                              key={notification.id}
-                              className={`z-1 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 ${(!notification.isRead && !notification.isHidden) &&
-                                'bg-blue-50 dark:bg-blue-900'
-                                }`}
-                            >
-
-                              <div className="flex justify-between items-center">
-                                <span>{notification.message}</span>
-                                {!notification.isRead && (
-                                  <button
-                                    className="ml-2 focus:outline-none"
-                                    onClick={() =>
-                                      markNotificationAsRead(notification.id)
-                                    }
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="h-4 w-4 text-blue-600 dark:text-blue-400"
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                  </button>
-                                )}
-                              </div>
-                              {notification.link && (
-                                <Link href={notification.link}>
-                                  <span className="block mt-1 text-xs text-blue-600 dark:text-blue-400">
-                                    View
-                                  </span>
-                                </Link>
-                              )}
+                      {notifications.length > 1 && (
+                        <Button
+                          variant="outline"
+                          size="small"
+                          onClick={() => handleClearNotifications()}
+                          className="flex justify-end w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 hover:dark:bg-gray-600 dark:focus:ring-0"
+                        >
+                          Mark all as read
+                        </Button>
+                      )}
+                      <div className="overflow-y-auto max-h-96">
+                        {notifications.map((notification: Notification) => (
+                          <div
+                            key={notification.id}
+                            className={`z-1 px-4 py-3 text-sm text-gray-700 dark:text-gray-200 ${!notification.isRead && !notification.isHidden
+                              ? 'bg-blue-50 dark:bg-blue-900'
+                              : ''
+                              }`}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span>{notification.message}</span>
+                              <button
+                                className="ml-2 focus:outline-none"
+                                onClick={() => markNotificationAsRead(notification.id)}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 text-blue-600 dark:text-blue-400"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </button>
                             </div>
-                          ))))}
+                            {notification.link && (
+                              <Link href={notification.link}>
+                                <span className="block mt-1 text-xs text-blue-600 dark:text-blue-400">
+                                  View
+                                </span>
+                              </Link>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -343,7 +351,7 @@ const Header: React.FC = () => {
             )}
             <button
               className="ml-4 md:hidden text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 focus:outline-none"
-              onClick={() => handleButtonClick(setIsMenuOpen)}
+              onClick={() => handleToggle(isMenuOpen, setIsMenuOpen)}
             >
               <svg
                 className="h-6 w-6"

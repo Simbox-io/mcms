@@ -1,4 +1,5 @@
 import React from 'react';
+import EmptyState from './EmptyState';
 
 interface TableColumn<T> {
   header: string;
@@ -61,6 +62,7 @@ const Table = <T,>({
   return (
     <div className={`overflow-x-auto ${className}`}>
       <table className="min-w-full divide-y divide-gray-200">
+        {columns &&(
         <thead className={`bg-gray-50 ${headerClassName}`}>
           <tr>
             {columns.map((column) => (
@@ -89,7 +91,7 @@ const Table = <T,>({
               </th>
             ))}
           </tr>
-        </thead>
+        </thead>)}
         <tbody className="bg-white divide-y divide-gray-200">
           {loading ? (
             <tr>
@@ -97,14 +99,14 @@ const Table = <T,>({
                 {loadingText}
               </td>
             </tr>
-          ) : data.length === 0 ? (
+          ) : !data || data.length === 0 ? (
             <tr>
               <td colSpan={columns.length} className="px-6 py-4 text-center">
                 {emptyText}
               </td>
             </tr>
           ) : (
-            data.map((row, index) => (
+            data.length > 0 && data?.map((row, index) => (
               <tr
                 key={index}
                 className={`${rowClassName} ${
