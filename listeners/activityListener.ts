@@ -18,12 +18,15 @@ export async function activityListener(activityType: string, entityId: string, e
       if (email || push || inApp) {
         // Construct the notification message based on the activity type and entity type
         let message = '';
+        let link = '';
         switch (activityType) {
           case 'POST_CREATED':
             message = 'A new post has been created.';
+            link = `/posts/${entityId}`;
             break;
           case 'COMMENT_CREATED':
             message = 'A new comment has been added.';
+            link = `/posts/${entityId}`;
             break;
           // Add more cases for other activity types
           default:
@@ -31,7 +34,7 @@ export async function activityListener(activityType: string, entityId: string, e
         }
 
         // Send the notification to the user
-        await sendNotification(user.id, message, email, push, inApp);
+        await sendNotification(user.id, message, link, email, push, inApp);
       }
     }
   }

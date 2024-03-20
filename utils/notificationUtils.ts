@@ -1,7 +1,7 @@
 import { sendEmail, setEmailConfig } from '../lib/email';
 import prisma from '@/lib/prisma';
 
-export async function sendNotification(userId: string, message: string, email: boolean, push: boolean, inApp: boolean) {
+export async function sendNotification(userId: string, message: string, link: string, email: boolean, push: boolean, inApp: boolean) {
   // Implement the logic to send notifications based on the user's preferences
   if (email) {
     // Retrieve the user's email address from the database
@@ -58,6 +58,7 @@ export async function sendNotification(userId: string, message: string, email: b
       data: {
         userId,
         message,
+        link,
       },
     });
   }
