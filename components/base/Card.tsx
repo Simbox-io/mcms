@@ -34,18 +34,18 @@ const Card: React.FC<CardProps> = ({
     <>
     {effects ? (
     <motion.div
-      className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden ${className}`}
+      className={`bg-white text-gray-800 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden ${className}`}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
     >
       {image && (
-        <div className={`relative ${imageClassName}`}>
-          <img src={image} alt={imageAlt} className="w-full h-auto" />
+        <div className={`relative text-gray-800 dark:text-gray-100 ${imageClassName}`}>
+          <img src={image} alt={imageAlt} className="w-full h-auto text-gray-800" />
         </div>
       )}
       {header && (
-        <div className={`px-4 py-3 border-b border-gray-200 dark:border-gray-700 ${headerClassName}`}>
+        <div className={`px-4 py-3 border-b text-gray-800 dark:text-gray-100 border-gray-200 dark:border-gray-700 ${headerClassName}`}>
           {header}
         </div>
       )}
@@ -55,29 +55,29 @@ const Card: React.FC<CardProps> = ({
         </div>
       )}
       {footer && (
-        <div className={`px-4 py-3 bg-gray-100 dark:bg-gray-700 ${footerClassName}`}>
+        <div className={`px-4 py-3 bg-gray-100 text-gray-800 dark:text-gray-100 dark:bg-gray-700 ${footerClassName}`}>
           {footer}
         </div>
       )}
     </motion.div>) : (
-      <div className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden ${className}`}>
+      <div className={`bg-white dark:bg-gray-800 border text-gray-800 dark:text-gray-100 border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden ${className}`}>
        {image && (
         <div className={`relative ${imageClassName}`}>
           <img src={image} alt={imageAlt} className="w-full h-auto" />
         </div>
       )}
       {header && (
-        <div className={`px-4 py-3 border-b border-gray-200 dark:border-gray-700 ${headerClassName}`}>
+        <div className={`px-4 py-3 border-b border-gray-200 text-gray-800 dark:text-gray-100 dark:border-gray-700 ${headerClassName}`}>
           {header}
         </div>
       )}
       {content && (
-        <div className={`p-4 ${contentClassName}`}>
+        <div className={`p-4 text-gray-800 dark:text-gray-100 ${contentClassName}`}>
           {content}
         </div>
       )}
       {footer && (
-        <div className={`px-4 py-3 bg-gray-100 dark:bg-gray-700 ${footerClassName}`}>
+        <div className={`px-4 py-3 bg-gray-100 text-gray-800 dark:text-gray-100 dark:bg-gray-700 ${footerClassName}`}>
           {footer}
         </div>
       )}

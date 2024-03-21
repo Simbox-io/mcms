@@ -23,7 +23,7 @@ const LandingPage: React.FC = () => {
             </p>
             <div>
               <Link href="/register">
-                <Button variant="primary" className="mr-4 shadow-lg">
+                <Button variant="primary" className="mr-4 shadow-lg bg-blue-500">
                   Get Started
                 </Button>
               </Link>
@@ -88,7 +88,7 @@ const LandingPage: React.FC = () => {
                 </p>
                 <div className="mt-6">
                   <Link href="https://github.com/Simbox-io/mcms" target="_blank" rel="noopener noreferrer">
-                    <Button variant="primary">Visit GitHub Repository</Button>
+                    <Button variant="primary" className='bg-blue-500'>Visit GitHub Repository</Button>
                   </Link>
                 </div>
               </div>
@@ -102,7 +102,7 @@ const LandingPage: React.FC = () => {
                 </p>
                 <div className="mt-6">
                   <Link href="/community" target="_blank" rel="noopener noreferrer">
-                    <Button variant="secondary">Join the Community</Button>
+                    <Button variant="secondary" className='bg-white'>Join the Community</Button>
                   </Link>
                 </div>
               </div>
@@ -111,14 +111,14 @@ const LandingPage: React.FC = () => {
         </section>
 
         <section className="py-20">
-          <div className="container mx-auto px-4 dark:text-white">
+          <div className="container mx-auto px-4 text-black dark:text-white">
             <h2 className="text-3xl font-semibold mb-12 text-center">Get Started with MCMS</h2>
             <div className="text-center">
               <p className="text-xl mb-8">
                 Ready to revolutionize your coding project management? Sign up for MCMS today and experience the difference.
               </p>
               <Link href="/register">
-                <Button variant="primary" size="large">
+                <Button variant="primary" size="large" className='bg-blue-500'>
                   Sign Up Now
                 </Button>
               </Link>

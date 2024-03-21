@@ -190,7 +190,7 @@ const ProjectListPage: React.FC = () => {
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
                       {project.name}
                     </h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4" dangerouslySetInnerHTML={{ __html: project.description }} />
+                    <p className="text-gray-600 dark:text-gray-400 mb-4" dangerouslySetInnerHTML={{ __html: project.description.slice(0, 500) }} />
                     <div className="flex justify-between items-center">
                       
                     </div>

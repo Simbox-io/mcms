@@ -33,22 +33,6 @@ export default async function RootLayout({
   const user = session?.user as User
   const isImpersonated = ((headers().get('X-Impersonated-User') === 'true') || (user?.isImpersonated === true)) || false;
 
-  const handleEndImpersonation = async () => {
-    try {
-      const response = await fetch('/api/end-impersonation', {
-        method: 'POST',
-      });
-      if (response.ok) {
-        // Refresh the page to apply the original session
-        window.location.reload();
-      } else {
-        console.error('Error ending impersonation:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error ending impersonation:', error);
-    }
-  };
-
   return (
     <html lang="en" className={ibmPlexSans.className} suppressHydrationWarning >
       <head>

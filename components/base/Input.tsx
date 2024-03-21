@@ -1,11 +1,16 @@
 import React from 'react';
 
+interface Option {
+  value: string;
+  label: string;
+}
+
 interface InputProps {
   type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'color';
   name: string;
   id: string;
   value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (selectedValue: Option) => void;
   label?: string;
   placeholder?: string;
   disabled?: boolean;

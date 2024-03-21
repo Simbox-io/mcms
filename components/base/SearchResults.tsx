@@ -88,8 +88,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
     ];
 
     return (
-        <div className="bg-white w-full dark:bg-gray-800 shadow-md rounded-md overflow-hidden">
-            <Tabs tabs={tabs} className="h-[512px] overflow-y-auto" />
+        <div className="bg-white dark:bg-gray-800 shadow-md rounded-md overflow-hidden">
+            <Tabs tabs={tabs} className="h-full w-full md:h-[512px] overflow-y-auto" />
         </div>
     );
 };

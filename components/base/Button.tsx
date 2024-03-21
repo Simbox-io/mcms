@@ -27,7 +27,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   variant = 'primary',
   size = 'medium',
-  fullWidth = false,
+  fullWidth = false,  
   disabled = false,
   loading = false,
   loadingText = 'Loading...',

@@ -46,7 +46,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs, className = '' }) => {
           >
             <div className="flex items-center space-x-2">
               {tab.icon}
-              <span>{tab.label}</span>
+              <span className='hidden md:block'>{tab.label}</span>
               {tab.count && (<span className="text-xs font-medium text-gray-500 dark:text-gray-400">{tab.count}</span>) || <span className='span className="text-xs font-medium text-gray-500 dark:text-gray-400'>0</span>}
             </div>
           </button>

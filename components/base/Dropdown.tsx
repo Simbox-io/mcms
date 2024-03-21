@@ -48,7 +48,6 @@ const Dropdown: React.FC<DropdownProps> = ({
     };
 
     document.addEventListener('mousedown', handleOutsideClick);
-
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
@@ -60,48 +59,47 @@ const Dropdown: React.FC<DropdownProps> = ({
         {value || label}
         {image && <img src={image} alt={label} className="h-8 w-8 ml-2 rounded-full" />}
         {arrowEnabled && (
-            <svg
-                className="-mr-1 ml-2 h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-            >
-              <path
-                  fillRule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-              />
-            </svg>
+          <svg
+            className="-mr-1 ml-2 h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
         )}
       </Button>
-      {
-        isOpen && (
-          <div
-            className={`origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-xl bg-gray-100 dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none ${menuClassName}`}
-            role="menu"
-            aria-orientation="vertical"
-            aria-labelledby="options-menu"
-          >
-            <div className="py-1" role="none">
-              {options.map((option) => (
-                <button
-                  key={option}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-gray-500 ${option === value
+      {isOpen && (
+        <div
+          className={`origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-xl bg-gray-100 dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none ${menuClassName}`}
+          role="menu"
+          aria-orientation="vertical"
+          aria-labelledby="options-menu"
+        >
+          <div className="py-1" role="none">
+            {options.map((option) => (
+              <button
+                key={option}
+                className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-gray-500 ${
+                  option === value
                     ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
                     : 'text-gray-700 dark:text-gray-200'
-                    } ${menuItemClassName}`}
-                  role="menuitem"
-                  onClick={() => handleSelect(option)}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
+                } ${menuItemClassName}`}
+                role="menuitem"
+                onMouseDown={() => handleSelect(option)}
+              >
+                {option}
+              </button>
+            ))}
           </div>
-        )
-      }
-    </div >
+        </div>
+      )}
+    </div>
   );
 };
 
