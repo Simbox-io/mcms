@@ -22,6 +22,11 @@ interface ProjectFormData extends Partial<Project> {
   };
 }
 
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
 const EditProject: React.FC = () => {
   const router = useRouter();
   const [formData, setFormData] = useState<ProjectFormData>({
@@ -35,10 +40,15 @@ const EditProject: React.FC = () => {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectOption
   ) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    if ('target' in e) {
+      const { name, value } = e.target;
+      setFormData((prevData) => ({ ...prevData, [name]: value }));
+    } else {
+      const { value } = e;
+      setFormData((prevData) => ({ ...prevData, name: value }));
+    }
   };
 
   const handleVisibilityChange = (selectedOption: typeof Option) => {

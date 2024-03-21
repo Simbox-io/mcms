@@ -1,16 +1,11 @@
 import React from 'react';
 
-interface Option {
-  value: string;
-  label: string;
-}
-
 interface InputProps {
   type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'color';
   name: string;
   id: string;
   value: string;
-  onChange: (selectedValue: Option) => void;
+  onChange: (selectedValue: string) => void;
   label?: string;
   placeholder?: string;
   disabled?: boolean;
@@ -63,8 +58,11 @@ const Input: React.FC<InputProps> = ({
   pattern,
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(event);
+    const newValue = event.target.value;
+    onChange(newValue);
   };
+
+  const inputValue = typeof value === 'string' ? value : value;
 
   return (
     <div className={`mb-4 ${fullWidth ? 'w-full' : ''} ${className}`}>
@@ -89,7 +87,7 @@ const Input: React.FC<InputProps> = ({
           type={type}
           id={id}
           name={name}
-          value={value}
+          value={inputValue}
           onChange={handleChange}
           className={`block w-full px-3 py-2 border ${
             error ? 'border-red-500' : 'border-gray-300'
