@@ -46,7 +46,7 @@ const EditProject: React.FC = () => {
       ...prevData,
       settings: {
         ...prevData.settings,
-        visibility: selectedOption.value as 'PUBLIC' | 'PRIVATE',
+        
       },
     }));
   };
@@ -105,8 +105,6 @@ const EditProject: React.FC = () => {
               value={formData.description}
               onChange={handleChange}
               placeholder="Enter project description"
-              required
-              fullWidth
               rows={4}
             />
           </div>
@@ -118,7 +116,7 @@ const EditProject: React.FC = () => {
                 { value: 'PRIVATE', label: 'Private' },
               ]}
               value={formData.settings.visibility}
-              onChange={handleVisibilityChange}
+              onChange={() => handleVisibilityChange}
               fullWidth
             />
           </div>
