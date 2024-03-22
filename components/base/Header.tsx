@@ -381,14 +381,15 @@ const Header: React.FC = () => {
       </div>
       {isMenuOpen && (
         <div ref={menuRef} className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 mr-2">
+          <div className="flex flex-col px-2 pt-2 pb-3 space-y-1 sm:px-3 mr-2">
             <Link href="/explore">
-              <span
-                className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 block text-left px-3 py-2 rounded-md text-base font-medium text-right"
+              <Button
+              variant="text"
+                className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 block text-left px-3 py-2 rounded-md text-base font-medium text-left"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Home
-              </span>
+                Explore
+              </Button>
             </Link>
             <Dropdown
               label="Files"
