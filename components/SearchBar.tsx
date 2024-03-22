@@ -1,13 +1,13 @@
 // components/SearchBar.tsx
-'use client'
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { debounce } from 'lodash';
 import Skeleton from '@/components/Skeleton';
 import SearchResults from '@/components/SearchResults';
+import Tabs, { Tab } from './Tabs';
 import { useRouter } from 'next/navigation';
 
-export interface SearchResult {
+interface SearchResult {
   id: string;
   type: 'post' | 'project' | 'file' | 'space' | 'profile';
   title: string;
@@ -21,8 +21,6 @@ interface SearchBarProps {
   onSearch: (query: string) => void;
   className?: string;
   placeholder?: string;
-  value?: string;
-  onChange?: (value: string) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
@@ -52,17 +50,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
   });
 
   const fetchSearchResults = async (query: string) => {
-    if (query.trim() === '') {
-      setSearchResults({
-        posts: [],
-        files: [],
-        projects: [],
-        spaces: [],
-        tutorials: [],
-        users: [],
-      });
-      return;
-    }
     setIsLoading(true);
     try {
       const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
@@ -74,16 +61,27 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setIsLoading(false);
   };
 
-  const debouncedFetchSearchResults = debounce(fetchSearchResults);
+  const debouncedFetchSearchResults = useRef(
+    debounce((query) => fetchSearchResults(query), 300)
+  ).current;
 
   useEffect(() => {
     if (searchQuery.trim() !== '') {
       debouncedFetchSearchResults(searchQuery);
+      setIsOpen(true);
     } else {
-      setSearchResults({posts: [], files: [], projects: [], spaces: [], tutorials: [], users: []})
+      setIsOpen(false);
+      setSearchResults({
+        posts: [],
+        files: [],
+        projects: [],
+        spaces: [],
+        tutorials: [],
+        users: [],
+      });
     }
-  }, [searchQuery]);
-
+  }, [searchQuery, debouncedFetchSearchResults])
+  
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(searchQuery);
@@ -91,7 +89,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setIsOpen(true);
   };
 
   const handleResultClick = (result: SearchResult) => {
@@ -113,30 +110,73 @@ const SearchBar: React.FC<SearchBarProps> = ({
     };
   }, []);
 
+  const tabs: Tab[] = [
+    {
+      id: 'all',
+      label: 'All',
+      content: <div>All results</div>,
+    },
+    {
+      id: 'posts',
+      label: 'Posts',
+      content: <div>Posts results</div>,
+    },
+    {
+      id: 'files',
+      label: 'Files',
+      content: <div>Files results</div>,
+    },
+    {
+      id: 'projects',
+      label: 'Projects',
+      content: <div>Projects results</div>,
+    },
+    {
+      id: 'spaces',
+      label: 'Spaces',
+      content: <div>Spaces results</div>,
+    },
+    {
+      id: 'tutorials',
+      label: 'Tutorials',
+      content: <div>Tutorials results</div>,
+    },
+    {
+      id: 'users',
+      label: 'Users',
+      content: <div>Users results</div>,
+    },
+  ];
+
   return (
-    <form onSubmit={handleSearch} className={`relative ${className}`}>
-      <input
-        type="text"
-        ref={inputRef}
-        className="w-full h-8 pl-10 pr-4 py-1 rounded-md border border-gray-300 bg-gray-100 dark:bg-gray-700 dark:placeholder:text-gray-300 dark:text-gray-100 text-gray-600 dark:bg-blend-darken focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        placeholder={placeholder}
-        value={searchQuery}
-        onChange={handleInputChange}
-      />
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <svg
-          className="h-5 w-5 text-gray-400"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-            clipRule="evenodd"
-          />
-        </svg>
+    <div className="sticky top-0 z-10 bg-white dark:bg-gray-900">
+      <form onSubmit={handleSearch} className={`relative w-full ${className}`}>
+        <input
+          type="text"
+          ref={inputRef}
+          className="w-full h-12 pl-10 pr-4 py-2 rounded-md border border-gray-300 bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:placeholder:text-gray-400 dark:text-gray-100 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder={placeholder}
+          value={searchQuery}
+          onChange={handleInputChange}
+        />
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg
+            className="h-5 w-5 text-gray-400"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+      </form>
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <Tabs tabs={tabs} />
       </div>
       <AnimatePresence>
         {isOpen && (
@@ -145,22 +185,30 @@ const SearchBar: React.FC<SearchBarProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="absolute z-10 mt-2 w-full md:w-96 rounded-md shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none"
+            className="absolute top-20 left-0 right-0 flex justify-center"
           >
-            {isLoading ? (
-              <div className="px-4 py-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full mt-2" />
-                <Skeleton className="h-4 w-full mt-2" />
-              </div>
-            ) : (
-              <SearchResults results={searchResults} onResultClick={handleResultClick} />
-            )}
+            <div className="w-full max-w-2xl rounded-md shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none">
+              {isLoading ? (
+                <div className="px-4 py-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full mt-2" />
+                  <Skeleton className="h-4 w-full mt-2" />
+                </div>
+              ) : Object.values(searchResults).flat().length === 0 ? (
+                <div className="px-4 py-2">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No results found.</p>
+                </div>
+              ) : (
+                <SearchResults
+                  results={searchResults}
+                  onResultClick={handleResultClick}
+                />
+              )}
+          </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </form>
+    </div>
   );
-};
 
 export default SearchBar;

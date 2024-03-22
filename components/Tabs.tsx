@@ -1,8 +1,7 @@
-// components/Tabs.tsx
 import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-interface Tab {
+export interface Tab {
   id: string;
   label: string;
   icon?: React.ReactNode;
@@ -23,6 +22,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs, className = '' }) => {
   useEffect(() => {
     const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
     const activeTabElement = tabRefs.current[activeTabIndex];
+
     if (activeTabElement) {
       setLineWidth(activeTabElement.offsetWidth);
       setLineLeft(activeTabElement.offsetLeft);

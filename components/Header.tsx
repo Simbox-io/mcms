@@ -6,12 +6,15 @@ import { useRouter } from 'next/navigation';
 import { User, Notification } from '@/lib/prisma';
 import Dropdown from './Dropdown';
 import Button from './Button';
-import SearchBar from "@/components/SearchBar";
+import { SearchResult } from "@/components/SearchResults";
 import Skeleton from './Skeleton';
+import SearchBar from "@/components/SearchBar";
+import { debounce } from 'lodash';
+
 
 const Header: React.FC = () => {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: sessionData, status: sessionStatus } = useSession(); // Move the useSession call inside the component
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -22,20 +25,36 @@ const Header: React.FC = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
-  const user = session?.user as User;
-
+  const user = sessionData?.user as User;
+  const [isLoading, setIsLoading] = useState(false);
+  
   const handleLogout = async () => {
     await signOut();
     router.push('/login');
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchTerm.trim() !== '') {
-      router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
-    }
-  };
+  const handleSearch = (query: string) => {
+  if (query.trim() !== '') {
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+  }
+};
 
+  const [searchResults, setSearchResults] = useState<{
+  posts: SearchResult[];
+  files: SearchResult[];
+  projects: SearchResult[];
+  spaces: SearchResult[];
+  tutorials: SearchResult[];
+  users: SearchResult[];
+}>({
+  posts: [],
+  files: [],
+  projects: [],
+  spaces: [],
+  tutorials: [],
+  users: [],
+});
+  
   const handleButtonClick = (setStateFunction: React.Dispatch<React.SetStateAction<boolean>>) => {
     setButtonClicked(true);
     setStateFunction((prevState) => !prevState);
@@ -108,6 +127,47 @@ const Header: React.FC = () => {
       console.error('Error marking notification as read:', error);
     }
   };
+  const debouncedFetchSearchResults = useRef(
+  debounce((query) => fetchSearchResults(query), 300)
+).current;
+
+useEffect(() => {
+  if (searchTerm.trim() !== '') {
+    debouncedFetchSearchResults(searchTerm);
+  } else {
+    setSearchResults({
+      posts: [],
+      files: [],
+      projects: [],
+      spaces: [],
+      tutorials: [],
+      users: [],
+    });
+  }
+}, [searchTerm, debouncedFetchSearchResults]);
+
+  const fetchSearchResults = async (query: string) => {
+  if (query.trim() === '') {
+    setSearchResults({
+      posts: [],
+      files: [],
+      projects: [],
+      spaces: [],
+      tutorials: [],
+      users: [],
+    });
+    return;
+  }
+  setIsLoading(true);
+  try {
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+    const data = await response.json();
+    setSearchResults(data.results);
+  } catch (error) {
+    console.error('Error fetching search results:', error);
+  }
+  setIsLoading(false);
+};
 
   const handleClearNotifications = async (notifications: Notification[]) => {
     try {
@@ -206,11 +266,11 @@ const Header: React.FC = () => {
               </svg>
             </button>
             <div className="hidden flex-grow lg:block md:w-48 xl:w-80">
-              <SearchBar onSearch={() => handleSearch} value={searchTerm} onChange={setSearchTerm} />
-            </div>
-            {status === 'loading' ? (
-              <Skeleton variant="rectangular" width='40' height='40' className="ml-4" />
-            ) : session ? (
+  <SearchBar onSearch={handleSearch} placeholder="Search..." />
+</div>
+          {sessionStatus === 'loading' ? (
+  <Skeleton variant="rectangular" width='40' height='40' className="ml-4" />
+) : sessionData ? (
               <div className="relative flex items-center md:ml-4">
                 <button
                   className="relative z-10 mx-3 text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-0 py-2 rounded-md text-sm font-medium flex items-left"
