@@ -1,6 +1,6 @@
 // app/api/admin/posts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const posts = await prisma.post.findMany({
+    const posts = await cachedPrisma.post.findMany({
       take: 5,
       orderBy: {
         createdAt: 'desc',
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
   const { title, content, authorId, tags, settings } = await request.json();
 
   try {
-    const newPost = await prisma.post.create({
+    const newPost = await cachedPrisma.post.create({
       data: {
         title,
         content,

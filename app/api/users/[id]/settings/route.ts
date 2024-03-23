@@ -1,7 +1,7 @@
 // app/api/users/[id]/settings/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const settings = await prisma.userSettings.findUnique({
+    const settings = await cachedPrisma.userSettings.findUnique({
       where: { userId },
       include: {
         notificationPreferences: true,
@@ -52,7 +52,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   } = await request.json();
 
   try {
-    const updatedSettings = await prisma.userSettings.update({
+    const updatedSettings = await cachedPrisma.userSettings.update({
       where: { id: userId },
       data: {
         notificationPreferences: notificationPreferences

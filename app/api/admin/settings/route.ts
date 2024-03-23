@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 import { setEmailConfig } from '@/lib/email';
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   if (!session || user.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
-  const adminSettings = await prisma.adminSettings.findFirst();
+  const adminSettings = await cachedPrisma.adminSettings.findFirst();
   return NextResponse.json(adminSettings);
 }
 
@@ -55,7 +55,7 @@ export async function PUT(request: NextRequest) {
     emailFrom
   } = await request.json();
   try {
-    const updatedSettings = await prisma.adminSettings.upsert({
+    const updatedSettings = await cachedPrisma.adminSettings.upsert({
       where: { id: 1 },
       update: {
         siteTitle,
@@ -141,7 +141,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
   try {
-    await prisma.adminSettings.delete({
+    await cachedPrisma.adminSettings.delete({
       where: { id: 1 },
     });
     return NextResponse.json({ message: 'Admin settings deleted successfully' });

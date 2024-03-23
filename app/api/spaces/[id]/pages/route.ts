@@ -1,14 +1,14 @@
 // app/api/spaces/[id]/pages/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const spaceId = params.id;
 
   try {
-    const pages = await prisma.page.findMany({
+    const pages = await cachedPrisma.page.findMany({
       where: { spaceId },
       include: {
         comments: true,
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { title, content, settings } = await request.json();
 
   try {
-    const space = await prisma.space.findUnique({
+    const space = await cachedPrisma.space.findUnique({
       where: { id: spaceId },
       include: { collaborators: true },
     });
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const newPage = await prisma.page.create({
+    const newPage = await cachedPrisma.page.create({
       data: {
         title,
         content,

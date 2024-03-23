@@ -1,7 +1,7 @@
 // app/api/tutorials/[id]/unpublish/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const tutorialId = params.id;
 
   try {
-    const tutorial = await prisma.tutorial.findUnique({
+    const tutorial = await cachedPrisma.tutorial.findUnique({
       where: { id: tutorialId },
       include: {
         author: true,
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const unpublishedTutorial = await prisma.tutorial.update({
+    const unpublishedTutorial = await cachedPrisma.tutorial.update({
       where: { id: tutorialId },
       data: {
         isPublished: false,

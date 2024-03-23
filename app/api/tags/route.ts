@@ -1,10 +1,10 @@
 // app/api/tags/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const tags = await prisma.tag.findMany({
+    const tags = await cachedPrisma.tag.findMany({
       include: {
         posts: true,
         files: true,
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   const { name } = await request.json();
 
   try {
-    const newTag = await prisma.tag.create({
+    const newTag = await cachedPrisma.tag.create({
       data: {
         name,
       },

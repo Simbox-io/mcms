@@ -1,6 +1,6 @@
 // app/api/notifications/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 
   try {
-    const notification = await prisma.notification.findUnique({
+    const notification = await cachedPrisma.notification.findUnique({
       where: { id: notificationId },
       include: {
         settings: {
@@ -48,7 +48,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { isRead, isHidden, settings } = await request.json();
 
   try {
-    const notification = await prisma.notification.findUnique({
+    const notification = await cachedPrisma.notification.findUnique({
       where: { id: notificationId },
     });
 
@@ -56,7 +56,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Notification not found' }, { status: 404 });
     }
 
-    const updatedNotification = await prisma.notification.update({
+    const updatedNotification = await cachedPrisma.notification.update({
       where: { id: notificationId },
       data: {
         isRead,
@@ -106,7 +106,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   }
 
   try {
-    const notification = await prisma.notification.findUnique({
+    const notification = await cachedPrisma.notification.findUnique({
       where: { id: notificationId },
     });
 
@@ -114,7 +114,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Notification not found' }, { status: 404 });
     }
 
-    await prisma.notification.delete({
+    await cachedPrisma.notification.delete({
       where: { id: notificationId },
     });
 

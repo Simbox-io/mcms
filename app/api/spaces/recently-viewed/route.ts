@@ -1,6 +1,6 @@
 // app/api/spaces/recently-viewed/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const recentlyViewedSpaces = await prisma.spaceView.findMany({
+    const recentlyViewedSpaces = await cachedPrisma.spaceView.findMany({
       where: {
         userId: user.id,
       },
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
   const { spaceId } = await request.json();
 
   try {
-    const existingView = await prisma.spaceView.findUnique({
+    const existingView = await cachedPrisma.spaceView.findUnique({
       where: {
         spaceId_userId: {
           userId: user.id,
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingView) {
-      await prisma.spaceView.update({
+      await cachedPrisma.spaceView.update({
         where: {
           id: existingView.id,
         },
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         },
       });
     } else {
-      await prisma.spaceView.create({
+      await cachedPrisma.spaceView.create({
         data: {
           user: { connect: { id: user.id } },
           space: { connect: { id: spaceId } },

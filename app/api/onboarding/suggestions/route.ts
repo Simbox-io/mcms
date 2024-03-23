@@ -1,7 +1,7 @@
 // app/api/onboarding/suggestions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const suggestedSpaces = await prisma.space.findMany({
+    const suggestedSpaces = await cachedPrisma.space.findMany({
       take: 5,
       select: {
         id: true,
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const suggestedUsers = await prisma.user.findMany({
+    const suggestedUsers = await cachedPrisma.user.findMany({
       take: 5,
       select: {
         id: true,

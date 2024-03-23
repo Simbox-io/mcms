@@ -1,7 +1,7 @@
 // app/api/activities/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedcachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -17,12 +17,12 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalActivities = await prisma.activity.count({
+    const totalActivities = await cachedcachedPrisma.activity.count({
       where: { userId: userObj.id },
     });
     const totalPages = Math.ceil(totalActivities / perPage);
 
-    const activities = await prisma.activity.findMany({
+    const activities = await cachedcachedPrisma.activity.findMany({
       where: { userId: userObj.id },
       skip: (page - 1) * perPage,
       take: perPage,
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
   const { activityType, entityId, entityType } = await request.json();
 
   try {
-    const newActivity = await prisma.activity.create({
+    const newActivity = await cachedcachedPrisma.activity.create({
       data: {
         user: { connect: { id: userObj.id } },
         activityType,

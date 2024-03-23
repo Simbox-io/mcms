@@ -1,12 +1,12 @@
 // app/api/tags/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const tagId = params.id;
 
   try {
-    const tag = await prisma.tag.findUnique({
+    const tag = await cachedPrisma.tag.findUnique({
       where: { id: tagId },
       include: {
         posts: true,
@@ -32,7 +32,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { name } = await request.json();
 
   try {
-    const updatedTag = await prisma.tag.update({
+    const updatedTag = await cachedPrisma.tag.update({
       where: { id: tagId },
       data: {
         name,
@@ -50,7 +50,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const tagId = params.id;
 
   try {
-    await prisma.tag.delete({
+    await cachedPrisma.tag.delete({
       where: { id: tagId },
     });
 

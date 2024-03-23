@@ -1,6 +1,6 @@
 // app/api/admin/analytics/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
@@ -14,12 +14,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const [totalUsers, totalPosts, totalProjects, totalFiles, totalSpaces, totalTutorials] = await Promise.all([
-      prisma.user.count(),
-      prisma.post.count(),
-      prisma.project.count(),
-      prisma.file.count(),
-      prisma.space.count(),
-      prisma.tutorial.count(),
+      cachedPrisma.user.count(),
+      cachedPrisma.post.count(),
+      cachedPrisma.project.count(),
+      cachedPrisma.file.count(),
+      cachedPrisma.space.count(),
+      cachedPrisma.tutorial.count(),
     ]);
 
     const analytics = {

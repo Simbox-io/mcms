@@ -1,14 +1,14 @@
 // app/api/tutorials/[id]/collaborators/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const tutorialId = params.id;
 
   try {
-    const collaborators = await prisma.user.findMany({
+    const collaborators = await cachedPrisma.user.findMany({
       where: {
         collaboratedTutorials: {
           some: {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { collaboratorId } = await request.json();
 
   try {
-    const tutorial = await prisma.tutorial.findUnique({
+    const tutorial = await cachedPrisma.tutorial.findUnique({
       where: { id: tutorialId },
       include: { author: true },
     });
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.tutorial.update({
+    await cachedPrisma.tutorial.update({
       where: { id: tutorialId },
       data: {
         collaborators: {
@@ -83,7 +83,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const { collaboratorId } = await request.json();
 
   try {
-    const tutorial = await prisma.tutorial.findUnique({
+    const tutorial = await cachedPrisma.tutorial.findUnique({
       where: { id: tutorialId },
       include: { author: true },
     });
@@ -96,7 +96,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.tutorial.update({
+    await cachedPrisma.tutorial.update({
       where: { id: tutorialId },
       data: {
         collaborators: {

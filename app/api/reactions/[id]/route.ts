@@ -1,7 +1,7 @@
 // app/api/reactions/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,12 +15,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const reactionId = params.id;
 
   try {
-    const reaction = await prisma.commentReaction.findUnique({
+    const reaction = await cachedPrisma.commentReaction.findUnique({
       where: { id: reactionId },
     });
 
     if (!reaction) {
-      const fileReaction = await prisma.fileReaction.findUnique({
+      const fileReaction = await cachedPrisma.fileReaction.findUnique({
         where: { id: reactionId },
       });
 
@@ -32,7 +32,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
       }
 
-      await prisma.fileReaction.delete({
+      await cachedPrisma.fileReaction.delete({
         where: { id: reactionId },
       });
     } else {
@@ -40,7 +40,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
       }
 
-      await prisma.commentReaction.delete({
+      await cachedPrisma.commentReaction.delete({
         where: { id: reactionId },
       });
     }

@@ -1,7 +1,7 @@
 // app/api/users/[id]/bookmarks/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const bookmarks = await prisma.bookmark.findMany({
+    const bookmarks = await cachedPrisma.bookmark.findMany({
       where: { userId },
       include: {
         post: {

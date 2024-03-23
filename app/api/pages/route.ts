@@ -1,7 +1,7 @@
 // app/api/pages/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   const { title, content, spaceId } = await request.json();
 
   try {
-    const newPage = await prisma.page.create({
+    const newPage = await cachedPrisma.page.create({
       data: {
         title,
         content,

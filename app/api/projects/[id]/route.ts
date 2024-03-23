@@ -1,6 +1,6 @@
 // app/api/projects/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const projectId = params.id;
 
   try {
-    const project = await prisma.project.findUnique({
+    const project = await cachedPrisma.project.findUnique({
       where: { id: projectId },
       include: {
         owner: true,
@@ -51,7 +51,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { name, description, collaborators, tags, settings } = await request.json();
 
   try {
-    const project = await prisma.project.findUnique({
+    const project = await cachedPrisma.project.findUnique({
       where: { id: projectId },
       include: { owner: true },
     });
@@ -64,7 +64,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedProject = await prisma.project.update({
+    const updatedProject = await cachedPrisma.project.update({
       where: { id: projectId },
       data: {
         name,
@@ -124,7 +124,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   }
 
   try {
-    const project = await prisma.project.findUnique({
+    const project = await cachedPrisma.project.findUnique({
       where: { id: projectId },
       include: { owner: true },
     });
@@ -137,7 +137,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.project.delete({
+    await cachedPrisma.project.delete({
       where: { id: projectId },
     });
 

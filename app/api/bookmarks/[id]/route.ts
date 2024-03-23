@@ -1,7 +1,7 @@
 // app/api/bookmarks/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const bookmarkId = params.id;
 
   try {
-    const bookmark = await prisma.bookmark.findUnique({
+    const bookmark = await cachedPrisma.bookmark.findUnique({
       where: { id: bookmarkId },
       include: {
         post: {
@@ -117,7 +117,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const bookmarkId = params.id;
 
   try {
-    const bookmark = await prisma.bookmark.findUnique({
+    const bookmark = await cachedPrisma.bookmark.findUnique({
       where: { id: bookmarkId },
     });
 
@@ -125,7 +125,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Bookmark not found' }, { status: 404 });
     }
 
-    await prisma.bookmark.delete({
+    await cachedPrisma.bookmark.delete({
       where: { id: bookmarkId },
     });
 

@@ -1,7 +1,7 @@
 // app/api/notifications/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -17,12 +17,12 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalNotifications = await prisma.notification.count({
+    const totalNotifications = await cachedPrisma.notification.count({
       where: { userId: userObj.id },
     });
     const totalPages = Math.ceil(totalNotifications / perPage);
 
-    const notifications = await prisma.notification.findMany({
+    const notifications = await cachedPrisma.notification.findMany({
       where: { userId: userObj.id },
       skip: (page - 1) * perPage,
       take: perPage,
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   const { message, link, settings } = await request.json();
 
   try {
-    const newNotification = await prisma.notification.create({
+    const newNotification = await cachedPrisma.notification.create({
       data: {
         user: { connect: { id: userObj.id } },
         message,

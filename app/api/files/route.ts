@@ -1,6 +1,6 @@
 // app/api/files/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User, AdminSettings } from '@/lib/prisma';
 import { getStorageProvider } from '@/lib/file-storage';
@@ -12,9 +12,9 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1');
   const perPage = 10;
   try {
-    const totalFiles = await prisma.file.count();
+    const totalFiles = await cachedPrisma.file.count();
     const totalPages = Math.ceil(totalFiles / perPage);
-    const files = await prisma.file.findMany({
+    const files = await cachedPrisma.file.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       include: {
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         createdAt: 'desc',
       },
     });
-    const adminSettings = await prisma.adminSettings.findFirst();
+    const adminSettings = await cachedPrisma.adminSettings.findFirst();
     const storageProvider = await getStorageProvider(adminSettings! as AdminSettings);
     const filesWithUrls = files.map((file) => ({
       ...file,
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
   const { name, description, isPublic, projectId, parentId, tags, contentType } = Object.fromEntries(formData.entries());
 
   try {
-    const adminSettings = await prisma.adminSettings.findFirst();
+    const adminSettings = await cachedPrisma.adminSettings.findFirst();
     if (!adminSettings) {
       return NextResponse.json({ message: 'Admin settings not found' }, { status: 500 });
     }
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     for (const file of files) {
       const fileUrl = await storageProvider.uploadFile(file);
-      const newFile = await prisma.file.create({
+      const newFile = await cachedPrisma.file.create({
 
         data: {
           name: name as string,

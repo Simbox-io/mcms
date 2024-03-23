@@ -1,7 +1,7 @@
 // app/api/users/[id]/tutorials/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const tutorials = await prisma.tutorial.findMany({
+    const tutorials = await cachedPrisma.tutorial.findMany({
         where: {
           OR: [
             { authorId: userId },

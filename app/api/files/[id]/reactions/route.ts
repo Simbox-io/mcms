@@ -1,14 +1,14 @@
 // app/api/files/[id]/reactions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const fileId = params.id;
 
   try {
-    const reactions = await prisma.fileReaction.findMany({
+    const reactions = await cachedPrisma.fileReaction.findMany({
       where: { fileId },
       include: {
         user: {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { type } = await request.json();
 
   try {
-    const existingReaction = await prisma.fileReaction.findUnique({
+    const existingReaction = await cachedPrisma.fileReaction.findUnique({
       where: {
         userId_fileId: {
           fileId,
@@ -50,14 +50,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     });
 
     if (existingReaction) {
-      await prisma.fileReaction.delete({
+      await cachedPrisma.fileReaction.delete({
         where: {
           id: existingReaction.id,
         },
       });
       return NextResponse.json({ message: 'Reaction removed successfully' });
     } else {
-      const newReaction = await prisma.fileReaction.create({
+      const newReaction = await cachedPrisma.fileReaction.create({
         data: {
           type,
           file: { connect: { id: fileId } },

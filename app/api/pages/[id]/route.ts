@@ -1,14 +1,14 @@
 // app/api/pages/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const pageId = params.id;
 
   try {
-    const page = await prisma.page.findUnique({
+    const page = await cachedPrisma.page.findUnique({
       where: { id: pageId },
       include: {
         space: true,
@@ -47,7 +47,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { title, content, settings } = await request.json();
 
   try {
-    const page = await prisma.page.findUnique({
+    const page = await cachedPrisma.page.findUnique({
       where: { id: pageId },
       include: { space: true },
     });
@@ -60,7 +60,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedPage = await prisma.page.update({
+    const updatedPage = await cachedPrisma.page.update({
       where: { id: pageId },
       data: {
         title,
@@ -129,7 +129,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const pageId = params.id;
 
   try {
-    const page = await prisma.page.findUnique({
+    const page = await cachedPrisma.page.findUnique({
       where: { id: pageId },
       include: { space: true },
     });
@@ -142,7 +142,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.page.delete({
+    await cachedPrisma.page.delete({
       where: { id: pageId },
     });
 

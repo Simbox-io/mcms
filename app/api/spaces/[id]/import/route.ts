@@ -1,7 +1,7 @@
 // app/api/spaces/[id]/import/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { format, data } = await request.json();
 
   try {
-    const space = await prisma.space.findUnique({
+    const space = await cachedPrisma.space.findUnique({
       where: { id: spaceId },
       include: {
         owner: true,
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     // Update the space with the imported data
-    const updatedSpace = await prisma.space.update({
+    const updatedSpace = await cachedPrisma.space.update({
       where: { id: spaceId },
       data: importedData,
     });

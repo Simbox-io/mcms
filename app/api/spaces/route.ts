@@ -1,6 +1,6 @@
 // app/api/spaces/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get('search') || '';
 
   try {
-    const totalSpaces = await prisma.space.count({
+    const totalSpaces = await cachedPrisma.space.count({
       where: {
         OR: [
           { name: { contains: search } },
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     });
     const totalPages = Math.ceil(totalSpaces / perPage);
 
-    const spaces = await prisma.space.findMany({
+    const spaces = await cachedPrisma.space.findMany({
       where: {
         OR: [
           { name: { contains: search } },
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
   const { name, description, projectId, collaborators, settings } = await request.json();
 
   try {
-    const newSpace = await prisma.space.create({
+    const newSpace = await cachedPrisma.space.create({
       data: {
         name,
         description,

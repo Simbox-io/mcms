@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/app/api/auth/[...nextauth]/options';
 import { encode } from 'next-auth/jwt';
-import prisma, { User } from '@/lib/prisma';
+import cachedPrisma, { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
   const { id } = params;
 
-  const user = await prisma.user.findUnique({
+  const user = await cachedPrisma.user.findUnique({
     where: { id: id },
   });
 

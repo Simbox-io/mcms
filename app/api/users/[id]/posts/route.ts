@@ -1,7 +1,7 @@
 // app/api/users/[id]/posts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const posts = await prisma.post.findMany({
+    const posts = await cachedPrisma.post.findMany({
       where: {
         authorId: userId,
       },

@@ -1,14 +1,14 @@
 // app/api/projects/[id]/collaborators/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const projectId = params.id;
 
   try {
-    const collaborators = await prisma.user.findMany({
+    const collaborators = await cachedPrisma.user.findMany({
       where: {
         collaboratedProjects: {
           some: {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { collaboratorId } = await request.json();
 
   try {
-    const project = await prisma.project.findUnique({
+    const project = await cachedPrisma.project.findUnique({
       where: { id: projectId },
       include: { owner: true },
     });
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.project.update({
+    await cachedPrisma.project.update({
       where: { id: projectId },
       data: {
         collaborators: {
@@ -83,7 +83,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const { collaboratorId } = await request.json();
 
   try {
-    const project = await prisma.project.findUnique({
+    const project = await cachedPrisma.project.findUnique({
       where: { id: projectId },
       include: { owner: true },
     });
@@ -96,7 +96,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.project.update({
+    await cachedPrisma.project.update({
       where: { id: projectId },
       data: {
         collaborators: {

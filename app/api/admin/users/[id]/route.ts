@@ -1,6 +1,6 @@
 // app/api/admin/users/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const userDetails = await prisma.user.findUnique({
+    const userDetails = await cachedPrisma.user.findUnique({
       where: { id: userId },
       include: {
         profile: true,
@@ -62,7 +62,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { username, firstName, lastName, email, bio, avatar, role } = await request.json();
 
   try {
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await cachedPrisma.user.update({
       where: { id: userId },
       data: {
         username,
@@ -109,7 +109,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const userId = params.id;
 
   try {
-    await prisma.user.delete({
+    await cachedPrisma.user.delete({
       where: { id: userId },
     });
 

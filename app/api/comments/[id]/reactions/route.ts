@@ -1,14 +1,14 @@
 // app/api/comments/[id]/reactions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const commentId = params.id;
 
   try {
-    const reactions = await prisma.commentReaction.findMany({
+    const reactions = await cachedPrisma.commentReaction.findMany({
       where: { commentId },
       include: {
         user: {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { type } = await request.json();
 
   try {
-    const existingReaction = await prisma.commentReaction.findUnique({
+    const existingReaction = await cachedPrisma.commentReaction.findUnique({
       where: {
         userId_commentId: {
           commentId,
@@ -50,14 +50,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     });
 
     if (existingReaction) {
-      await prisma.commentReaction.delete({
+      await cachedPrisma.commentReaction.delete({
         where: {
           id: existingReaction.id,
         },
       });
       return NextResponse.json({ message: 'Reaction removed successfully' });
     } else {
-      const newReaction = await prisma.commentReaction.create({
+      const newReaction = await cachedPrisma.commentReaction.create({
         data: {
           type,
           comment: { connect: { id: commentId } },

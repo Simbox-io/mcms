@@ -1,7 +1,7 @@
 // app/api/users/[id]/notifications/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const notifications = await prisma.notification.findMany({
+    const notifications = await cachedPrisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -46,7 +46,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { notificationIds, isRead } = await request.json();
 
   try {
-    const updatedNotifications = await prisma.notification.updateMany({
+    const updatedNotifications = await cachedPrisma.notification.updateMany({
       where: {
         id: { in: notificationIds },
         userId,

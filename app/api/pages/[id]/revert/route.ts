@@ -1,7 +1,7 @@
 // app/api/pages/[id]/revert/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { version } = await request.json();
 
   try {
-    const page = await prisma.page.findUnique({
+    const page = await cachedPrisma.page.findUnique({
       where: { id: pageId },
       include: {
         space: {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const versionToRevert = await prisma.page.findFirst({
+    const versionToRevert = await cachedPrisma.page.findFirst({
       where: {
         id: pageId,
         version,
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Version not found' }, { status: 404 });
     }
 
-    const revertedPage = await prisma.page.update({
+    const revertedPage = await cachedPrisma.page.update({
       where: { id: pageId },
       data: {
         title: versionToRevert.title,

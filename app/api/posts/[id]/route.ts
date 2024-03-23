@@ -1,6 +1,6 @@
 // app/api/posts/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const postId = params.id;
 
   try {
-    const post = await prisma.post.findUnique({
+    const post = await cachedPrisma.post.findUnique({
       where: {
         id: postId,
       },
@@ -56,7 +56,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { title, content, tags, settings } = await request.json();
 
   try {
-    const post = await prisma.post.findUnique({
+    const post = await cachedPrisma.post.findUnique({
       where: { id: postId },
       include: { author: true },
     });
@@ -69,7 +69,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedPost = await prisma.post.update({
+    const updatedPost = await cachedPrisma.post.update({
       where: { id: postId },
       data: {
         title,
@@ -127,7 +127,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   }
 
   try {
-    const post = await prisma.post.findUnique({
+    const post = await cachedPrisma.post.findUnique({
       where: { id: postId },
       include: {
         author: true,
@@ -150,31 +150,31 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.sharingSettings.delete({
+    await cachedPrisma.sharingSettings.delete({
       where: { id: post.settings?.sharingSettings?.id }
     });
 
-    await prisma.revisionHistorySettings.delete({
+    await cachedPrisma.revisionHistorySettings.delete({
       where: { id: post.settings?.revisionHistorySettings?.id },
     });
 
-    await prisma.commentSettings.delete({
+    await cachedPrisma.commentSettings.delete({
       where: { id: post.settings?.commentSettings?.id },  
     });
 
-    await prisma.postSettings.delete({
+    await cachedPrisma.postSettings.delete({
       where: { postId },
     });
 
-    await prisma.comment.deleteMany({
+    await cachedPrisma.comment.deleteMany({
       where: { postId },
     });
 
-    await prisma.bookmark.deleteMany({
+    await cachedPrisma.bookmark.deleteMany({
       where: { postId },
     });
 
-    await prisma.post.delete({
+    await cachedPrisma.post.delete({
       where: { id: postId },
     });
 

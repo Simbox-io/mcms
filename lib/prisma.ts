@@ -1,6 +1,7 @@
 // lib/prisma.ts
 
 import { PrismaClient } from '@prisma/client';
+import cacheService from './cacheService';
 
 declare global {
   var prisma: PrismaClient | undefined;
@@ -16,6 +17,8 @@ if (process.env.NODE_ENV === 'production') {
   }
   prisma = global.prisma;
 }
+
+const cachedPrisma = cacheService.wrapPrisma(prisma);
 
 export type User = {
   id: string;
@@ -894,4 +897,4 @@ export enum NotificationFrequency {
   WEEKLY_DIGEST = 'WEEKLY_DIGEST',
 }
 
-export default prisma;
+export default cachedPrisma;

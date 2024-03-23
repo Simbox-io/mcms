@@ -1,7 +1,7 @@
 // app/api/onboarding/follow/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
   try {
     if (type === 'space') {
-      await prisma.user.update({
+      await cachedPrisma.user.update({
         where: { id: userObj.id },
         data: {
           collaboratedSpaces: {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         },
       });
     } else if (type === 'user') {
-      await prisma.user.update({
+      await cachedPrisma.user.update({
         where: { id: userObj.id },
         data: {
           following: {

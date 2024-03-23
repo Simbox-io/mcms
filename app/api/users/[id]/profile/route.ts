@@ -1,7 +1,7 @@
 // app/api/users/[id]/profile/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const profile = await prisma.profile.findUnique({
+    const profile = await cachedPrisma.profile.findUnique({
       where: { userId },
       include: {
         socialLinks: true,
@@ -42,7 +42,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { bio, location, website, socialLinks, skills } = await request.json();
 
   try {
-    const updatedProfile = await prisma.profile.update({
+    const updatedProfile = await cachedPrisma.profile.update({
       where: { userId },
       data: {
         bio,

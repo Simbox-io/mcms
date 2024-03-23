@@ -1,7 +1,7 @@
 // app/api/users/[id]/unfollow/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const userId = params.id;
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await cachedPrisma.user.findUnique({
       where: { id: userId },
     });
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    await prisma.user.update({
+    await cachedPrisma.user.update({
       where: { id: userObj.id },
       data: {
         following: {

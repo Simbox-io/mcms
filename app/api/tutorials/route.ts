@@ -1,7 +1,7 @@
 // app/api/tutorials/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -10,10 +10,10 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalTutorials = await prisma.tutorial.count();
+    const totalTutorials = await cachedPrisma.tutorial.count();
     const totalPages = Math.ceil(totalTutorials / perPage);
 
-    const tutorials = await prisma.tutorial.findMany({
+    const tutorials = await cachedPrisma.tutorial.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       include: {
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
   const { title, content, tags, collaborators, settings } = await request.json();
 
   try {
-    const newTutorial = await prisma.tutorial.create({
+    const newTutorial = await cachedPrisma.tutorial.create({
       data: {
         title,
         content,

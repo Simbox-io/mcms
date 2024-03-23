@@ -1,7 +1,7 @@
 // app/api/users/[id]/reactions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const commentReactions = await prisma.commentReaction.findMany({
+    const commentReactions = await cachedPrisma.commentReaction.findMany({
       where: { userId },
       include: {
         comment: {
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       },
     });
 
-    const fileReactions = await prisma.fileReaction.findMany({
+    const fileReactions = await cachedPrisma.fileReaction.findMany({
       where: { userId },
       include: {
         file: {

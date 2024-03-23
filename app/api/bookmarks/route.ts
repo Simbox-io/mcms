@@ -1,7 +1,7 @@
 // app/api/bookmarks/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -17,12 +17,12 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalBookmarks = await prisma.bookmark.count({
+    const totalBookmarks = await cachedPrisma.bookmark.count({
       where: { userId: userObj.id },
     });
     const totalPages = Math.ceil(totalBookmarks / perPage);
 
-    const bookmarks = await prisma.bookmark.findMany({
+    const bookmarks = await cachedPrisma.bookmark.findMany({
       where: { userId: userObj.id },
       skip: (page - 1) * perPage,
       take: perPage,
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
   const { postId, fileId, projectId, spaceId, pageId, tutorialId } = await request.json();
 
   try {
-    const newBookmark = await prisma.bookmark.create({
+    const newBookmark = await cachedPrisma.bookmark.create({
       data: {
         user: { connect: { id: userObj.id } },
         post: postId ? { connect: { id: postId } } : undefined,

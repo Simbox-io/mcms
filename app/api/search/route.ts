@@ -1,7 +1,7 @@
 // app/api/search/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const [posts, files, projects, spaces, tutorials, users] = await Promise.all([
-      prisma.post.findMany({
+      cachedPrisma.post.findMany({
         where: {
           OR: [
             { title: { contains: query, mode: 'insensitive' } },
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * perPage,
         take: perPage,
       }),
-      prisma.file.findMany({
+      cachedPrisma.file.findMany({
         where: {
           OR: [
             { name: { contains: query, mode: 'insensitive' } },
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * perPage,
         take: perPage,
       }),
-      prisma.project.findMany({
+      cachedPrisma.project.findMany({
         where: {
           OR: [
             { name: { contains: query, mode: 'insensitive' } },
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * perPage,
         take: perPage,
       }),
-      prisma.space.findMany({
+      cachedPrisma.space.findMany({
         where: {
           OR: [
             { name: { contains: query, mode: 'insensitive' } },
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * perPage,
         take: perPage,
       }),
-      prisma.tutorial.findMany({
+      cachedPrisma.tutorial.findMany({
         where: {
           OR: [
             { title: { contains: query, mode: 'insensitive' } },
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * perPage,
         take: perPage,
       }),
-      prisma.user.findMany({
+      cachedPrisma.user.findMany({
         where: {
           OR: [
             { username: { contains: query, mode: 'insensitive' } },
@@ -210,35 +210,35 @@ export async function GET(request: NextRequest) {
       })),
     };
 
-    const totalResults = await prisma.post.count({
+    const totalResults = await cachedPrisma.post.count({
       where: {
         OR: [
           { title: { contains: query } },
           { content: { contains: query } },
         ],
       },
-    }) + await prisma.file.count({
+    }) + await cachedPrisma.file.count({
       where: {
         OR: [
           { name: { contains: query } },
           { description: { contains: query } },
         ],
       },
-    }) + await prisma.project.count({
+    }) + await cachedPrisma.project.count({
       where: {
         OR: [
           { name: { contains: query } },
           { description: { contains: query } },
         ],
       },
-    }) + await prisma.space.count({
+    }) + await cachedPrisma.space.count({
       where: {
         OR: [
           { name: { contains: query } },
           { description: { contains: query } },
         ],
       },
-    }) + await prisma.tutorial.count({
+    }) + await cachedPrisma.tutorial.count({
       where: {
         OR: [
           { title: { contains: query } },

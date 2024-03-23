@@ -1,7 +1,7 @@
 // app/api/user/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma, { User } from '@/lib/prisma';
+import cachedPrisma, { User } from '@/lib/prisma';
 import { uploadImage } from '@/lib/uploadImage';
 
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await cachedPrisma.user.findUnique({
       where: { id: userObj.id },
       include: {
         profile: true,
@@ -66,7 +66,7 @@ export async function PUT(request: NextRequest) {
   }
   
   try {
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await cachedPrisma.user.update({
       where: { id: userObj.id },
       data: {
         username: username.toLowerCase(),

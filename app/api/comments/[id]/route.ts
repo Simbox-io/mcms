@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
@@ -15,7 +15,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { content, settings } = await request.json();
 
   try {
-    const comment = await prisma.comment.findUnique({
+    const comment = await cachedPrisma.comment.findUnique({
       where: { id: commentId },
       include: { author: true },
     });
@@ -28,7 +28,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedComment = await prisma.comment.update({
+    const updatedComment = await cachedPrisma.comment.update({
       where: { id: commentId },
       data: {
         content,
@@ -70,7 +70,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const commentId = params.id;
 
   try {
-    const comment = await prisma.comment.findUnique({
+    const comment = await cachedPrisma.comment.findUnique({
       where: { id: commentId },
       include: { author: true },
     });
@@ -83,7 +83,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.comment.delete({
+    await cachedPrisma.comment.delete({
       where: { id: commentId },
     });
 

@@ -1,7 +1,7 @@
 import NodeCache from 'node-cache';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { SWRResponse, MutatorCallback, MutatorOptions } from 'swr';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PrismaPromise } from '@prisma/client';
 import { gzip, ungzip } from 'node-gzip';
 
 interface CacheServiceInterface {
@@ -10,7 +10,7 @@ interface CacheServiceInterface {
   delete(key: string): Promise<void>;
   deleteByPattern(pattern: string): Promise<void>;
   flush(): Promise<void>;
-  wrapAxios(config: AxiosRequestConfig): Promise<AxiosResponse>;
+  wrapAxios<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>>;
   wrapPrisma<T extends PrismaClient>(prisma: T): T;
   wrapSWR<T>(key: string, fetcher: () => Promise<T>): Promise<SWRResponse<T>>;
 }
@@ -32,11 +32,7 @@ class CacheService implements CacheServiceInterface {
 
   async set<T>(key: string, value: T, ttl?: number): Promise<boolean> {
     const compressedValue = await gzip(JSON.stringify(value));
-    if (ttl === undefined) {
-      return this.cache.set(key, compressedValue);
-    } else {
-      return this.cache.set(key, compressedValue, ttl);
-    }
+    return this.cache.set(key, compressedValue, (ttl || ''));
   }
 
   async get<T>(key: string): Promise<T | undefined> {
@@ -65,16 +61,19 @@ class CacheService implements CacheServiceInterface {
     this.cache.flushAll();
   }
 
-  async wrapAxios(config: AxiosRequestConfig): Promise<AxiosResponse> {
+  async wrapAxios<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     const cacheKey = JSON.stringify(config);
-    const cachedResponse = await this.get<AxiosResponse>(cacheKey);
+    const cachedResponse = await this.get<AxiosResponse<T>>(cacheKey);
     if (cachedResponse) {
       return Promise.resolve(cachedResponse);
     }
-
-    const response = await axios(config);
-    await this.set(cacheKey, response);
-    return response;
+    try {
+      const response = await axios(config);
+      await this.set(cacheKey, response);
+      return response;
+    } catch (error) {
+      throw error;
+    }
   }
 
   wrapPrisma<T extends PrismaClient>(prisma: T): T {
@@ -88,7 +87,7 @@ class CacheService implements CacheServiceInterface {
             if (cachedResult !== undefined) {
               return Promise.resolve(cachedResult);
             }
-            const result = await (property as (...args: any[]) => Promise<R>)(...args);
+            const result = await (property as (...args: any[]) => PrismaPromise<R>)(...args);
             await this.set(cacheKey, result);
             return result;
           };
@@ -101,33 +100,35 @@ class CacheService implements CacheServiceInterface {
 
   async wrapSWR<T>(key: string, fetcher: () => Promise<T>): Promise<SWRResponse<T>> {
     const cachedData = await this.get<T>(key);
+    const revalidate = async () => {
+      const data = await fetcher();
+      await this.set(key, data);
+      return data;
+    };
+    const mutate = async (data?: T | Promise<T | undefined> | MutatorCallback<T>, opts?: boolean | MutatorOptions): Promise<T | undefined> => {
+      let newData: T | undefined;
+      if (typeof data === 'function') {
+        newData = await (data as MutatorCallback<T>)(cachedData);
+      } else if (data instanceof Promise) {
+        newData = await data;
+      } else {
+        newData = data;
+      }
+      if (newData !== undefined) {
+        await this.set(key, newData);
+      }
+      if (opts === true || (opts as MutatorOptions)?.revalidate !== false) {
+        newData = await fetcher();
+      }
+      return newData;
+    };
     if (cachedData !== undefined) {
       return Promise.resolve({
         data: cachedData,
         error: undefined,
-        revalidate: async () => {
-          const data = await fetcher();
-          await this.set(key, data);
-          return data;
-        },
+        revalidate,
         isValidating: false,
-        mutate: async (data?: T | Promise<T | undefined> | MutatorCallback<T>, opts?: boolean | MutatorOptions): Promise<T | undefined> => {
-          let newData: T | undefined;
-          if (typeof data === 'function') {
-            newData = await (data as MutatorCallback<T>)(cachedData);
-          } else if (data instanceof Promise) {
-            newData = await data;
-          } else {
-            newData = data;
-          }
-          if (newData !== undefined) {
-            await this.set(key, newData);
-          }
-          if (opts === true || (opts as MutatorOptions)?.revalidate !== false) {
-            newData = await fetcher();
-          }
-          return newData;
-        },
+        mutate,
         isLoading: false,
       });
     }
@@ -135,60 +136,20 @@ class CacheService implements CacheServiceInterface {
       const data = await fetcher();
       await this.set(key, data);
       return Promise.resolve({
-        data: cachedData,
+        data,
         error: undefined,
-        revalidate: async () => {
-          const data = await fetcher();
-          await this.set(key, data);
-          return data;
-        },
+        revalidate,
         isValidating: false,
-        mutate: async (data?: T | Promise<T | undefined> | MutatorCallback<T>, opts?: boolean | MutatorOptions): Promise<T | undefined> => {
-          let newData: T | undefined;
-          if (typeof data === 'function') {
-            newData = await (data as MutatorCallback<T>)(cachedData);
-          } else if (data instanceof Promise) {
-            newData = await data;
-          } else {
-            newData = data;
-          }
-          if (newData !== undefined) {
-            await this.set(key, newData);
-          }
-          if (opts === true || (opts as MutatorOptions)?.revalidate !== false) {
-            newData = await fetcher();
-          }
-          return newData;
-        },
+        mutate,
         isLoading: false,
       });
     } catch (error) {
       return Promise.resolve({
         data: undefined,
         error,
-        revalidate: async () => {
-          const data = await fetcher();
-          await this.set(key, data);
-          return data;
-        },
+        revalidate,
         isValidating: false,
-        mutate: async (data?: T | Promise<T | undefined> | MutatorCallback<T>, opts?: boolean | MutatorOptions): Promise<T | undefined> => {
-          let newData: T | undefined;
-          if (typeof data === 'function') {
-            newData = await (data as MutatorCallback<T>)(cachedData);
-          } else if (data instanceof Promise) {
-            newData = await data;
-          } else {
-            newData = data;
-          }
-          if (newData !== undefined) {
-            await this.set(key, newData);
-          }
-          if (opts === true || (opts as MutatorOptions)?.revalidate !== false) {
-            newData = await fetcher();
-          }
-          return newData;
-        },
+        mutate,
         isLoading: false,
       });
     }

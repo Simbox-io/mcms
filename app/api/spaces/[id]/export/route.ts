@@ -1,7 +1,7 @@
 // app/api/spaces/[id]/export/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const format = request.nextUrl.searchParams.get('format');
 
   try {
-    const space = await prisma.space.findUnique({
+    const space = await cachedPrisma.space.findUnique({
       where: { id: spaceId },
       include: {
         owner: true,

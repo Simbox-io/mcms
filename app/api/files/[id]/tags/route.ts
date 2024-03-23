@@ -1,14 +1,14 @@
 // app/api/files/[id]/tags/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const fileId = params.id;
 
   try {
-    const tags = await prisma.tag.findMany({
+    const tags = await cachedPrisma.tag.findMany({
       where: {
         files: {
           some: {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { tags } = await request.json();
 
   try {
-    const file = await prisma.file.findUnique({
+    const file = await cachedPrisma.file.findUnique({
       where: { id: fileId },
       include: { uploadedBy: true },
     });
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedFile = await prisma.file.update({
+    const updatedFile = await cachedPrisma.file.update({
       where: { id: fileId },
       data: {
         tags: {

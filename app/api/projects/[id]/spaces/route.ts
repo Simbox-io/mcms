@@ -1,14 +1,14 @@
 // app/api/projects/[id]/files/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const projectId = params.id;
 
   try {
-    const files = await prisma.file.findMany({
+    const files = await cachedPrisma.file.findMany({
       where: { projectId },
       include: {
         uploadedBy: {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { name, description, isPublic, parentId, tags, settings, contentType } = await request.json();
 
   try {
-    const project = await prisma.project.findUnique({
+    const project = await cachedPrisma.project.findUnique({
       where: { id: projectId },
       include: { collaborators: true },
     });
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const newFile = await prisma.file.create({
+    const newFile = await cachedPrisma.file.create({
       data: {
         name,
         description,

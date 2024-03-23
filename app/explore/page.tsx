@@ -387,7 +387,7 @@ const HomePage: React.FC = () => {
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -50 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.1 }}
                     className='w-full mb-4 px-6'
                   >
                     {renderItem(item)}

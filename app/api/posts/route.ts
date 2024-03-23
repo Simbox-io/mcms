@@ -1,6 +1,6 @@
 // app/api/posts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 import { activityListener } from '@/listeners/activityListener';
@@ -11,10 +11,10 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalPosts = await prisma.post.count();
+    const totalPosts = await cachedPrisma.post.count();
     const totalPages = Math.ceil(totalPosts / perPage);
 
-    const posts = await prisma.post.findMany({
+    const posts = await cachedPrisma.post.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       include: {
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const existingUser = await prisma.user.findUnique({
+  const existingUser = await cachedPrisma.user.findUnique({
     where: { id: user.id },
   });
 
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
   const { title, content, tags, settings } = await request.json();
 
   try {
-    const newPost = await prisma.post.create({
+    const newPost = await cachedPrisma.post.create({
       data: {
         title,
         content,

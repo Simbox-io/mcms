@@ -1,14 +1,14 @@
 // app/api/projects/[id]/comments/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const projectId = params.id;
 
   try {
-    const comments = await prisma.comment.findMany({
+    const comments = await cachedPrisma.comment.findMany({
       where: { projectId },
       include: {
         author: {
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { content, parentId } = await request.json();
 
   try {
-    const newComment = await prisma.comment.create({
+    const newComment = await cachedPrisma.comment.create({
       data: {
         content,
         author: { connect: { id: userObj.id } },

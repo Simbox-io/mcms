@@ -1,14 +1,14 @@
 // app/api/spaces/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const spaceId = params.id;
 
   try {
-    const space = await prisma.space.findUnique({
+    const space = await cachedPrisma.space.findUnique({
       where: { id: spaceId },
       include: {
         owner: {
@@ -64,7 +64,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { name, description, projectId, collaborators, settings } = await request.json();
 
   try {
-    const space = await prisma.space.findUnique({
+    const space = await cachedPrisma.space.findUnique({
       where: { id: spaceId },
       include: { owner: true },
     });
@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedSpace = await prisma.space.update({
+    const updatedSpace = await cachedPrisma.space.update({
       where: { id: spaceId },
       data: {
         name,
@@ -182,7 +182,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const spaceId = params.id;
 
   try {
-    const space = await prisma.space.findUnique({
+    const space = await cachedPrisma.space.findUnique({
       where: { id: spaceId },
       include: { owner: true },
     });
@@ -195,7 +195,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.space.delete({
+    await cachedPrisma.space.delete({
       where: { id: spaceId },
     });
 

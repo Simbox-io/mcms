@@ -1,7 +1,7 @@
 // app/api/comments/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   const { content, postId, fileId, projectId, pageId, parentId, tutorialId } = await request.json();
 
   try {
-    const newComment = await prisma.comment.create({
+    const newComment = await cachedPrisma.comment.create({
       data: {
         content,
         author: { connect: { id: userObj.id } },
