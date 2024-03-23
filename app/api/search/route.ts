@@ -26,7 +26,14 @@ export async function GET(request: NextRequest) {
             { content: { contains: query, mode: 'insensitive' } },
             { author: { username: { contains: query, mode: 'insensitive' } } },
           ],
-
+          AND: [
+            {
+              OR: [
+                { isPublic: true }, // Include public posts
+                { author: { id: userObj?.id } }, // Include posts authored by the logged-in user
+              ],
+            },
+          ],
         },
         select: {
           id: true,
