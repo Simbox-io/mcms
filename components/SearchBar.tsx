@@ -178,7 +178,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <div className="border-b border-gray-200 dark:border-gray-700">
         <Tabs tabs={tabs} />
       </div>
-      <AnimatePresence>
+       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -210,5 +210,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
       </AnimatePresence>
     </div>
   );
+};
 
 export default SearchBar;
