@@ -50,16 +50,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
   });
 
   const fetchSearchResults = async (query: string) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      setSearchResults(data.results);
-    } catch (error) {
-      console.error('Error fetching search results:', error);
-    }
-    setIsLoading(false);
-  };
+  setIsLoading(true);
+  try {
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&public=true`);
+    const data = await response.json();
+    setSearchResults(data.results);
+  } catch (error) {
+    console.error('Error fetching search results:', error);
+  }
+  setIsLoading(false);
+};
 
   const debouncedFetchSearchResults = useRef(
     debounce((query) => fetchSearchResults(query), 300)
@@ -181,12 +181,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="absolute top-14 left-0 right-0 mt-2 w-full sm:w-96 rounded-md shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none sm:left-1/2 sm:transform sm:-translate-x-1/2"
-          >
+  initial={{ opacity: 0, y: -10 }}
+  animate={{ opacity: 1, y: 0 }}
+  exit={{ opacity: 0, y: -10 }}
+  transition={{ duration: 0.3 }}
+  className="absolute top-14 left-0 right-0 mt-2 w-full rounded-md shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none"
+>
             {isLoading ? (
               <div className="px-4 py-2">
                 <Skeleton className="h-4 w-full" />
