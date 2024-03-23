@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q') || '';
   const page = parseInt(searchParams.get('page') || '1');
-  const perPage = 20;
+  const perPage 10;
 
   try {
     const [posts, files, projects, spaces, tutorials, users] = await Promise.all([
@@ -25,13 +25,6 @@ export async function GET(request: NextRequest) {
             { title: { contains: query, mode: 'insensitive' } },
             { content: { contains: query, mode: 'insensitive' } },
             { author: { username: { contains: query, mode: 'insensitive' } } },
-          ],
-          AND: [
-            {
-              OR: [
-                { isPublic: true },
-              ],
-            },
           ],
         },
         select: {
