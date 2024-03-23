@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Button from '@/components/Button';
+import Button from '@/components/next-gen/Button';
 import Feature from '@/components/Feature';
 import CommentsIcon from '@/components/icons/CommentsIcon';
 import CloudUploadIcon from '@/components/icons/CloudUploadIcon';

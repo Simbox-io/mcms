@@ -1,6 +1,6 @@
 // components/ReportDashboard.tsx
 import React from 'react';
-import Card from '@/components/Card';
+import Card from '@/components/next-gen/Card';
 import ProjectReports from '@/components/ProjectReports';
 
 interface ReportDashboardProps {

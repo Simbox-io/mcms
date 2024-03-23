@@ -1,23 +1,25 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
-import Tabs from '@/components/Tabs';
+import Card from '@/components/next-gen/Card';
+import Button from '@/components/next-gen/Button';
+import Tabs from '@/components/next-gen/Tabs';
 import FileGrid from '@/components/FileGrid';
-import Avatar from '@/components/Avatar';
+import Avatar from '@/components/next-gen/Avatar';
 import { formatDate } from '@/utils/dateUtils';
 import { motion } from 'framer-motion';
 import { FiEdit, FiTrash, FiUsers, FiActivity, FiCheckCircle, FiMenu, FiFile, FiUserPlus, FiLock } from 'react-icons/fi';
 import FileUpload from '@/components/FileUpload';
-import Modal from '@/components/Modal';
-import Select from '@/components/Select';
+import Modal from '@/components/next-gen/Modal';
+import Select from '@/components/next-gen/Select';
 import TagInput from '@/components/TagInput';
 import Toast from '@/components/Toast';
 import Popover from '@/components/Popover';
 import { Project } from '@/lib/prisma';
 import EmptyState from '@/components/EmptyState';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -30,6 +32,7 @@ const ProjectDetailPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState<'success' | 'error' | 'warning' | 'info'>('info');
   const [activeTab, setActiveTab] = useState('files');
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -53,7 +56,7 @@ const ProjectDetailPage: React.FC = () => {
   }
 
   const handleEditProject = () => {
-    // Logic for editing the project
+    router.push(`/projects/${project.id}/edit`);
   };
 
   const handleDeleteProject = () => {
@@ -230,14 +233,14 @@ const ProjectDetailPage: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="container rounded-lg mx-auto my-auto mt-2 px-4 py-8 dark:bg-gray-900 dark:text-white"
     >
-      <Breadcrumbs items={[{ label: 'Projects', href: '/projects' }, { label: project.name, href: '' }]} className='mb-4'/>
+      <Breadcrumbs items={[{ label: 'Projects', href: '/projects/all-projects' }, { label: project.name, href: '' }]} className='mb-4'/>
       <Card className="mb-4">
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <div className="flex flex-col md:flex-row items-center mb-4 md:mb-0">
             <Avatar src={project.owner.avatar || ''} alt={project.owner.username} size="large" className="mb-2 md:mb-0 md:mr-4" />
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold">{project.name}</h1>
-              <p className="text-gray-600 dark:text-gray-400">Created by {project.owner.username}</p>
+              <p className="text-gray-600 dark:text-gray-400">Created by <Link href={`/profile/${project.owner.username}`}>{project.owner.username}</Link></p>
               <p className="text-gray-500 dark:text-gray-400 text-sm">
                 {formatDate(project.createdAt.toString())}
               </p>
@@ -304,25 +307,21 @@ const ProjectDetailPage: React.FC = () => {
         <Tabs
           tabs={[
             {
-              id: 'files',
               label: 'Files',
               icon: <FiFile className="mr-2" />,
               content: renderTabContent(),
             },
             {
-              id: 'members',
               label: 'Members',
               icon: <FiUsers className="mr-2" />,
               content: renderTabContent(),
             },
             {
-              id: 'activity',
               label: 'Activity',
               icon: <FiActivity className="mr-2" />,
               content: renderTabContent(),
             },
             {
-              id: 'reports',
               label: 'Reports',
               icon: <FiCheckCircle className="mr-2" />,
               content: renderTabContent(),
@@ -336,10 +335,17 @@ const ProjectDetailPage: React.FC = () => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Configure Permissions" className="w-full md:w-1/2">
         <div className="mb-4">
           <Select
-            options={['Read', 'Write', 'Admin']}
-            value={permissions}
-            onChange={() => setPermissions}
-            isMulti
+            options={[
+              { value: 'view', label: 'View' },
+              { value: 'edit', label: 'Edit' },
+              { value: 'delete', label: 'Delete' },
+            ]}
+            value={permissions.toString()}
+            onChange={(selectedPermissions) =>
+              setPermissions(Array.isArray(selectedPermissions) ? selectedPermissions.map((p) => p.value) : [])
+            }
+            placeholder="Select permissions..."
+            className="w-full"
           />
         </div>
         <Button onClick={handleUpdatePermissions}>Update Permissions</Button>

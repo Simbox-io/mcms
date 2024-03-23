@@ -1,0 +1,45 @@
+# Card
+
+The Card component is a versatile container that can be used to display various types of content with a header, body, and footer. It supports collapsible functionality and adapts to dark mode.
+
+## Usage
+
+```tsx
+import Card from './Card';
+
+<Card
+  title="Example Card"
+  footer={<button>Action</button>}
+  collapsible
+  defaultCollapsed
+>
+  <p>This is the card content.</p>
+</Card>
+```
+
+## Props
+
+| Prop             | Type                      | Default | Description                                                                 |
+| ---------------- | ------------------------- | ------- | --------------------------------------------------------------------------- |
+| title            | string                    | -       | The title of the card, displayed in the header.                             |
+| children         | React.ReactNode           | -       | The content to display inside the card body.                                |
+| footer           | React.ReactNode           | -       | The content to display in the card footer.                                  |
+| className        | string                    | ''      | Additional CSS classes to apply to the card container.                      |
+| headerClassName  | string                    | ''      | Additional CSS classes to apply to the card header.                         |
+| bodyClassName    | string                    | ''      | Additional CSS classes to apply to the card body.                           |
+| footerClassName  | string                    | ''      | Additional CSS classes to apply to the card footer.                         |
+| collapsible      | boolean                   | false   | Whether the card should be collapsible.                                     |
+| defaultCollapsed | boolean                   | false   | Whether the card should be collapsed by default.                            |
+| onCollapse       | (collapsed: boolean) => void | -       | Callback function invoked when the card is collapsed or expanded.           |
+
+## Collapsible Functionality
+
+Setting the `collapsible` prop to `true` enables the collapsible functionality of the card. Clicking on the header will toggle the visibility of the card body and footer. The initial collapsed state can be controlled using the `defaultCollapsed` prop.
+
+## Dark Mode
+
+The Card component automatically adapts to dark mode using Tailwind's dark mode classes. The background colors and border colors are adjusted to provide better contrast in dark mode.
+
+## Animations
+
+The Card component uses the Framer Motion library to add smooth animations when collapsing and expanding. The card body and footer smoothly expand and collapse, while the collapse icon rotates to indicate the current state.

@@ -1,234 +1,294 @@
-// app/spaces/page.tsx
 'use client';
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import SpaceCard from '@/components/SpaceCard';
-import Pagination from '@/components/Pagination';
-import SearchBar from '@/components/SearchBar';
-import Button from '@/components/Button';
-import CreateSpaceModal from '@/components/CreateSpaceModal';
-import EmptyState from '@/components/EmptyState';
-import Spinner from '@/components/Spinner';
-import Sidebar from '@/components/Sidebar';
-import RecentlyViewedSpaces from '@/components/RecentlyViewedSpaces';
-import PopularSpaces from '@/components/PopularSpaces';
-import SpaceCategoryFilter from '@/components/SpaceCategoryFilter';
-import SpaceSortDropdown from '@/components/SpaceSortDropdown';
-import SpacePreviewModal from '@/components/SpacePreviewModal';
-import { HomeIcon, CogIcon, FireIcon, TagIcon } from "@heroicons/react/24/solid";
-import { Space, Project } from '@/lib/prisma';
+import Accordion from '@/components/next-gen/Accordion';
+import Card from '@/components/next-gen/Card';
+import Button from '@/components/next-gen/Button';
+import Spinner from '@/components/next-gen/Spinner';
+import Avatar from '@/components/next-gen/Avatar';
+import { Activity, Space, Page } from '@/lib/prisma';
+import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
 
-const SpaceListPage: React.FC = () => {
+interface ActivityData {
+  id: number;
+  user: {
+    username: string;
+    avatar: string;
+  };
+  message: string;
+}
+
+interface QuickActionData {
+  id: number;
+  label: string;
+}
+
+interface PinnedPageData {
+  id: number;
+  title: string;
+  space: {
+    id: number;
+    name: string;
+  };
+}
+
+interface RecentlyVisitedData {
+  id: number;
+  title: string;
+  space: {
+    id: number;
+    name: string;
+  };
+}
+
+interface PopularSpacesData {
+  id: number;
+  name: string;
+  description: string;
+}
+
+
+const MainPage = () => {
+  const [recentActivity, setRecentActivity] = useState<ActivityData[]>([]);
+  const [quickActions, setQuickActions] = useState<QuickActionData[]>([]);
+  const [pinnedPages, setPinnedPages] = useState<PinnedPageData[]>([]);
+  const [recentlyVisited, setRecentlyVisited] = useState<RecentlyVisitedData[]>([]);
+  const [popularSpaces, setPopularSpaces] = useState<PopularSpacesData[]>([]);
   const [spaces, setSpaces] = useState<Space[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortOption, setSortOption] = useState<string>('latest');
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-  const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [activeSpace, setActiveSpace] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchSpaces = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(
-          `/api/spaces?page=${currentPage}&search=${searchTerm}&category=${selectedCategory}&sort=${sortOption}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setSpaces(data.spaces);
-          setTotalPages(data.totalPages);
-        } else {
-          console.error('Error fetching spaces:', response.statusText);
-        }
+        const [activityData, quickActionsData, pinnedPagesData, recentlyVisitedData, popularSpacesData] = await Promise.all([
+          // Fetch recent activity data
+          // for now, let's use sample data
+          Promise.resolve([
+            {
+              id: 1,
+              user: {
+                username: 'John Doe',
+                avatar: 'https://randomuser.me/api/portrait.jpg',
+              },
+              message: 'created a new page',
+            },
+            {
+              id: 2,
+              user: {
+                username: 'Jane Doe',
+                avatar: 'https://randomuser.me/api/portrait.jpg',
+              },
+              message: 'updated the homepage',
+            },
+          ]),
+          // Fetch quick actions data
+          // for now, let's use sample data
+          Promise.resolve([
+            {
+              id: 1,
+              label: 'Create Page',
+            },
+            {
+              id: 2,
+              label: 'Create Space',
+            },
+          ]),
+          // Fetch pinned pages data
+          // for now, let's use sample data
+          Promise.resolve([
+            {
+              id: 1,
+              title: 'Getting Started',
+              space: {
+                id: 1,
+                name: 'Documentation',
+              },
+            },
+            {
+              id: 2,
+              title: 'Homepage',
+              space: {
+                id: 2,
+                name: 'Company',
+              },
+            },
+          ]),
+          // Fetch recently visited data
+          // for now, let's use sample data
+          Promise.resolve([
+            {
+              id: 1,
+              title: 'Getting Started',
+              space: {
+                id: 1,
+                name: 'Documentation',
+              },
+            },
+            {
+              id: 2,
+              title: 'Homepage',
+              space: {
+                id: 2,
+                name: 'Company',
+              },
+            },
+          ]),
+          // Fetch popular spaces data
+          // for now, let's use sample data
+          Promise.resolve([
+            {
+              id: 1,
+              name: 'Documentation',
+              description: 'Learn how to use our product',
+            },
+            {
+              id: 2,
+              name: 'Company',
+              description: 'Company-wide information',
+            },
+          ]),
+        ]);
+
+        setRecentActivity(activityData);
+        setQuickActions(quickActionsData);
+        setPinnedPages(pinnedPagesData);
+        setRecentlyVisited(recentlyVisitedData);
+        setPopularSpaces(popularSpacesData);
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching spaces:', error);
+        console.error('Error fetching data:', error);
+        setLoading(false);
       }
-      setIsLoading(false);
     };
 
-    const fetchProjects = async () => {
-      try {
-        const response = await fetch('/api/projects');
-        if (response.ok) {
-          const data = await response.json();
-          setProjects(data.projects);
-        } else {
-          console.error('Error fetching projects:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      }
-    };
+    fetchData();
+  }, []);
 
-    fetchSpaces();
-    fetchProjects();
-  }, [currentPage, searchTerm, selectedCategory, sortOption]);
-
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    setCurrentPage(1);
+  const handleQuickAction = (action: any) => {
+    // Handle quick action functionality
+    console.log('Quick action clicked:', action);
   };
 
-  const handleCategoryFilter = (category: string | null) => {
-    setSelectedCategory(category);
-    setCurrentPage(1);
+  const handlePageClick = (page: any) => {
+    router.push(`/pages/${page.id}`);
   };
 
-  const handleSortOptionChange = (option: string) => {
-    setSortOption(option);
-    setCurrentPage(1);
+  const handleSpaceClick = (space: any) => {
+    setActiveSpace(space.id);
+    router.push(`/spaces/${space.id}`);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleCreateSpace = async (title: string, description: string, projectId: number | null) => {
-    try {
-      const response = await fetch('/api/spaces', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title, description, projectId }),
-      });
-      if (response.ok) {
-        const newSpace = await response.json();
-        setSpaces((prevSpaces) => [...prevSpaces, newSpace]);
-        setIsCreateModalOpen(false);
-      } else {
-        console.error('Error creating space:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error creating space:', error);
-    }
-  };
-
-  const handleJoinSpace = async (spaceId: string) => {
-    try {
-      const response = await fetch(`/api/spaces/${spaceId}/join`, {
-        method: 'POST',
-      });
-      if (response.ok) {
-        setSpaces((prevSpaces) =>
-          prevSpaces.map((space) =>
-            space.id === spaceId ? { ...space, isJoined: true } : space
-          )
-        );
-      } else {
-        console.error('Error joining space:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error joining space:', error);
-    }
-  };
-
-  const handleLeaveSpace = async (spaceId: string) => {
-    try {
-      const response = await fetch(`/api/spaces/${spaceId}/leave`, {
-        method: 'POST',
-      });
-      if (response.ok) {
-        setSpaces((prevSpaces) =>
-          prevSpaces.map((space) =>
-            space.id === spaceId ? { ...space, isJoined: false } : space
-          )
-        );
-      } else {
-        console.error('Error leaving space:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error leaving space:', error);
-    }
-  };
-
-  const handleManageSpace = (spaceId: string) => {
-    router.push(`/spaces/${spaceId}/settings`);
-  };
-
-  const handlePreviewSpace = (space: Space) => {
-    setSelectedSpace(space);
-    setIsPreviewModalOpen(true);
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spinner size="large" />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col lg:flex-row h-full">
-      <div className="lg:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-        <Sidebar items={[
-          { id: 'home', label: 'Home', icon: <HomeIcon/>, link: '/spaces' },
-          { id: 'spaces', label: 'Popular Spaces', icon: <FireIcon/>, link: '/spaces/popular' },
-          { id: 'categories', label: 'Categories', icon: <TagIcon/>, link: '/spaces/categories' },
-        ]} 
-            onItemClick={(link) => router.push(link)}
-            activeItem={''}
-        />
-      </div>
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 mt-4 mx-4 ">
-          <h1 className="text-3xl font-semibold mb-4 md:mb-0">Spaces</h1>
-          <div className="flex items-center">
-            <SearchBar onSearch={handleSearch} className="mr-4" />
-            {/*<SpaceCategoryFilter
-              selectedCategory={selectedCategory}
-              onCategoryFilter={handleCategoryFilter}
-              className="mr-4"
-    />*/}
-            <SpaceSortDropdown
-              sortOption={sortOption}
-              onSortOptionChange={handleSortOptionChange}
-            />
-            <Button onClick={() => setIsCreateModalOpen(true)} className="ml-4">
-              +
+    <div className='flex'>
+      <div className="container mx-auto px-4 py-4">
+        <h2 className="text-2xl font-bold mt-8 mb-4"></h2>
+        <div className="flex flex-row space-x-4 mb-8">
+          {quickActions.map((action) => (
+            <Button
+              key={action.id}
+              variant="primary"
+              className="w-full"
+              onClick={() => handleQuickAction(action)}
+            >
+              {action.label}
             </Button>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+          <div className="md:col-span-2">
+            <h2 className="text-2xl font-bold mb-4">Recent Activity</h2>
+            {recentActivity.length === 0 ? (
+              <p>No recent activity found.</p>
+            ) : (
+              <div className="space-y-4">
+                {recentActivity.map((activity) => (
+                  <Card key={activity.id}>
+                    <div className="flex items-center space-x-4">
+                      <Avatar src={activity.user.avatar} alt={activity.user.username} />
+                      <div>
+                        <p className="font-bold">{activity.user.username}</p>
+                        <p className="text-sm text-gray-500">{activity.message}</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Pinned Pages</h2>
+            {pinnedPages.length === 0 ? (
+              <p>No pinned pages found.</p>
+            ) : (
+              <div className="space-y-4">
+                {pinnedPages.map((page) => (
+                  <Card key={page.id} onClick={() => handlePageClick(page)}>
+                    <h3 className="text-xl font-bold">{page.title}</h3>
+                    <p className="text-gray-500">{page.space.name}</p>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            <h2 className="text-2xl font-bold mt-8 mb-4">Recently Visited</h2>
+            {recentlyVisited.length === 0 ? (
+              <p>No recently visited pages found.</p>
+            ) : (
+              <div className="space-y-4">
+                {recentlyVisited.map((page) => (
+                  <Card key={page.id} onClick={() => handlePageClick(page)}>
+                    <h3 className="text-xl font-bold">{page.title}</h3>
+                    <p className="text-gray-500">{page.space.name}</p>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-        {isLoading ? (
-          <div className="flex justify-center items-center h-80">
-            <Spinner />
-          </div>
-        ) : spaces.length === 0 ? (
-          <EmptyState
-            title="No spaces found"
-            description="There are no spaces available at the moment."
+
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-4">What&apos;s Happening</h2>
+          <Accordion
+            items={[
+              {
+                title: 'Popular Spaces',
+                content: (
+                  <div className="space-y-4">
+                    {popularSpaces.map((space) => (
+                      <Card key={space.id} onClick={() => handleSpaceClick(space)}>
+                        <h3 className="text-xl font-bold">{space.name}</h3>
+                        <p className="text-gray-500">{space.description}</p>
+                      </Card>
+                    ))}
+                  </div>
+                ),
+              },
+              {
+                title: 'Announcements',
+                content: (
+                  <div className="space-y-4">
+                    {/* Add announcement content */}
+                    <p>No announcements available.</p>
+                  </div>
+                ),
+              },
+            ]}
           />
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {spaces.map((space) => (
-                <SpaceCard
-                  key={space.id}
-                  space={space}
-                  onClick={() => handlePreviewSpace}
-                />
-              ))}
-            </div>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              className="mt-8"
-            />
-          </>
-        )}
+        </div>
       </div>
-      <CreateSpaceModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={() => handleCreateSpace}
-        projects={projects}
-      />
-      <SpacePreviewModal
-        isOpen={isPreviewModalOpen}
-        onClose={() => setIsPreviewModalOpen(false)}
-        space={selectedSpace}
-      />
     </div>
   );
 };
 
-export default SpaceListPage;
+export default MainPage;

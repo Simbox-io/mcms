@@ -1,0 +1,60 @@
+# FileUpload
+
+The FileUpload component is a customizable file input component that allows users to select files and provides visual feedback on the selected files.
+
+## Usage
+
+```tsx
+import FileUpload from './FileUpload';
+
+const handleFileChange = (files: FileList | null) => {
+  // Handle the selected files
+};
+
+<FileUpload onFileChange={handleFileChange} accept=".pdf,.doc" multiple />
+```
+
+## Props
+
+| Prop         | Type                                 | Default | Description                                                 |
+| ------------ | ------------------------------------ | ------- | ----------------------------------------------------------- |
+| onFileChange | (files: FileList \| null) => void    | -       | Callback function to handle the selected files.             |
+| accept       | string                               | '*'     | File types to accept. e.g., '.pdf,.doc'.                    |
+| multiple     | boolean                              | false   | Whether to allow multiple file selection.                   |
+| className    | string                               | ''      | Additional CSS classes to apply to the component container. |
+
+## Functionality
+
+- Clicking the "Choose File" button triggers the file input click event.
+- When files are selected, the `onFileChange` callback is invoked with the selected files.
+- The selected files are displayed below the button with their names.
+- Each selected file has a remove button to remove it from the list.
+- The component uses Framer Motion for animations on the button and selected files.
+
+## Styling
+
+The FileUpload component uses Tailwind CSS classes for styling. The main styles include:
+
+- The "Choose File" button has a blue background color and white text.
+- The button scales up on hover and scales down on tap using Framer Motion.
+- The selected files are displayed in a gray background with rounded corners.
+- The remove button for each file has a hover effect to change its color to red.
+- The component container can be customized with additional CSS classes using the `className` prop.
+
+## Dependencies
+
+The FileUpload component has the following dependencies:
+
+- React
+- Framer Motion
+- Heroicons (for the remove icon)
+
+Make sure to install these dependencies before using the component.
+
+## Accessibility
+
+The FileUpload component follows accessibility best practices:
+
+- The file input is hidden visually but accessible to screen readers.
+- The "Choose File" button has a clear text label.
+- The remove buttons for selected files have appropriate ARIA attributes.

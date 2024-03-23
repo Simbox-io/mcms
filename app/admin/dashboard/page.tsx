@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '@/components/base/Card';
-import Table from '@/components/base/Table';
-import Spinner from '@/components/base/Spinner';
+import Card from '@/components/next-gen/Card';
+import Table from '@/components/next-gen/Table';
+import Spinner from '@/components/next-gen/Spinner';
 import { User, Post, Project, Space, Tutorial, Activity } from '@/lib/prisma';
 import { FaUsers, FaFile, FaFolder, FaBook, FaChartBar } from 'react-icons/fa';
 import { format } from 'date-fns';
@@ -110,138 +110,126 @@ const AdminDashboardPage: React.FC = () => {
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
             <Card
-              effects={false}
-              header={<span><FaUsers className="w-8 h-8 mb-2 text-blue-500" />Total Users</span>}
-              content={users.length || <span>0</span>}
+              title={String(<span><FaUsers className="w-8 h-8 mb-2 text-blue-500" />Total Users</span>)}
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"
-            />
+            >
+              {users?.length || <span>0</span>}
+            </Card>
             <Card
-              effects={false}
-              header={<span><FaFile className="w-8 h-8 mb-2 text-green-500" />Total Posts</span>}
-              content={posts.length || <span>0</span>}
+              title={String(<span><FaFile className="w-8 h-8 mb-2 text-green-500" />Total Posts</span>)}
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"
-            />
+            >
+              {posts?.length || <span>0</span>}
+            </Card>
             <Card
-              effects={false}
-              header={<span><FaFolder className="w-8 h-8 mb-2 text-yellow-500" />Total Projects</span>}
-              content={projects.length || <span>0</span>}
+              title={String(<span><FaFolder className="w-8 h-8 mb-2 text-yellow-500" />Total Projects</span>)}
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"
-            />
+            >
+              {projects?.length || <span>0</span>}
+            </Card>
             <Card
-              effects={false}
-              header={<span><FaBook className="w-8 h-8 mb-2 text-purple-500" />Total Tutorials</span>}
-              content={tutorials.length || <span>0</span>}
+              title={String(<span><FaBook className="w-8 h-8 mb-2 text-purple-500" />Total Tutorials</span>)}
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"
-            />
+            >
+              {tutorials?.length || <span>0</span>}
+            </Card>
             <Card
-              effects={false}
-              header={<span><FaChartBar className="w-8 h-8 mb-2 text-red-500" />Total Activities</span>}
-              content={activities.length || <span>0</span>}
+              title={String(<span><FaChartBar className="w-8 h-8 mb-2 text-red-500" />Total Activities</span>)}
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"
-            />
+            >
+              {activities?.length || <span>0</span>}
+            </Card>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
             <Card
-              effects={false}
-              header="Recent Users"
+              title="Recent Users"
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg"
-              contentClassName='px-0 py-0'
-              content={
-                <Table
-                emptyText='No users found.'
-                  columns={[
-                    { header: 'Username', accessor: 'username' },
-                    { header: 'Email', accessor: 'email' },
-                    { header: 'Role', accessor: 'role' },
-                  ]}
-                  data={users}
-                />
-              }
-            />
+            >
+              <Table
+                className='px-0 py-0'
+                columns={[
+                  { header: 'Username', accessor: 'username' },
+                  { header: 'Email', accessor: 'email' },
+                  { header: 'Role', accessor: 'role' },
+                ]}
+                data={users}
+              />
+            </Card>
 
             <Card
-              effects={false}
-              header="Recent Posts"
+              title="Recent Posts"
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg"
-              contentClassName='px-0 py-0'
-              content={
-                <Table
+            >
+              <Table
+                className='px-0 py-0'
                 emptyText='No posts found.'
-                  columns={[
-                    { header: 'Title', accessor: 'title' },
-                    { header: 'Author', accessor: (post: Post) => post.author.username },
-                    {
-                      header: 'Created At',
-                      accessor: (post: Post) => format(new Date(post.createdAt), 'MMM d, yyyy'),
-                    },
-                  ]}
-                  data={posts}
-                />
-              }
-            />
+                columns={[
+                  { header: 'Title', accessor: 'title' },
+                  { header: 'Author', accessor: (post: Post) => post.author.username },
+                  {
+                    header: 'Created At',
+                    accessor: (post: Post) => format(new Date(post.createdAt), 'MMM d, yyyy'),
+                  },
+                ]}
+                data={posts}
+              />
+            </Card>
 
             <Card
-              effects={false}
-              header="Recent Projects"
+              title="Recent Projects"
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg"
-              contentClassName='px-0 py-0'
-              content={
-                <Table
-                  emptyText='No projects found.'
-                  columns={[
-                    { header: 'Name', accessor: 'name' },
-                    { header: 'Owner', accessor: (project: Project) => project.owner.username },
-                    {
-                      header: 'Created At',
-                      accessor: (project: Project) => format(new Date(project.createdAt), 'MMM d, yyyy'),
-                    },
-                  ]}
-                  data={projects}
-                />
-              }
-            />
-
+            >
+              <Table
+                className='px-0 py-0'
+                emptyText='No projects found.'
+                columns={[
+                  { header: 'Name', accessor: 'name' },
+                  { header: 'Owner', accessor: (project: Project) => project.owner.username },
+                  {
+                    header: 'Created At',
+                    accessor: (project: Project) => format(new Date(project.createdAt), 'MMM d, yyyy'),
+                  },
+                ]}
+                data={projects}
+              />
+            </Card>
             <Card
-              effects={false}
-              header="Recent Tutorials"
+              title="Recent Tutorials"
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg"
-              contentClassName='px-0 py-0'
-              content={
-                <Table
+            >
+              <Table
+                className='px-0 py-0'
                 emptyText='No tutorials found.'
-                  columns={[
-                    { header: 'Title', accessor: 'title' },
-                    { header: 'Author', accessor: (tutorial: Tutorial) => tutorial.author.username },
-                    {
-                      header: 'Created At',
-                      accessor: (tutorial: Tutorial) => format(new Date(tutorial.createdAt), 'MMM d, yyyy'),
-                    },
-                  ]}
-                  data={tutorials}
-                />
-              }
-            />
+                columns={[
+                  { header: 'Title', accessor: 'title' },
+                  { header: 'Author', accessor: (tutorial: Tutorial) => tutorial.author.username },
+                  {
+                    header: 'Created At',
+                    accessor: (tutorial: Tutorial) => format(new Date(tutorial.createdAt), 'MMM d, yyyy'),
+                  },
+                ]}
+                data={tutorials}
+              />
+            </Card>
 
             <Card
-              effects={false}
-              header="Recent Activities"
+              title="Recent Activities"
               className="bg-white dark:bg-gray-800 shadow-lg rounded-lg col-span-2"
-              contentClassName='px-0 py-0'
-              content={
-                <Table
-                  emptyText='No activities found.'
-                  columns={[
-                    { header: 'User', accessor: (activity: Activity) => activity.user.username },
-                    { header: 'Activity Type', accessor: 'activityType' },
-                    {
-                      header: 'Created At',
-                      accessor: (activity: Activity) => format(new Date(activity.createdAt), 'MMM d, yyyy'),
-                    },
-                  ]}
-                  data={activities}
-                />
-              }
-            />
+            >
+              <Table
+                className='px-0 py-0'
+                emptyText='No activities found.'
+                columns={[
+                  { header: 'User', accessor: (activity: Activity) => activity.user.username },
+                  { header: 'Activity Type', accessor: 'activityType' },
+                  {
+                    header: 'Created At',
+                    accessor: (activity: Activity) => format(new Date(activity.createdAt), 'MMM d, yyyy'),
+                  },
+                ]}
+                data={activities}
+              />
+            </Card>
           </div>
         </>
       )}

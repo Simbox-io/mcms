@@ -9,6 +9,7 @@ interface BreadcrumbItem {
 
 interface BreadcrumbsProps {
   items: BreadcrumbItem[];
+  linkId?: string;
   className?: string;
   itemClassName?: string;
   activeItemClassName?: string;
@@ -19,6 +20,7 @@ interface BreadcrumbsProps {
 
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   items,
+  linkId,
   className = '',
   itemClassName = '',
   activeItemClassName = '',
@@ -27,6 +29,10 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   renderItem,
 }) => {
   const lastIndex = items.length - 1;
+
+  const getHref = (item: BreadcrumbItem) => {
+    return item.href.replace('[id]', linkId || '');
+  };
 
   return (
     <nav className={`flex ${className}`} aria-label="Breadcrumb">
@@ -45,10 +51,10 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                     {item.label}
                   </span>
                 ) : (
-                  <Link href={item.href}>
-                    <a className={`text-blue-500 hover:underline ${itemClassName}`}>
+                  <Link href={getHref(item)}>
+                    <span className={`text-blue-500 hover:underline ${itemClassName}`}>
                       {item.label}
-                    </a>
+                    </span>
                   </Link>
                 )}
               </>

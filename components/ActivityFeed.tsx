@@ -1,4 +1,5 @@
 // components/ActivityFeed.tsx
+'use client'
 import React, { useState, useEffect } from 'react';
 import { Activity, ActivityType } from '@/lib/prisma';
 import { formatDistanceToNow } from 'date-fns';

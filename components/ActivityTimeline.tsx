@@ -1,4 +1,5 @@
 // components/ActivityTimeline.tsx
+'use client'
 import React, { useEffect, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import Avatar from '@/components/Avatar';

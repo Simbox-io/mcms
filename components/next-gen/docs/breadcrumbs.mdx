@@ -1,0 +1,62 @@
+# Breadcrumbs
+
+The Breadcrumbs component is a navigation component that displays a series of links representing the current page's location within a hierarchical structure.
+
+## Usage
+
+```tsx
+import Breadcrumbs from './Breadcrumbs';
+
+const items = [
+  { label: 'Category', href: '/category' },
+  { label: 'Subcategory', href: '/category/subcategory' },
+  { label: 'Page', href: '/category/subcategory/page' },
+];
+
+<Breadcrumbs items={items} />
+```
+
+## Props
+
+| Prop           | Type             | Default   | Description                                                 |
+| -------------- | ---------------- | --------- | ----------------------------------------------------------- |
+| items          | BreadcrumbItem[] | -         | An array of objects representing the breadcrumb items.      |
+| className      | string           | ''        | Additional CSS classes to apply to the breadcrumbs wrapper. |
+| homeLink       | string           | '/'       | The URL for the home link.                                  |
+| homeLinkLabel  | string           | 'Home'    | The label for the home link.                                |
+
+### BreadcrumbItem
+
+The `BreadcrumbItem` interface defines the structure of each breadcrumb item.
+
+| Property | Type   | Description                               |
+| -------- | ------ | ----------------------------------------- |
+| label    | string | The label to display for the breadcrumb.  |
+| href     | string | The URL associated with the breadcrumb.   |
+
+## Customization
+
+The Breadcrumbs component can be customized using the following props:
+
+- `className`: Allows passing additional CSS classes to the breadcrumbs wrapper for custom styling.
+- `homeLink`: Specifies the URL for the home link. Default is '/'.
+- `homeLinkLabel`: Specifies the label for the home link. Default is 'Home'.
+
+## Accessibility
+
+The Breadcrumbs component uses the `<nav>` element with the `aria-label` attribute set to "Breadcrumb" to provide semantic meaning and improve accessibility for screen readers.
+
+## Transitions
+
+The Breadcrumbs component utilizes the `Transition` component from the `@headlessui/react` library to apply smooth transitions when the breadcrumb items are rendered or removed.
+
+## Dependencies
+
+The Breadcrumbs component has the following dependencies:
+
+- `react`: The React library for building user interfaces.
+- `react-router-dom`: The routing library for React applications.
+- `@heroicons/react/solid`: A library of solid icons for React.
+- `@headlessui/react`: A set of completely unstyled, fully accessible UI components for React.
+
+Make sure to install these dependencies before using the Breadcrumbs component.

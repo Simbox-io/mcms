@@ -1,6 +1,6 @@
 // components/Notification.tsx
 import React from 'react';
-import Button from './Button';
+import Button from './next-gen/Button';
 import { format } from 'date-fns';
 
 interface NotificationProps {

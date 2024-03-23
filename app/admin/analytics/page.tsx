@@ -5,9 +5,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '../../../components/Card';
-import Spinner from '../../../components/Spinner';
-import ProgressBar from '../../../components/ProgressBar';
+import Card from '../../../components/next-gen/Card';
+import Spinner from '../../../components/next-gen/Spinner';
+import ProgressBar from '../../../components/next-gen/ProgressBar';
 import { User } from '@/lib/prisma';
 
 interface Analytics {
@@ -85,7 +85,7 @@ const AnalyticsPage: React.FC = () => {
           <Card title="Total Projects">
             <p className="text-4xl font-bold text-gray-800 dark:text-white">
               {analytics.totalProjects}
-            </p>
+            </p>no 
           </Card>
           <Card title="Total Files">
             <p className="text-4xl font-bold text-gray-800 dark:text-white">{analytics.totalFiles}</p>
@@ -94,11 +94,11 @@ const AnalyticsPage: React.FC = () => {
       )}
       <div className="mt-8">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">User Engagement</h2>
-        <ProgressBar progress={75} className="mb-4" />
+        <ProgressBar value={75} className="mb-4" />
         <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
           Project Completion
         </h2>
-        <ProgressBar progress={60} />
+        <ProgressBar value={60} />
       </div>
     </div>
   );

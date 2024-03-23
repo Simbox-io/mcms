@@ -4,8 +4,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Checkbox from '../../../components/Checkbox';
-import Button from '../../../components/Button';
+import Checkbox from '../../../components/next-gen/Checkbox';
+import Button from '../../../components/next-gen/Button';
 import { useToken } from '../../../lib/useToken';
 
 const PreferencesPage: React.FC = () => {
@@ -56,7 +56,7 @@ const PreferencesPage: React.FC = () => {
             onChange={setReceiveUpdates}
           />
         </div>
-        <Button type="submit" variant="primary">
+        <Button variant="primary">
           Complete Onboarding
         </Button>
       </form>

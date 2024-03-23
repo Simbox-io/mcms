@@ -5,17 +5,16 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '../../../components/Card';
-import Button from '../../../components/Button';
-import Pagination from '../../../components/Pagination';
-import Spinner from '../../../components/Spinner';
+import Card from '../../../components/next-gen/Card';
+import Button from '../../../components/next-gen/Button';
+import Pagination from '../../../components/next-gen/Pagination';
+import Spinner from '../../../components/next-gen/Spinner';
 import { formatDate } from '../../../utils/dateUtils';
-import { getImageUrl } from '../../../utils/imageUtils';
 import FileCard from '@/components/FileCard';
 import { File } from '@/lib/prisma';
 import { FiGrid, FiList, FiFilter } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
-import Input from '../../../components/Input';
+import Input from '../../../components/next-gen/Input';
 import CategoryFilter from '@/components/CategoryFilter';
 import { AnimatePresence } from 'framer-motion';
 
@@ -97,12 +96,10 @@ const FileListPage: React.FC = () => {
         <div className="flex justify-between">
           <div className="flex-grow mr-4 ">
             <Input
-              name=''
-              id=''
               type="text"
               placeholder="Filter projects..."
               value={filterQuery}
-              onChange={(e) => setFilterQuery(e.target.value)}
+              onChange={(e) => setFilterQuery(e)}
               className=""
             />
           </div>
@@ -124,17 +121,17 @@ const FileListPage: React.FC = () => {
             ))}
           </div>
           <div className="mt-8">
-            <Pagination
+            {totalPages > 1 && (<Pagination
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
-            />
+            />)}
           </div>
           </>
         ) : (
           <div className="flex flex-col space-y-4">
             {files.map((file) => (
-              <Card key={file.id} onClick={() => handleOpenFile(file)}>
+              <Card key={file.id}>
                 <div className="flex justify-between items-center mb-2">
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{file.name}</h2>
                   <div className="flex flex-col items-end space-x-2">

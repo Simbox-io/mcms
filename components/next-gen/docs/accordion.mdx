@@ -1,0 +1,72 @@
+# Accordion
+
+The Accordion component is a collapsible content container that allows users to toggle the visibility of multiple sections independently or exclusively.
+
+## Usage
+
+```tsx
+import Accordion from './Accordion';
+
+const accordionItems = [
+  {
+    title: 'Section 1',
+    content: 'Content for section 1',
+  },
+  {
+    title: 'Section 2',
+    content: 'Content for section 2',
+  },
+  // Add more accordion items as needed
+];
+
+<Accordion items={accordionItems} />
+```
+
+## Props
+
+| Prop             | Type           | Default | Description                                                                         |
+| ---------------- | -------------- | ------- | ----------------------------------------------------------------------------------- |
+| items            | AccordionItem[] | -       | An array of accordion items, each containing a title and content.                   |
+| className        | string         | ''      | Additional CSS classes to apply to the accordion container.                         |
+| allowMultiple    | boolean        | false   | Whether multiple accordion sections can be expanded simultaneously.                 |
+| headerClassName  | string         | ''      | Additional CSS classes to apply to the accordion header buttons.                    |
+| contentClassName | string         | ''      | Additional CSS classes to apply to the accordion content sections.                  |
+
+## AccordionItem Interface
+
+The `AccordionItem` interface defines the structure of each accordion item:
+
+```tsx
+interface AccordionItem {
+  title: string;
+  content: React.ReactNode;
+}
+```
+
+- `title`: The title or heading of the accordion section.
+- `content`: The content to be displayed when the accordion section is expanded. It can be any valid React node (e.g., text, elements, components).
+
+## Behavior
+
+- Clicking on an accordion header toggles the visibility of its corresponding content section.
+- By default, only one accordion section can be expanded at a time. Clicking on another header will collapse the previously expanded section.
+- If the `allowMultiple` prop is set to `true`, multiple accordion sections can be expanded simultaneously.
+
+## Customization
+
+The Accordion component provides several props for customization:
+
+- `className`: Allows adding custom CSS classes to the accordion container for styling purposes.
+- `headerClassName`: Allows adding custom CSS classes to the accordion header buttons for styling purposes.
+- `contentClassName`: Allows adding custom CSS classes to the accordion content sections for styling purposes.
+
+## Accessibility
+
+The Accordion component follows accessibility guidelines:
+
+- The accordion headers are rendered as `<button>` elements with appropriate ARIA attributes (`aria-expanded` and `aria-controls`) to indicate their state and associated content.
+- The accordion content sections have unique `id` attributes that match the `aria-controls` attribute of their corresponding headers.
+
+## Animation
+
+The Accordion component uses the `Transition` component from the `@headlessui/react` library to animate the expanding and collapsing of accordion sections. The animation is controlled by the `show` prop and customized using CSS classes for enter and leave transitions.

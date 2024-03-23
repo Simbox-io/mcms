@@ -1,3 +1,4 @@
+'use client'
 import { useState, useEffect } from 'react';
 import CommentComponent from './CommentComponent';
 import { Comment } from '@/lib/prisma';

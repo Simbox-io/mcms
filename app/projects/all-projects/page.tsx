@@ -1,18 +1,19 @@
 // app/projects/page.tsx
 'use client';
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '../../../components/Card';
-import Button from '../../../components/Button';
-import Spinner from '../../../components/Spinner';
+import Card from '../../../components/next-gen/Card';
+import Button from '../../../components/next-gen/Button';
+import Spinner from '../../../components/next-gen/Spinner';
 import { formatDate } from '../../../utils/dateUtils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiGrid, FiList, FiFilter } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
-import Input from '../../../components/Input';
+import Input from '../../../components/next-gen/Input';
 import CategoryFilter from '@/components/CategoryFilter';
 import Accordion from '@/components/Accordion';
+import { useAPI } from '@/lib/hooks/useAPI';
 
 interface Project {
   id: number;
@@ -32,9 +33,7 @@ interface Project {
 
 const ProjectListPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [filterQuery, setFilterQuery] = useState('');
   const [hasMore, setHasMore] = useState(true);
@@ -42,7 +41,15 @@ const ProjectListPage: React.FC = () => {
   const { data: session, status } = useSession();
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  const fetchProjects = useCallback(async () => {
+  const { data, error, loading } = useAPI(`api/projects`);
+
+  useEffect(() => {
+    if (data?.projects) {
+      setProjects(data.projects);
+    }
+  }, [data]);
+
+  /*const fetchProjects = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects?page=${currentPage}`);
       if (response.ok) {
@@ -69,23 +76,26 @@ const ProjectListPage: React.FC = () => {
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
+*/
+  const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
 
-  useEffect(() => {
-    const filtered = projects.filter(
-      (project) =>
+  const filterProjects = (projects: Project[], filterQuery: string) => {
+    return projects.filter(
+      (project: Project) =>
         project.name.toLowerCase().includes(filterQuery.toLowerCase()) ||
         project.description.toLowerCase().includes(filterQuery.toLowerCase())
     );
-    setFilteredProjects(filtered);
-  }, [filterQuery, projects]);
+  };
+
+  const filteredProjects = useMemo(() => {
+    return filterProjects(projects, filterQuery);
+  }, [projects, filterQuery]);
 
   useEffect(() => {
-    if (isLoading) return;
-
+    if (loading) return;
     if (observerRef.current) {
       observerRef.current.disconnect();
     }
-
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore) {
@@ -94,20 +104,17 @@ const ProjectListPage: React.FC = () => {
       },
       { threshold: 1 }
     );
-
     const sentinel = document.querySelector('#sentinel');
-    if (filteredProjects.length > 0 && sentinel) {
+    if (displayedProjects.length > 0 && sentinel) {
       observer.observe(sentinel);
     }
-
     observerRef.current = observer;
-
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
     };
-  }, [isLoading, hasMore, filteredProjects]);
+  }, [loading, hasMore, displayedProjects]);
 
   const handleCreateProject = () => {
     router.push('/projects/create');
@@ -125,7 +132,7 @@ const ProjectListPage: React.FC = () => {
     setView(view === 'grid' ? 'list' : 'grid');
   };
 
-  if (status === 'loading') {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
@@ -156,16 +163,15 @@ const ProjectListPage: React.FC = () => {
         <div className="flex justify-between">
           <div className="flex-grow mr-4 ">
             <Input
-              name=''
-              id=''
+
               type="text"
               placeholder="Filter projects..."
               value={filterQuery}
-              onChange={(e) => setFilterQuery(e.target.value)}
+              onChange={setFilterQuery}
               className=""
             />
           </div>
-          <CategoryFilter onSelect={handleChangeCategory} options={[{ label: 'test' }, { label: 'test2' }]} className=''/>
+          <CategoryFilter onSelect={handleChangeCategory} options={[{ label: 'test' }, { label: 'test2' }]} className='' />
         </div>
       </div>
       <AnimatePresence mode="wait">
@@ -178,7 +184,7 @@ const ProjectListPage: React.FC = () => {
             transition={{ duration: 0.3 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {filteredProjects.map((project) => (
+            {filterProjects(projects, filterQuery).map((project) => (
               <motion.div
                 key={project.id}
                 whileHover={{ scale: 1.05 }}
@@ -192,17 +198,17 @@ const ProjectListPage: React.FC = () => {
                     </h2>
                     <p className="text-gray-600 dark:text-gray-400 mb-4" dangerouslySetInnerHTML={{ __html: project.description.slice(0, 500) }} />
                     <div className="flex justify-between items-center">
-                      
+
                     </div>
                     <div className="mt-4">
                       {project.members && (<><p className="text-gray-600 dark:text-gray-400 mb-2">Members:</p>
-                      <ul className="list-disc list-inside">
-                        {project.members?.map((member) => (
-                          <li key={member.id} className="text-gray-600 dark:text-gray-400">
-                            {member.username}
-                          </li>
-                        ))}
-                      </ul></>)}
+                        <ul className="list-disc list-inside">
+                          {project.members?.map((member) => (
+                            <li key={member.id} className="text-gray-600 dark:text-gray-400">
+                              {member.username}
+                            </li>
+                          ))}
+                        </ul></>)}
                     </div>
                   </div>
                 </Card>
@@ -243,13 +249,13 @@ const ProjectListPage: React.FC = () => {
                     </div>
                     <div className="ml-4">
                       {project.members && (<><p className="text-gray-600 dark:text-gray-400 mb-2">Members:</p>
-                      <ul className="list-disc list-inside">
-                        {project.members?.map((member) => (
-                          <li key={member.id} className="text-gray-600 dark:text-gray-400">
-                            {member.username}
-                          </li>
-                        ))}
-                      </ul></>)}
+                        <ul className="list-disc list-inside">
+                          {project.members?.map((member) => (
+                            <li key={member.id} className="text-gray-600 dark:text-gray-400">
+                              {member.username}
+                            </li>
+                          ))}
+                        </ul></>)}
                     </div>
                   </div>
                 </Card>
@@ -259,12 +265,12 @@ const ProjectListPage: React.FC = () => {
         )}
       </AnimatePresence>
       <div id="sentinel" className="h-4"></div>
-      {isLoading && (
+      {loading && (
         <div className="flex justify-center items-center mt-8">
           <Spinner size="large" />
         </div>
       )}
-      {!isLoading && filteredProjects.length === 0 && (
+      {!loading && filteredProjects.length === 0 && (
         <p className="text-center text-gray-600 dark:text-gray-400 mt-8">No projects found.</p>
       )}
       {!hasMore && filteredProjects.length > 0 && (

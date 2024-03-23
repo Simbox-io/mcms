@@ -1,4 +1,5 @@
 // components/NotificationDropdown.tsx
+'use client'
 import React, { useState, useEffect } from 'react';
 import { Notification } from '@/lib/prisma';
 import { FiBell } from 'react-icons/fi';

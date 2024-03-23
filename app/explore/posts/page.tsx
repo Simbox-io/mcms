@@ -107,7 +107,7 @@ const NewsFeed: React.FC = () => {
                             </div>
                         </div>
                         <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-white">{post.title}</h2>
-                        <div className="text-gray-600 dark:text-gray-300 mb-4" dangerouslySetInnerHTML={{ __html: post.content }} />
+                        <div className="text-gray-600 dark:text-gray-300 mb-4" dangerouslySetInnerHTML={{ __html: post.content.slice(0,300) + (post.content.length > 300 ? '...' : '') }} />
                         <div className="flex justify-end space-x-3">
                             <div className="flex items-center">
                                 <CommentsIcon />

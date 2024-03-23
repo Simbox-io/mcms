@@ -1,0 +1,61 @@
+# Tabs
+
+The Tabs component allows organizing and displaying content in a tabbed interface.
+
+## Usage
+
+```tsx
+import Tabs from './Tabs';
+
+const tabsData = [
+  {
+    label: 'Tab 1',
+    content: <div>Content for Tab 1</div>,
+    icon: <IconComponent />,
+  },
+  {
+    label: 'Tab 2',
+    content: <div>Content for Tab 2</div>,
+    disabled: true,
+  },
+  {
+    label: 'Tab 3',
+    content: <div>Content for Tab 3</div>,
+  },
+];
+
+<Tabs tabs={tabsData} defaultActiveTab={1} onChange={handleTabChange} />
+```
+
+## Props
+
+| Prop             | Type                  | Default | Description                                                           |
+| ---------------- | --------------------- | ------- | --------------------------------------------------------------------- |
+| tabs             | Tab[]                 | -       | An array of tab objects containing label, content, icon, and disabled |
+| className        | string                | ''      | Additional CSS classes to apply to the tabs container                 |
+| defaultActiveTab | number                | 0       | The index of the initially active tab                                 |
+| onChange         | (index: number) => void | -       | Callback function invoked when the active tab changes                 |
+
+## Tab Interface
+
+The `Tab` interface defines the shape of each tab object in the `tabs` array:
+
+```tsx
+interface Tab {
+  label: string;
+  content: React.ReactNode;
+  icon?: React.ReactNode;
+  disabled?: boolean;
+}
+```
+
+- `label`: The display text for the tab.
+- `content`: The content to render when the tab is active.
+- `icon` (optional): An icon component to display alongside the tab label.
+- `disabled` (optional): Determines if the tab is disabled and cannot be clicked.
+
+## Additional Features
+
+- Smooth animations when switching between tabs using Framer Motion.
+- Keyboard accessibility for navigating tabs.
+- Support for dark mode styling using Tailwind CSS.

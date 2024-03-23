@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { User, Project, File, Space } from '@/lib/prisma';
 import { motion } from 'framer-motion';
-import Avatar from '@/components/Avatar';
-import Button from '@/components/Button';
-import Tabs from '@/components/Tabs';
+import Avatar from '@/components/next-gen/Avatar';
+import Button from '@/components/next-gen/Button';
+import Tabs from '@/components/next-gen/Tabs';
 import Skeleton from '@/components/Skeleton';
 import ProjectCard from '@/components/ProjectCard';
 import FileCard from '@/components/FileCard';
@@ -99,7 +99,6 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
       <Tabs
         tabs={[
           {
-            id: 'projects',
             label: 'Projects',
             content: (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -110,7 +109,6 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
             ),
           },
           {
-            id: 'files',
             label: 'Files',
             content: (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -121,7 +119,6 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
             ),
           },
           {
-            id: 'spaces',
             label: 'Spaces',
             content: (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

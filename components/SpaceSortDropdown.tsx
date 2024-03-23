@@ -1,6 +1,6 @@
 // components/SpaceSortDropdown.tsx
 import React from 'react';
-import Select from '@/components/Select';
+import Select from '@/components/next-gen/Select';
 
 interface SpaceSortDropdownProps {
     sortOption: string;
@@ -21,7 +21,7 @@ const SpaceSortDropdown: React.FC<SpaceSortDropdownProps> = ({
 
     return (
         <Select
-            value={[sortOption]}
+            value={sortOption}
             onChange={(value) => onSortOptionChange(value[0])}
             options={sortOptions}
             className={className}

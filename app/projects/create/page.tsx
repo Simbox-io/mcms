@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
-import Input from '../../../components/Input';
-import Button from '../../../components/Button';
-import Card from '../../../components/Card';
-import Select from '../../../components/Select';
+import Input from '../../../components/next-gen/Input';
+import Button from '../../../components/next-gen/Button';
+import Card from '../../../components/next-gen/Card';
+import Select from '../../../components/next-gen/Select';
 import FileUpload from '../../../components/FileUpload';
-import TagInput from '../../../components/TagInput';
+import TagInput from '../../../components/base/TagInput';
 import FormGroup from '../../../components/FormGroup';
 import { Editor } from '@tinymce/tinymce-react';
 import { User } from '../../../lib/prisma';
@@ -74,7 +74,8 @@ const CreateProjectPage: React.FC = () => {
       });
 
       if (response.ok) {
-        router.push(`/projects/${name}`);
+        const newProject = await response.json();
+        router.push(`/projects/${newProject.id}`);
       } else {
         console.error('Error creating project:', response.statusText);
       }
@@ -159,22 +160,18 @@ const CreateProjectPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormGroup label="Project Name" htmlFor="name">
                 <Input
-                  name="name"
                   type="text"
-                  id="name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={setName}
                   required
                   className="w-full"
                 />
               </FormGroup>
               <FormGroup label="Repository" htmlFor="repository">
                 <Input
-                  name="repository"
                   type="text"
-                  id="repository"
                   value={repository}
-                  onChange={(e) => setRepository(e.target.value)}
+                  onChange={setRepository}
                   className="w-full"
                 />
               </FormGroup>
@@ -203,7 +200,7 @@ const CreateProjectPage: React.FC = () => {
                 <Select
                   id="members"
                   options={users.map((user) => ({ value: user.id, label: user.username }))}
-                  value={selectedMembers}
+                  value={selectedMembers} 
                   onChange={(memberIds) =>
                     setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])
                   }
@@ -232,7 +229,7 @@ const CreateProjectPage: React.FC = () => {
               />
             </FormGroup>
             <div className="mt-8">
-              <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full">
+              <Button variant="primary" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? 'Creating...' : 'Create Project'}
               </Button>
             </div>

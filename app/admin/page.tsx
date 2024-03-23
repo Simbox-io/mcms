@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '@/components/base/Card';
-import Button from '@/components/base/Button';
+import Card from '@/components/next-gen/Card';
+import Button from '@/components/next-gen/Button';
 import Sidebar from '@/components/base/Sidebar';
 import AnalyticsPage from './analytics/page';
 import DashboardPage from './dashboard/page';
@@ -13,7 +13,7 @@ import PluginsPage from './plugins/page';
 import SettingsPage from './settings/page';
 import UsersPage from './users/page';
 import EmptyState from '@/components/EmptyState';
-import Spinner from '@/components/Spinner';
+import Spinner from '@/components/base/Spinner';
 import { User } from '@/lib/prisma';
 
 const AdminConfigurationPage: React.FC = () => {
@@ -76,17 +76,14 @@ const AdminConfigurationPage: React.FC = () => {
           />
         </div>
         <div className="flex-1 p-8">
-          <Card className="dark:bg-gray-800 shadow-xl" effects={false} content={
-            <>
+          <Card className="dark:bg-gray-800 shadow-xl">
             {activeSubpage === 'dashboard' && <DashboardPage />}
             {activeSubpage === 'posts' && <PostsPage />}
             {activeSubpage === 'analytics' && <AnalyticsPage />}
             {activeSubpage === 'plugins' && <PluginsPage />}
             {activeSubpage === 'users' && <UsersPage />}
             {activeSubpage === 'settings' && <SettingsPage />}
-            </>
-          }
-          />
+          </Card>
         </div>
       </div>
     </div>

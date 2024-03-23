@@ -1,4 +1,5 @@
 // components/SubscribeButton.tsx
+'use client'
 import React, { useState } from 'react';
 import BellIcon from '@/components/icons/BellIcon';
 

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,12 +17,6 @@ interface AccordionProps {
   allowMultiple?: boolean;
   className?: string;
   style?: React.CSSProperties;
-  itemClassName?: string;
-  titleClassName?: string;
-  contentClassName?: string;
-  iconClassName?: string;
-  activeTitleClassName?: string;
-  activeContentClassName?: string;
 }
 
 const Accordion: React.FC<AccordionProps> = ({
@@ -32,12 +26,6 @@ const Accordion: React.FC<AccordionProps> = ({
   allowMultiple = false,
   className = '',
   style,
-  itemClassName = '',
-  titleClassName = '',
-  contentClassName = '',
-  iconClassName = '',
-  activeTitleClassName = '',
-  activeContentClassName = '',
 }) => {
   const [activeIds, setActiveIds] = useState<string[]>(defaultActiveId ? [defaultActiveId] : []);
 
@@ -55,30 +43,26 @@ const Accordion: React.FC<AccordionProps> = ({
   };
 
   return (
-    <div className={`accordion ${className}`} style={style}>
+    <div className={`accordion ${className} bg-white dark:bg-gray-800 rounded-lg shadow-md`} style={style}>
       {items.map((item) => (
         <motion.div
           key={item.id}
-          className={`accordion-item ${itemClassName} ${
-            activeIds.includes(item.id) ? 'accordion-item-active' : ''
-          } ${item.disabled ? 'accordion-item-disabled' : ''}`}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
+          className={`accordion-item ${activeIds.includes(item.id) ? 'active' : ''
+            } ${item.disabled ? 'disabled' : ''} border-b border-gray-200 dark:border-gray-600`}
         >
           <motion.div
-            className={`accordion-title ${titleClassName} ${
-              activeIds.includes(item.id) ? activeTitleClassName : ''
-            }`}
+            className={`accordion-title ${activeIds.includes(item.id) ? 'active' : ''} px-4 py-3 flex items-center justify-between cursor-pointer transition-colors duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-700`}
             onClick={() => !item.disabled && handleItemClick(item.id)}
             whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
             whileTap={{ scale: 0.98 }}
           >
-            {item.icon && <span className={`accordion-icon ${iconClassName}`}>{item.icon}</span>}
-            <span className="accordion-title-text">{item.title}</span>
-            <motion.span
-              className="accordion-arrow"
+            {item.icon && <span className="accordion-icon mr-2">{item.icon}</span>}
+            <span className="accordion-title-text text-gray-800 dark:text-white font-semibold">{item.title}</span>
+            <motion.span className="accordion-arrow ml-2"
               initial={{ rotate: 0 }}
               animate={{ rotate: activeIds.includes(item.id) ? 180 : 0 }}
               transition={{ duration: 0.3 }}
@@ -89,12 +73,12 @@ const Accordion: React.FC<AccordionProps> = ({
           <AnimatePresence>
             {activeIds.includes(item.id) && (
               <motion.div
-                className={`accordion-content ${contentClassName} ${activeContentClassName}`}
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-              >
+                className={`accordion-content ${activeIds.includes(item.id) ? 'active' : ''} px-4 py-3 text-gray-600 dark:text-gray-300`}
+                >
                 {item.content}
               </motion.div>
             )}
@@ -105,8 +89,12 @@ const Accordion: React.FC<AccordionProps> = ({
   );
 };
 
-const ChevronDownIcon: React.FC = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" height={16} width={16}>
+interface ChevronDownIconProps {
+  className?: string;
+}
+
+const ChevronDownIcon: React.FC<ChevronDownIconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" height={16} width={16} className={className}>
     <path
       fillRule="evenodd"
       d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"

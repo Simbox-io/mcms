@@ -4,8 +4,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Card from '../../../components/Card';
-import Button from '../../../components/Button';
+import Card from '../../../components/next-gen/Card';
+import Button from '../../../components/next-gen/Button';
 import { useToken } from '../../../lib/useToken';
 
 interface Wiki {

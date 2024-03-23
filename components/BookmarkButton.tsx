@@ -1,4 +1,5 @@
 // components/BookmarkButton.tsx
+'use client'
 import React, { useState } from 'react';
 import BookmarkIcon from '@/components/icons/BookmarkIcon';
 

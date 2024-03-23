@@ -5,8 +5,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
+import Input from '@/components/next-gen/Input';
+import Button from '@/components/next-gen/Button';
 
 const RegistrationPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -62,12 +62,9 @@ const RegistrationPage: React.FC = () => {
           <div className="mb-6">
             <Input
               label='Email'
-              name="email"
               type="email"
-              id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              onChange={setEmail}
               placeholder="Enter your email"
               className="w-full"
             />
@@ -75,12 +72,9 @@ const RegistrationPage: React.FC = () => {
           <div className="mb-6">
             <Input
               label="Username"
-              name="username"
               type="text"
-              id="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
+              onChange={setUsername}
               placeholder="Enter your username"
               className="w-full"
             /> 
@@ -88,12 +82,9 @@ const RegistrationPage: React.FC = () => {
           <div className="mb-6">
             <Input
               label="Password"
-              name="password"
               type="password"
-              id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              onChange={setPassword}
               placeholder="Enter your password"
               className="w-full"
             />
@@ -101,17 +92,14 @@ const RegistrationPage: React.FC = () => {
           <div className="mb-6">
             <Input
               label="Confirm Password"
-              name="confirmPassword"
               type="password"
-              id="confirmPassword"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
+              onChange={setConfirmPassword}
               placeholder="Confirm your password"
               className="w-full"
             />
           </div>
-          <Button type="submit" className="w-full mb-4" disabled={isLoading}>
+          <Button className="w-full mb-4" disabled={isLoading}>
             {isLoading ? 'Registering...' : 'Register'}
           </Button>
         </form>

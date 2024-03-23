@@ -14,7 +14,7 @@
     "@aws-sdk/client-s3": "^3.529.1",
     "@aws-sdk/client-ses": "^3.529.1",
     "@headlessui/react": "^1.7.18",
-    "@heroicons/react": "^2.1.1",
+    "@heroicons/react": "^1.0.6",
     "@prisma/client": "^5.11.0",
     "@sentry/nextjs": "^7.106.1",
     "@tailwindcss/typography": "^0.5.10",
@@ -31,6 +31,7 @@
     "@vercel/speed-insights": "^1.0.10",
     "ai": "^3.0.12",
     "apexcharts": "^3.47.0",
+    "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "date-fns": "^3.6.0",
     "elasticsearch": "^16.7.3",
@@ -39,7 +40,7 @@
     "ftp": "^0.3.10",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
-    "next": "14.1.3",
+    "next": "^14.1.4",
     "next-auth": "^4.24.7",
     "next-mdx-remote": "^4.4.1",
     "next-themes": "^0.2.1",
@@ -54,10 +55,11 @@
     "react-dom": "^18",
     "react-icons": "^5.0.1",
     "react-quill": "^2.0.0",
+    "react-router-dom": "^6.22.3",
     "react-toastify": "^10.0.5",
     "swr": "^2.2.5",
     "tinymce": "^6.8.3",
-    "vercel": "^33.5.5"
+    "vercel": "^33.6.1"
   },
   "devDependencies": {
     "@types/node": "^20",

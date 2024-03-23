@@ -5,11 +5,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
-import Card from '../../../components/Card';
-import Button from '../../../components/Button';
-import Input from '../../../components/Input';
-import Textarea from '../../../components/Textarea';
-import Select from '../../../components/Select';
+import Card from '../../../components/next-gen/Card';
+import Button from '../../../components/next-gen/Button';
+import Input from '../../../components/next-gen/Input';
+import Textarea from '../../../components/next-gen/Textarea';
+import Select from '../../../components/next-gen/Select';
 import { Project } from '@/lib/prisma';
 import FileUpload from '@/components/FileUpload';
 import Toast from '@/components/Toast';
@@ -139,34 +139,8 @@ const FileUploadPage: React.FC = () => {
               rows={4}
             />
           </div>
-          <div className="mb-6">
-            <Select
-              label='Visibility'
-              value={[isPublic.toString()]}
-              onChange={(value) => setIsPublic(value[0] === 'true')}
-              options={[
-                { value: 'true', label: 'Public' },
-                { value: 'false', label: 'Private' },
-              ]}
-            />
-          </div>
-          <div className="mb-6">
-            <Select
-              label='Project'
-              options={projects?.length > 0 && projects?.map(project => ({ value: project?.id.toString(), label: project?.name })) || ['']}
-              value={selectedProject && [selectedProject !== null] ? [selectedProject[0]] : ['']}
-              onChange={(projectId: string | string[]) => {
-                if (typeof projectId === 'string') {
-                  setSelectedProject(projectId);
-                } else if (Array.isArray(projectId) && projectId.length > 0) {
-                  setSelectedProject(projectId[0]);
-                }
-              }}
-              placeholder="Select a project"
-            />
-          </div>
           <div className="flex justify-end">
-            <Button type="submit" variant="primary" disabled={isUploading}>
+            <Button variant="primary" disabled={isUploading}>
               {isUploading ? 'Uploading...' : 'Upload'}
             </Button>
           </div>

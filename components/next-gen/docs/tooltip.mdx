@@ -1,0 +1,38 @@
+# Tooltip
+
+The Tooltip component displays a tooltip when hovering over or clicking on a target element.
+
+## Usage
+
+```tsx
+import Tooltip from './Tooltip';
+
+<Tooltip content="This is a tooltip">
+  <button>Hover or Click Me</button>
+</Tooltip>
+```
+
+## Props
+
+| Prop      | Type                       | Default | Description                                                    |
+| --------- | -------------------------- | ------- | -------------------------------------------------------------- |
+| content   | string                     | -       | The content to display in the tooltip.                         |
+| children  | React.ReactElement         | -       | The target element to trigger the tooltip.                     |
+| position  | 'top' \| 'right' \| 'bottom' \| 'left' | 'top'   | The position of the tooltip relative to the target element.    |
+| className | string                     | ''      | Additional CSS classes to apply to the tooltip.                |
+| delay     | number                     | 0       | The delay (in milliseconds) before the tooltip appears.        |
+| trigger   | 'hover' \| 'click'         | 'hover' | The event that triggers the tooltip ('hover' or 'click').      |
+
+## Additional Features
+
+- Smooth animations using Framer Motion for a polished user experience.
+- Dark mode support using Tailwind CSS classes.
+- Customizable delay before the tooltip appears.
+- Support for triggering the tooltip on hover or click.
+
+## Customization
+
+- Use the `position` prop to control the placement of the tooltip relative to the target element.
+- Apply additional styling to the tooltip using the `className` prop.
+- Adjust the `delay` prop to control the delay before the tooltip appears.
+- Set the `trigger` prop to 'click' to make the tooltip appear on click instead of hover.

@@ -21,7 +21,7 @@ import Tabs from '@/components/Tabs';
 import Avatar from '@/components/base/Avatar';
 import CommentsIcon from '@/components/icons/CommentsIcon';
 import ThumbUpIcon from '@/components/icons/ThumbUpIcon';
-import { PencilIcon } from '@heroicons/react/24/solid';
+import { PencilIcon } from '@heroicons/react/solid';
 
 const HomePage: React.FC = () => {
   const [featuredItems, setFeaturedItems] = useState<(Post | Project | File | Space)[]>([]);
@@ -126,35 +126,23 @@ const HomePage: React.FC = () => {
       case 'post':
         return (
           <Card
-            effects={false}
             headerClassName='border-hidden'
             header={
               <div className="flex flex-col justify-between items-left h-8">
                 <div className='flex content-center items-center h-12'>
-                <Avatar src={item.author.avatar || ''} size='small' />
+                  <Avatar src={item.author.avatar || ''} size='small' />
                   <span className='ml-4'>{item.author.username}</span>
                   <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">{new Date(item.createdAt).toLocaleDateString()}</span>
                 </div>
                 <h2 className="mt-4 text-xl font-bold text-gray-800 dark:text-gray-200">{item.title}</h2>
-                
               </div>
-            }
-            content={
-              <>
-                <div className="flex flex-row justify-between items-center mt-8 mb-4">
-                  <div>
-                    <span dangerouslySetInnerHTML={{ __html: item.content }} />
-                  </div>
-                  
-                </div>
-              </>
             }
             onClick={() => router.push(`/explore/posts/${item.id}`)}
             footer={
               <div className='flex flex-col items-end'>
                 <div className="flex flex-grow items-end h-auto space-x-4">
                   <div className="flex items-center space-x-2">
-                  <ThumbUpIcon className="w-4 h-4" />
+                    <ThumbUpIcon className="w-4 h-4" />
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                       {item.likes} likes
                     </span>
@@ -181,42 +169,39 @@ const HomePage: React.FC = () => {
                       onSubscribe={() => handleSubscribe(item.id, 'post')}
                     />
                   </div>
-                </div>            
+                </div>
               </div>
             }
-          />
-        );
+          >
+            <div className="flex flex-row justify-between items-center mt-8 mb-4">
+              <div>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: (item.content.slice(0, 300) + (item.content.length > 300 ? '...' : ''))
+                  }} />
+              </div>
+            </div>
+          </Card>);
       case 'project':
         return (
           <Card
-            effects={false}
             headerClassName='border-hidden'
             header={
               <div className="flex flex-col justify-between items-left h-8">
                 <div className='flex content-center items-center h-12'>
-                <Avatar src={item.owner.avatar || ''} size='small' />
+                  <Avatar src={item.owner.avatar || ''} size='small' />
                   <span className='ml-4'>{item.owner.username}</span>
                   <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">{new Date(item.createdAt).toLocaleDateString()}</span>
                 </div>
                 <h2 className="mt-4 text-xl font-bold text-gray-800 dark:text-gray-200">{item.name}</h2>
               </div>
             }
-            content={
-              <>
-                <div className="flex mt-8 mb-4">
-                  <div>
-                    <span dangerouslySetInnerHTML={{ __html: (item.description.slice(0,300) + (item.description.length > 300 && '...' || ''))}}/>
-                  </div>
-                  
-                </div>
-              </>
-            }
             onClick={() => router.push(`/projects/${item.id}`)}
             footer={
               <div className='flex flex-col items-end'>
                 <div className="flex flex-grow items-end h-auto space-x-4">
                   <div className="flex items-center space-x-2">
-                  <ThumbUpIcon className="w-4 h-4" />
+                    <ThumbUpIcon className="w-4 h-4" />
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                       {item.likes} likes
                     </span>
@@ -243,42 +228,37 @@ const HomePage: React.FC = () => {
                       onSubscribe={() => handleSubscribe(item.id, 'project')}
                     />
                   </div>
-                </div>            
+                </div>
               </div>
-            }
-          />
+            }>
+            <div className="flex mt-8 mb-4">
+              <div>
+                <span dangerouslySetInnerHTML={{ __html: (item.description.slice(0, 300) + (item.description.length > 300 && '...' || '')) }} />
+              </div>
+
+            </div>
+          </Card >
         );
       case 'file':
         return (
           <Card
-            effects={false}
             headerClassName='border-hidden'
             header={
               <div className="flex flex-col justify-between items-left h-8">
                 <div className='flex content-center items-center h-12'>
-                <Avatar src={item.uploadedBy.avatar || ''} size='small' />
+                  <Avatar src={item.uploadedBy.avatar || ''} size='small' />
                   <span className='ml-4'>{item.uploadedBy.username}</span>
                   <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">{new Date(item.createdAt).toLocaleDateString()}</span>
                 </div>
                 <h2 className="mt-4 text-xl font-bold text-gray-800 dark:text-gray-200">{item.name}</h2>
               </div>
             }
-            content={
-              <>
-                <div className="flex mt-8 mb-4">
-                  <div>
-                    <span dangerouslySetInnerHTML={{ __html: (item.description?.slice(0,300) || '' + (item.description?.length || 0 > 300 && '...' || ''))}}/>
-                  </div>
-                  
-                </div>
-              </>
-            }
             onClick={() => router.push(`/files/${item.id}`)}
             footer={
               <div className='flex flex-col items-end'>
                 <div className="flex flex-grow items-end h-auto space-x-4">
                   <div className="flex items-center space-x-2">
-                  <ThumbUpIcon className="w-4 h-4" />
+                    <ThumbUpIcon className="w-4 h-4" />
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                       {item.likes} likes
                     </span>
@@ -308,39 +288,35 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             }
-          />
+          >
+            <div className="flex mt-8 mb-4">
+              <div>
+                <span dangerouslySetInnerHTML={{ __html: (item.description?.slice(0, 300) || '' + (item.description?.length || 0 > 300 && '...' || '')) }} />
+              </div>
+
+            </div>
+          </Card>
         );
       case 'space':
         return (
           <Card
-            effects={false}
             headerClassName='border-hidden'
             header={
               <div className="flex flex-col justify-between items-left h-8">
                 <div className='flex content-center items-center h-12'>
-                <Avatar src={item.owner.avatar || ''} size='small' />
+                  <Avatar src={item.owner.avatar || ''} size='small' />
                   <span className='ml-4'>{item.owner.username}</span>
                   <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">{new Date(item.createdAt).toLocaleDateString()}</span>
                 </div>
                 <h2 className="mt-4 text-xl font-bold text-gray-800 dark:text-gray-200">{item.name}</h2>
               </div>
             }
-            content={
-              <>
-                <div className="flex mt-8 mb-4">
-                  <div>
-                    <span dangerouslySetInnerHTML={{ __html: (item.description?.slice(0,300) || '' + (item.description?.length || 0 > 300 && '...' || ''))}}/>
-                  </div>
-                  
-                </div>
-              </>
-            }
             onClick={() => router.push(`/spaces/${item.id}`)}
             footer={
               <div className='flex flex-col items-end'>
                 <div className="flex flex-grow items-end h-auto space-x-4">
                   <div className="flex items-center space-x-2">
-                  <ThumbUpIcon className="w-4 h-4" />
+                    <ThumbUpIcon className="w-4 h-4" />
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                       {item.likes} likes
                     </span>
@@ -370,7 +346,13 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             }
-          />
+          >
+            <div className="flex mt-8 mb-4">
+              <div>
+                <span dangerouslySetInnerHTML={{ __html: (item.description?.slice(0, 300) || '' + (item.description?.length || 0 > 300 && '...' || '')) }} />
+              </div>
+            </div>
+          </Card>
         );
       default:
         return null;

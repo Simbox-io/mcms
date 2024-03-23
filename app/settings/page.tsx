@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { User, UserSettings, NotificationPreferences, PrivacySettings, ThemePreference, Visibility } from '@/lib/prisma';
+import Select from '@/components/next-gen/Select';
 
 export default function UserSettingsPage() {
   const { data: session, status } = useSession();
@@ -158,15 +159,15 @@ export default function UserSettingsPage() {
             <label htmlFor="profileVisibility" className="block text-gray-700 dark:text-gray-300 mb-1">
               Profile Visibility
             </label>
-            <select
-              id="profileVisibility"
-              value={settings?.privacySettings?.profileVisibility}
-              onChange={handlePrivacyChange('profileVisibility')}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500"
-            >
-              <option value="PUBLIC">Public</option>
-              <option value="PRIVATE">Private</option>
-            </select>
+            <Select
+              value={settings?.privacySettings?.profileVisibility || ''}
+              onChange={() => handlePrivacyChange('profileVisibility')}
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-0 py-0 focus:outline-none focus:ring-indigo-500"
+              options={[
+                { label: 'Public', value: 'PUBLIC' },
+                { label: 'Private', value: 'PRIVATE' },
+              ]}
+            />
           </div>
           <div>
             <label htmlFor="activityVisibility" className="block text-gray-700 dark:text-gray-300 mb-1">
@@ -184,22 +185,6 @@ export default function UserSettingsPage() {
           </div>
         </div>
       </div>
-
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Theme Preference</h2>
-        <div>
-          <select
-            id="themePreference"
-            value={settings?.themePreference?.toString()}
-            onChange={handleThemeChange}
-            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500"
-          >
-            <option value="LIGHT">Light</option>
-            <option value="DARK">Dark</option>
-          </select>
-        </div>
-      </div>
-
       <button
         onClick={updateSettings}
         disabled={isSaving}

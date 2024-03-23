@@ -46,6 +46,7 @@ export default async function RootLayout({
             {isImpersonated && <div className="bg-red-500 text-white p-2 flex justify-between">Impersonating User {user.username} <StopImpersonationButton/></div>}
             <main className="flex-grow overflow-auto">
               {children}
+              <div id='portal-root'/>
               <Analytics />
               <SpeedInsights />
             </main>

@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal from '@/components/Modal';
+import Modal from '@/components/next-gen/Modal';
 import { Space } from '@/lib/prisma';
 
 interface SpacePreviewModalProps {

@@ -4,10 +4,10 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Input from '../../../components/Input';
-import Button from '../../../components/Button';
+import Input from '../../../components/next-gen/Input';
+import Button from '../../../components/next-gen/Button';
 import { useToken } from '../../../lib/useToken';
-import Avatar from '../../../components/Avatar';
+import Avatar from '../../../components/next-gen/Avatar';
 import { useSession } from 'next-auth/react';
 import { User } from '@/lib/prisma';
 import { getImageUrl } from '@/utils/imageUtils';
@@ -68,45 +68,37 @@ const ProfileSetupPage: React.FC = () => {
         <div className="mb-4">
           <Input
             label="Username"
-            name="username"
             type="text"
-            id="username"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={setUsername}
             required
             className="w-full"
           />
         </div>
         <div className="mb-4">
           <Input
-            name="firstName"
             label="First Name"
             type="text"
-            id="firstName"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={setFirstName}
             className="w-full"
           />
         </div>
         <div className="mb-4">
           <Input
-            name="lastName"
             label="Last Name"
             type="text"
-            id="lastName"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={setLastName}
             className="w-full"
           />
         </div>
         <div className="mb-4">
           <Input
-            name="bio"
             label="Bio"
             type="text"
-            id="bio"
             value={bio}
-            onChange={(e) => setBio(e.target.value)}
+            onChange={setBio}
             className="w-full"
           />
         </div>
@@ -127,7 +119,7 @@ const ProfileSetupPage: React.FC = () => {
             className="ml-4"
           />
         </div>
-        <Button type="submit" variant="primary">
+        <Button variant="primary">
           Next
         </Button>
       </form>

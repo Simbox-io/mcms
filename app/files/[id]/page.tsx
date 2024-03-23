@@ -1,8 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
+import Card from '@/components/next-gen/Card';
+import Button from '@/components/next-gen/Button';
 import { File, User } from '@/lib/prisma';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';

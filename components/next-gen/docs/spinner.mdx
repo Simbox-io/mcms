@@ -1,0 +1,45 @@
+# Spinner
+
+The Spinner component displays a loading spinner with customizable size, color, and label.
+
+## Usage
+
+```tsx
+import Spinner from './Spinner';
+
+<Spinner size="large" color="primary" label="Loading data..." />
+```
+
+## Props
+
+| Prop      | Type                                                           | Default     | Description                                                                         |
+| --------- | -------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------- |
+| size      | 'small' \| 'medium' \| 'large'                                 | 'medium'    | The size of the spinner.                                                           |
+| color     | 'primary' \| 'secondary' \| 'success' \| 'danger' \| 'warning' | 'primary'   | The color variant of the spinner.                                                  |
+| className | string                                                         | ''          | Additional CSS classes to apply to the spinner container.                           |
+| label     | string                                                         | 'Loading...' | The text label to display below the spinner.                                        |
+| duration  | number                                                         | 1.5         | The duration of the spinning animation in seconds.                                  |
+
+## Additional Props
+
+- `className`: Allows passing additional CSS classes to the spinner container for custom styling.
+
+## Color Variants
+
+The Spinner component supports the following color variants:
+
+- `primary` (default): Blue color
+- `secondary`: Gray color
+- `success`: Green color
+- `danger`: Red color
+- `warning`: Yellow color
+
+The colors adapt to the dark mode theme when enabled.
+
+## Accessibility
+
+The Spinner component includes the `role="status"` attribute to convey the loading status to assistive technologies.
+
+## Animation
+
+The spinning animation is handled by the Framer Motion library. The animation duration can be customized using the `duration` prop.

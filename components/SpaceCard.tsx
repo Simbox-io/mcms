@@ -1,7 +1,7 @@
 import React from 'react';
 import { Space, User, Project, Page, SpaceView } from '@/lib/prisma';
-import Card from '@/components/Card';
-import Avatar from '@/components/Avatar';
+import Card from '@/components/next-gen/Card';
+import Avatar from '@/components/next-gen/Avatar';
 
 interface SpaceCardProps {
   space: Space;
@@ -10,7 +10,7 @@ interface SpaceCardProps {
 
 const SpaceCard: React.FC<SpaceCardProps> = ({ space, onClick }) => {
   return (
-    <Card onClick={onClick}>
+    <Card>
       <div className="flex items-center">
         <Avatar src={space.owner.avatar || ''} alt={space.owner.username} size="small" />
         <div className="ml-2">

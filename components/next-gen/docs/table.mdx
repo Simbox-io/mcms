@@ -1,0 +1,81 @@
+## Table Component
+
+The Table component is a reusable and customizable table component built with React and Tailwind CSS. It supports sorting, row actions, row click events, and row hover events.
+
+### Usage
+
+```tsx
+import Table from './Table';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+const columns: TableColumn<User>[] = [
+  { header: 'ID', accessor: 'id' },
+  { header: 'Name', accessor: 'name', sortable: true },
+  { header: 'Email', accessor: 'email' },
+];
+
+const data: User[] = [
+  { id: 1, name: 'John Doe', email: 'john@example.com' },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
+  // ...
+];
+
+const handleRowClick = (row: User) => {
+  console.log('Clicked row:', row);
+};
+
+const handleHover = (row: User | null) => {
+  console.log('Hovered row:', row);
+};
+
+<Table<User>
+  columns={columns}
+  data={data}
+  sortBy="name"
+  sortOrder="asc"
+  onSort={(accessor) => console.log('Sorting by:', accessor)}
+  renderRowActions={(row) => <button>Edit</button>}
+  onRowClick={handleRowClick}
+  onHover={handleHover}
+/>;
+```
+
+### Props
+
+| Prop             | Type                                  | Default | Description                                                                                                                                       |
+| ---------------- | ------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| columns          | `TableColumn<T>[]`                    | -       | An array of column configurations, including the header text, accessor key, and sortable flag.                                                    |
+| data             | `T[]`                                 | -       | The data to be displayed in the table rows.                                                                                                       |
+| className        | `string`                              | `''`    | Additional CSS classes to apply to the table.                                                                                                     |
+| rowClassName     | `string`                              | `''`    | Additional CSS classes to apply to each table row.                                                                                                |
+| sortBy           | `keyof T`                             | -       | The accessor key of the column to sort by.                                                                                                        |
+| sortOrder        | `'asc' \| 'desc'`                     | -       | The sort order, either ascending or descending.                                                                                                   |
+| onSort           | `(accessor: keyof T) => void`         | -       | Callback function invoked when a sortable column header is clicked. It receives the accessor key of the column being sorted.                      |
+| renderRowActions | `(row: T) => React.ReactNode`         | -       | Render function for row actions. It receives the row data and should return the action elements to be rendered in the last column of each row.    |
+| onRowClick       | `(row: T) => void`                    | -       | Callback function invoked when a table row is clicked. It receives the row data as an argument.                                                   |
+| onHover          | `(row: T \| null) => void`            | -       | Callback function invoked when a table row is hovered or unhovered. It receives the row data when hovered and `null` when unhovered.               |
+
+### Sorting
+
+To enable sorting for a column, set the `sortable` flag to `true` in the column configuration. When a sortable column header is clicked, the `onSort` callback will be invoked with the accessor key of the column being sorted.
+
+### Row Actions
+
+To render row actions, provide a `renderRowActions` function that receives the row data and returns the action elements to be rendered in the last column of each row.
+
+### Row Click Event
+
+To handle row click events, provide an `onRowClick` callback function. It will be invoked with the row data when a table row is clicked.
+
+### Row Hover Event
+
+To handle row hover events, provide an `onHover` callback function. It will be invoked with the row data when a table row is hovered and with `null` when unhovered.
+
+### Dark Mode
+
+The table component automatically adapts to dark mode using Tailwind's dark mode classes. The background colors and text colors will be adjusted to provide better contrast in dark mode.

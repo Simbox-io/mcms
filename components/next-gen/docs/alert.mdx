@@ -1,0 +1,33 @@
+# Alert (Notification)
+
+The Alert component is used to display important messages or notifications to the user.
+
+## Usage
+
+```tsx
+import Alert from './Alert';
+
+<Alert message="This is a success alert!" variant="success" onClose={() => console.log('Alert closed')} />
+```
+
+## Props
+
+| Prop      | Type                                          | Default | Description                                                 |
+| --------- | --------------------------------------------- | ------- | ----------------------------------------------------------- |
+| message   | string                                        | -       | The message to display in the alert.                        |
+| variant   | 'success' \| 'info' \| 'warning' \| 'error'     | 'info'  | The variant of the alert.                                   |
+| onClose   | () => void                                    | -       | The callback function to invoke when the alert is closed.   |
+| className | string                                        | ''      | Additional CSS classes to apply to the alert.               |
+
+## Variants
+
+The Alert component supports four variants:
+
+- `success`: Displays a success alert with a green background.
+- `info` (default): Displays an informational alert with a blue background.
+- `warning`: Displays a warning alert with a yellow background.
+- `error`: Displays an error alert with a red background.
+
+## Additional Props
+
+- `className`: Allows passing additional CSS classes to the alert for custom styling.

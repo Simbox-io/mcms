@@ -92,9 +92,8 @@ const ActionsMenu: React.FC<{ user: User; onDelete: (userId: string) => void }> 
                       <Menu.Item>
                         {({ active }) => (
                           <button
-                            className={`${
-                              active ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
-                            } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                            className={`${active ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'
+                              } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                             onClick={() => {
                               setMenuOpen(false);
                               setImpersonating(true);
@@ -224,15 +223,14 @@ const UserManagementPage: React.FC = () => {
               {users.map((user) => (
                 <Card
                   key={user.id}
-                  content={
+                  footer={<ActionsMenu user={user} onDelete={() => handleDeleteUser(user.id)} />}
+                  >
                     <div>
                       <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{user.username}</h2>
                       <p className="text-gray-600 dark:text-gray-400">{user.email}</p>
                       <p className="text-gray-600 dark:text-gray-400">{user.role}</p>
                     </div>
-                  }
-                  footer={<ActionsMenu user={user} onDelete={handleDeleteUser} />}
-                />
+                  </Card>
               ))}
             </div>
           </div>

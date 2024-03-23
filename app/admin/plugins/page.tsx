@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Table from '@/components/Table';
-import Button from '@/components/Button';
+import Table from '@/components/next-gen/Table';
+import Button from '@/components/next-gen/Button';
 
 interface Plugin {
   id: number;

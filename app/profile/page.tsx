@@ -5,10 +5,10 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '../../components/Card';
-import Avatar from '../../components/Avatar';
-import Button from '../../components/Button';
-import Spinner from '../../components/Spinner';
+import Card from '../../components/next-gen/Card';
+import Avatar from '../../components/next-gen/Avatar';
+import Button from '../../components/next-gen/Button';
+import Spinner from '../../components/next-gen/Spinner';
 import { formatDate } from '../../utils/dateUtils';
 import { getImageUrl } from '../../utils/imageUtils';
 import { useToken } from '../../lib/useToken';
@@ -119,9 +119,9 @@ const UserProfilePage: React.FC = () => {
               <ul className="space-y-4">
                 {projects.map((project) => (
                   <li key={project.id}>
-                    <Card className="hover:shadow-md transition-shadow duration-300">
+                    <Card className="hover:shadow-md transition-shadow duration-300 dark:bg-gray-500">
                       <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{project.name}</h3>
-                      <p className="text-gray-700 dark:text-gray-300">{project.description}</p>
+                      <p className="text-gray-700 dark:text-gray-300"><span dangerouslySetInnerHTML={{__html: project.description}}/></p>
                     </Card>
                   </li>
                 ))}
@@ -136,9 +136,9 @@ const UserProfilePage: React.FC = () => {
               <ul className="space-y-4">
                 {posts.map((post) => (
                   <li key={post.id}>
-                    <Card className="hover:shadow-md transition-shadow duration-300">
+                    <Card className="hover:shadow-md transition-shadow duration-300 dark:bg-gray-500">
                       <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{post.title}</h3>
-                      <p className="text-gray-700 dark:text-gray-300">{post.content}</p>
+                      <p className="text-gray-700 dark:text-gray-300"><span dangerouslySetInnerHTML={{__html: post.content}}/></p>
                       <p className="text-gray-500 dark:text-gray-400 mt-2">Posted on {formatDate(post.createdAt.toString())}</p>
                     </Card>
                   </li>

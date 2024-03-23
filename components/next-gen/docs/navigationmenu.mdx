@@ -1,0 +1,69 @@
+# NavigationMenu
+
+The NavigationMenu component is a responsive navigation menu that displays a list of menu items. It adapts to different screen sizes, providing a dropdown menu for mobile devices.
+
+## Usage
+
+```tsx
+import NavigationMenu from './NavigationMenu';
+
+const menuItems = [
+  { label: 'Home', href: '/' },
+  { label: 'About', href: '/about' },
+  { label: 'Services', href: '/services' },
+  { label: 'Contact', href: '/contact' },
+];
+
+<NavigationMenu items={menuItems} className="bg-gray-800" />
+```
+
+## Props
+
+| Prop      | Type        | Default | Description                                                   |
+| --------- | ----------- | ------- | ------------------------------------------------------------- |
+| items     | MenuItem[]  | -       | An array of menu items to be displayed in the navigation menu |
+| className | string      | ''      | Additional CSS classes to apply to the navigation menu        |
+
+## MenuItem Interface
+
+The `MenuItem` interface defines the shape of each menu item object in the `items` array:
+
+```tsx
+interface MenuItem {
+  label: string;
+  href: string;
+}
+```
+
+- `label`: The text to display for the menu item
+- `href`: The URL or path to navigate to when the menu item is clicked
+
+## Responsive Behavior
+
+The NavigationMenu component is responsive and adapts to different screen sizes:
+
+- On larger screens (above the `md` breakpoint), the menu items are displayed horizontally in the navigation bar.
+- On smaller screens (below the `md` breakpoint), the menu items are hidden by default and can be toggled using the hamburger menu button. When toggled, the menu items are displayed vertically in a dropdown menu.
+
+## Animations
+
+The NavigationMenu component incorporates animations using the `framer-motion` library:
+
+- When the mobile menu is toggled open or closed, it animates smoothly using a sliding motion.
+- The menu items have a hover effect with a smooth transition, enhancing the visual feedback when interacting with them.
+
+## Customization
+
+The NavigationMenu component can be customized using the `className` prop. Additional CSS classes can be passed to the component to modify its appearance or apply custom styles.
+
+The component utilizes Tailwind CSS classes for styling. You can customize the colors, spacing, and other styles by modifying the relevant Tailwind classes in the component.
+
+## Dependencies
+
+The NavigationMenu component has the following dependencies:
+
+- `react`: The React library for building the component.
+- `react-router-dom`: The routing library for handling navigation links.
+- `framer-motion`: The animation library for adding smooth animations to the menu.
+
+Make sure to have these dependencies installed in your project before using the NavigationMenu component.

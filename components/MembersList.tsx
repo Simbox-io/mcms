@@ -1,8 +1,8 @@
 // components/MembersList.tsx
 import React from 'react';
-import Avatar from '@/components/Avatar';
-import Button from '@/components/Button';
-import Tooltip from '@/components/Tooltip';
+import Avatar from '@/components/next-gen/Avatar';
+import Button from '@/components/next-gen/Button';
+import Tooltip from '@/components/next-gen/Tooltip';
 
 interface MembersListProps {
     members: {

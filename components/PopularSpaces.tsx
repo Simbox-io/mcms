@@ -1,4 +1,5 @@
 // components/PopularSpaces.tsx
+'use client'
 import React, { useEffect, useState } from 'react';
 import SpaceCard from '@/components/SpaceCard';
 import EmptyState from '@/components/EmptyState';

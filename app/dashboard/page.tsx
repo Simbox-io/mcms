@@ -4,15 +4,15 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Card from '@/components/base/Card';
-import Badge from '@/components/Badge';
-import Pagination from '@/components/Pagination';
-import Button from '@/components/Button';
-import Avatar from '@/components/Avatar';
-import Spinner from '@/components/Spinner';
-import Table from '@/components/Table';
-import Alert from '@/components/Alert';
+import Badge from '@/components/next-gen/Badge';
+import Pagination from '@/components/next-gen/Pagination';
+import Button from '@/components/next-gen/Button';
+import Avatar from '@/components/next-gen/Avatar';
+import Spinner from '@/components/next-gen/Spinner';
+import Table from '@/components/next-gen/Table';
+import Alert from '@/components/next-gen/Alert';
 import EmptyState from '@/components/EmptyState';
-import Modal from "@/components/Modal";
+import Modal from "@/components/next-gen/Modal";
 
 interface User {
   id: number;
@@ -100,7 +100,7 @@ const DashboardPage: React.FC = () => {
         if (projectsResponse.ok) {
           const { projects: fetchedProjects } = await projectsResponse.json();
           const myProjects = fetchedProjects?.filter((project: Project) =>
-            project.owner.id === user?.id || project.members.some((member) => member.id === user?.id)
+            project.owner.id === user?.id || project.members?.some((member) => member.id === user?.id)
           ) || [];
           setProjects(myProjects);
         }
@@ -157,14 +157,12 @@ const DashboardPage: React.FC = () => {
           variant="info"
           onClose={() => setShowAlert(false)}
           className="mb-8"
-        >
-          Welcome to your dashboard! Here you can manage your projects, view notifications, and track activity.
-        </Alert>
+          message='Welcome to your dashboard! Here you can manage your projects, view notifications, and track activity.'
+        />
       )}
       <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Welcome, {user?.firstName}!</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-        <Card effects={false} header="Projects" content={
-          <>
+        <Card header="Projects" >
           {projects.length === 0 ? (
             <EmptyState
               title="No Projects"
@@ -180,33 +178,25 @@ const DashboardPage: React.FC = () => {
               <Table
                 columns={[
                   { header: 'Name', accessor: 'name' },
-                  {
-                    header: 'Owner',
-                    accessor: (project: Project) => (
-                      <label className="text-gray-600 dark:text-gray-400">{project.owner.username}</label>
-                    ),
-                  }
                 ]}
                 data={currentPageProjects}
+                rowClassName="cursor-pointer"
                 onRowClick={handleProjectClick}
-                className="mb-4"
               />
               <div className="flex justify-between items-center">
-                <Pagination
+                {totalPages > 1 && (<Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={handlePageChange}
-                />
-                <Button variant="primary" onClick={handleCreateProject}>
+                />)}
+                <Button variant="primary" className='mt-4' onClick={handleCreateProject}>
                   Create Project
                 </Button>
               </div>
             </>
           )}
-          </>}
-        />
-        <Card effects={false} header="Notifications" content={
-          <>
+        </Card>
+        <Card header="Notifications">
           {notifications.length === 0 ? (
             <EmptyState
               title="No Notifications"
@@ -220,10 +210,8 @@ const DashboardPage: React.FC = () => {
               </div>
             ))
           )}
-          </>}
-        />
-        <Card effects={false} header="Activity" content={
-          <>
+        </Card>
+        <Card header="Activity" >
           {activities.length === 0 ? (
             <EmptyState
               title="No Recent Activity"
@@ -239,24 +227,23 @@ const DashboardPage: React.FC = () => {
               </div>
             ))
           )}
-          </>}
-        />
+        </Card>
       </div>
       {selectedProject && (
         <Modal isOpen={projectModalOpen} onClose={() => setProjectModalOpen(false)} title={selectedProject.name}>
           {selectedProject && (
             <>
-              <p className="text-gray-600 dark:text-gray-400">{selectedProject.description}</p>
+              <p className="text-gray-600 dark:text-gray-400"><span dangerouslySetInnerHTML={{__html: selectedProject.description}}/></p>
               <p className="mt-4 text-gray-600 dark:text-gray-400">
                 Repository: <a href={selectedProject.repository} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500">
                   {selectedProject.repository}
                 </a>
               </p>
-              <p className="mt-4 text-gray-600 dark:text-gray-400">Owner: {selectedProject.owner.username}</p>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">Owner: {selectedProject.owner?.username}</p>
               <p className="mt-4 text-gray-600 dark:text-gray-400">Members:</p>
               <ul className="mb-4">
-                {selectedProject.members.map((member) => (
-                  <li key={member.id} className="text-gray-600 dark:text-gray-400">{member.username}</li>
+                {selectedProject.members?.map((member) => (
+                  <li key={member?.id} className="text-gray-600 dark:text-gray-400">{member?.username}</li>
                 ))}
               </ul>
             </>
@@ -272,8 +259,7 @@ const DashboardPage: React.FC = () => {
         </Modal>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card effects={false} header="Your Profile" content={
-        <>
+        <Card header="Your Profile">
           {user && (
             <div className="flex items-center mb-4">
               <Avatar src={user.avatar} alt={user.username} size="large" />
@@ -289,9 +275,8 @@ const DashboardPage: React.FC = () => {
               Edit Profile
             </Button>
           </div>
-          </>}
-        />
-        <Card effects={false} header="Resources" content={
+        </Card>
+        <Card header="Resources">
           <ul className="space-y-2">
             <li>
               <a
@@ -322,8 +307,7 @@ const DashboardPage: React.FC = () => {
               </a>
             </li>
           </ul>
-        }
-        />
+        </Card>
       </div>
     </div>
   );

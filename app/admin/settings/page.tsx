@@ -8,7 +8,7 @@ import Input from '../../../components/Input';
 import Button from '../../../components/Button';
 import Spinner from '../../../components/Spinner';
 import EmptyState from '../../../components/EmptyState';
-import Select from '../../../components/Select';
+import Select from '../../../components/next-gen/Select';
 import Toggle from '../../../components/Toggle';
 import { User } from '@/lib/prisma';
 
@@ -261,9 +261,6 @@ const AdminSettingsPage: React.FC = () => {
             <h2 className="text-xl font-semibold mb-4">File Storage</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Select
-                label="File Storage Provider"
-                id="fileStorageProvider"
-                name="fileStorageProvider"
                 value={settings.fileStorageProvider}
                 onChange={(value) => handleSelectChange('fileStorageProvider', value)}
                 options={[
@@ -271,7 +268,6 @@ const AdminSettingsPage: React.FC = () => {
                   { value: 's3', label: 'Amazon S3' },
                   { value: 'ftp', label: 'FTP' },
                 ]}
-                required
               />
               {settings.fileStorageProvider === 's3' && (
                 <>
@@ -360,16 +356,12 @@ const AdminSettingsPage: React.FC = () => {
             <h2 className="text-xl font-semibold mb-4">Email Settings</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Select
-                label="Email Provider"
-                id="emailProvider"
-                name="emailProvider"
                 value={settings.emailProvider}
                 onChange={(value) => handleSelectChange('emailProvider', value)}
                 options={[
                   { value: 'smtp', label: 'SMTP' },
                   { value: 'ses', label: 'Amazon SES' },
                 ]}
-                required
               />
               {settings.emailProvider === 'smtp' && (
                 <>

@@ -5,14 +5,14 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Input from '../../../components/Input';
-import Textarea from '../../../components/Textarea';
-import Button from '../../../components/Button';
-import Card from '../../../components/Card';
-import Spinner from '../../../components/Spinner';
+import Input from '../../../components/next-gen/Input';
+import Textarea from '../../../components/next-gen/Textarea';
+import Button from '../../../components/next-gen/Button';
+import Card from '../../../components/next-gen/Card';
+import Spinner from '../../../components/next-gen/Spinner';
 import { getImageUrl } from '../../../utils/imageUtils';
 import { useToken } from '../../../lib/useToken';
-import Avatar from '@/components/Avatar';
+import Avatar from '@/components/next-gen/Avatar';
 import { User } from '@/lib/prisma';
 
 const EditProfilePage: React.FC = () => {
@@ -158,7 +158,7 @@ const EditProfilePage: React.FC = () => {
           </div>
           <Avatar
             src={avatar ? URL.createObjectURL(avatar) : user?.avatar || ''}
-            alt={user?.username}
+            alt={user?.username || ''}
             size="large"
           />
           </div>
@@ -167,31 +167,25 @@ const EditProfilePage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <Input
               label="First Name"
-              name="firstName"
               type="text"
-              id="firstName"
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={setFirstName}
               className="w-full"
             />
             <Input
               label="Last Name"
-              name="lastName"
               type="text"
-              id="lastName"
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onChange={setLastName}
               className="w-full"
             />
           </div>
           <div className="mb-6">
             <Input
               label="Username"
-              name="username"
               type="text"
-              id="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={setUsername}
               required
               className="w-full"
             />
@@ -199,11 +193,9 @@ const EditProfilePage: React.FC = () => {
           <div className="mb-6">
             <Input
               label="Email"
-              name="email"
               type="email"
-              id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={setEmail}
               required
               className="w-full"
             />
@@ -213,7 +205,6 @@ const EditProfilePage: React.FC = () => {
               Bio
             </label>
             <Textarea
-              id="bio"
               value={bio}
               onChange={setBio}
               rows={4}
@@ -221,7 +212,7 @@ const EditProfilePage: React.FC = () => {
             />
           </div>
           <div className="flex justify-end">
-            <Button type="submit" variant="primary" disabled={isSaving}>
+            <Button variant="primary" disabled={isSaving}>
               {isSaving ? 'Saving...' : 'Save'}
             </Button>
           </div>

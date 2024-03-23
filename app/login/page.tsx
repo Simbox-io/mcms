@@ -6,8 +6,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
+import Input from '@/components/next-gen/Input';
+import Button from '@/components/next-gen/Button';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -48,11 +48,9 @@ const LoginPage: React.FC = () => {
           <div className="mb-6">
             <Input
               label="Email"
-              name="email"
               type="email"
-              id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={setEmail}
               required
               placeholder="Enter your email"
               className="w-full"
@@ -61,17 +59,15 @@ const LoginPage: React.FC = () => {
           <div className="mb-6">
             <Input
               label="Password"
-              name="password"
               type="password"
-              id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
               required
               placeholder="Enter your password"
               className="w-full"
             />
           </div>
-          <Button type="submit" className="w-full mb-4" disabled={isLoading}>
+          <Button className="w-full mb-4" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
