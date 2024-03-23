@@ -3,24 +3,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { User } from '@/lib/prisma';
 import Dropdown from './Dropdown';
 import Button from './Button';
-import { Session } from 'next-auth';
-import { User } from '@/lib/prisma';
-
-// Update the type of data to Session<User> | null
-const { data: session, status } = useSession<Session<User>>();
 
 const Header: React.FC = () => {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: sessionData, status: sessionStatus } = useSession(); // Move the useSession call inside the component
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [buttonClicked, setButtonClicked] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
-  const user = session?.user as User;
+  const user = sessionData?.user as User;
 
   const handleLogout = async () => {
     await signOut();
