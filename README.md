@@ -47,6 +47,9 @@ Join the MCMS community today and experience the future of content management fo
 - **TypeScript**: Typed superset of JavaScript that compiles to plain JavaScript.
 - **AWS S3**: Cloud storage service for storing and retrieving files.
 - **Nodemailer**: Module for sending emails from Node.js applications.
+- **Axios**: Promise-based HTTP client for the browser and Node.js.
+- **Node-Cache**: A simple caching module for Node.js applications.
+- **SWR**: Stale-while-revalidate, a React Hooks library for data fetching.
 
 ## Getting Started
 
