@@ -1,7 +1,7 @@
 'use client'
 import { Fragment, useState } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/solid';
+import { CheckIcon, ChevronDownIcon } from '@heroicons/react/solid';
 
 function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
@@ -64,7 +64,7 @@ export default function Select({
                   : (selected as Option)?.label || placeholder}
               </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <ChevronUpDownIcon
+                <ChevronDownIcon
                   className="h-5 w-5 text-gray-400 dark:text-gray-500"
                   aria-hidden="true"
                 />

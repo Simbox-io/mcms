@@ -14,6 +14,7 @@ import { Editor } from '@tinymce/tinymce-react';
 import {useSession} from "next-auth/react";
 import {User} from "@/lib/prisma";
 import {Post} from "@/lib/prisma";
+import instance from '@/utils/api';
 
 const CreatePostPage: React.FC = () => {
     const { id } = useParams();
@@ -32,15 +33,8 @@ const CreatePostPage: React.FC = () => {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const response = await fetch(`/api/posts/${id}`);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setPost(data);
-                    console.log(data);
-                } else {
-                    console.error('Error fetching post:', response.statusText);
-                }
+                const response = await instance.get(`/api/posts/${id}`);
+                    setPost(response.data);
             } catch (error) {
                 console.error('Error fetching post:', error);
             } finally {

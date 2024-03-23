@@ -20,6 +20,7 @@ import EmptyState from '@/components/EmptyState';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import instance from '@/utils/api';
 
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -37,13 +38,8 @@ const ProjectDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await fetch(`/api/projects/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setProject(data);
-        } else {
-          console.error('Error fetching project:', response.statusText);
-        }
+        const response = await instance.get(`/api/projects/${id}`);
+          setProject(response.data);
       } catch (error) {
         console.error('Error fetching project:', error);
       }

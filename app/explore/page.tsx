@@ -22,6 +22,7 @@ import Avatar from '@/components/base/Avatar';
 import CommentsIcon from '@/components/icons/CommentsIcon';
 import ThumbUpIcon from '@/components/icons/ThumbUpIcon';
 import { PencilIcon } from '@heroicons/react/solid';
+import instance from '@/utils/api';
 
 const HomePage: React.FC = () => {
   const [featuredItems, setFeaturedItems] = useState<(Post | Project | File | Space)[]>([]);
@@ -63,17 +64,17 @@ const HomePage: React.FC = () => {
     const fetchItems = async () => {
       try {
         const [postsResponse, projectsResponse, filesResponse, spacesResponse] = await Promise.all([
-          fetch('/api/posts?page=1&featured=true'),
-          fetch('/api/projects?page=1&featured=true'),
-          fetch('/api/files?page=1&featured=true'),
-          fetch('/api/spaces?page=1&featured=true'),
+          instance.get('/api/posts?page=1&featured=true'),
+          instance.get('/api/projects?page=1&featured=true'),
+          instance.get('/api/files?page=1&featured=true'),
+          instance.get('/api/spaces?page=1&featured=true'),
         ]);
 
         const [postsData, projectsData, filesData, spacesData] = await Promise.all([
-          postsResponse.json(),
-          projectsResponse.json(),
-          filesResponse.json(),
-          spacesResponse.json(),
+          postsResponse.data,
+          projectsResponse.data,
+          filesResponse.data,
+          spacesResponse.data,
         ]);
 
         const featuredPosts = postsData.posts.map((post: Post) => ({ ...post, type: 'post' }));
@@ -382,10 +383,12 @@ const HomePage: React.FC = () => {
               <MasonryGrid
                 items={featuredItems.map((item) => (
                   <motion.div
-                    key={`${item.id}-${item.type}`}
-                    whileHover={{ scale: 1.005 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="mx-6 shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl mb-8"
+                    key={item.id}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -50 }}
+                    transition={{ duration: 0.3 }}
+                    className='w-full mb-4 px-6'
                   >
                     {renderItem(item)}
                   </motion.div>
@@ -402,10 +405,12 @@ const HomePage: React.FC = () => {
               <MasonryGrid
                 items={trendingItems.map((item) => (
                   <motion.div
-                    key={`${item.id}-${item.type}`}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
+                    key={item.id}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -50 }}
+                    transition={{ duration: 0.3 }}
+                    className='w-full mb-4 px-6'
                   >
                     {renderItem(item)}
                   </motion.div>
@@ -422,11 +427,13 @@ const HomePage: React.FC = () => {
               <MasonryGrid
                 items={recommendedItems.map((item) => (
                   <motion.div
-                    key={`${item.id}-${item.type}`}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="shadow-lg rounded-md dark:bg-gray-700 overflow-hidden transition duration-200 ease-in-out transform hover:-translate-y-1 hover:shadow-xl"
-                  >
+                  key={item.id}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -50 }}
+                  transition={{ duration: 0.3 }}
+                  className='w-full mb-4 px-6'
+                >
                     {renderItem(item)}
                   </motion.div>
                 ))}

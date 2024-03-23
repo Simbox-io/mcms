@@ -14,6 +14,7 @@ import Input from '../../../components/next-gen/Input';
 import CategoryFilter from '@/components/CategoryFilter';
 import Accordion from '@/components/Accordion';
 import { useAPI } from '@/lib/hooks/useAPI';
+import instance from '@/utils/api';
 
 interface Project {
   id: number;
@@ -41,13 +42,17 @@ const ProjectListPage: React.FC = () => {
   const { data: session, status } = useSession();
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  const { data, error, loading } = useAPI(`api/projects`);
+
 
   useEffect(() => {
-    if (data?.projects) {
-      setProjects(data.projects);
+    const fetchData = async () => {
+      const data = await instance.get(`api/projects`);
+      if (data?.data.projects) {
+        setProjects(data.data.projects);
+      }
     }
-  }, [data]);
+    fetchData();
+  }, []);
 
   /*const fetchProjects = useCallback(async () => {
     try {
@@ -92,7 +97,7 @@ const ProjectListPage: React.FC = () => {
   }, [projects, filterQuery]);
 
   useEffect(() => {
-    if (loading) return;
+    if (!projects) return;
     if (observerRef.current) {
       observerRef.current.disconnect();
     }
@@ -114,7 +119,7 @@ const ProjectListPage: React.FC = () => {
         observerRef.current.disconnect();
       }
     };
-  }, [loading, hasMore, displayedProjects]);
+  }, [hasMore, displayedProjects]);
 
   const handleCreateProject = () => {
     router.push('/projects/create');
@@ -132,7 +137,7 @@ const ProjectListPage: React.FC = () => {
     setView(view === 'grid' ? 'list' : 'grid');
   };
 
-  if (loading) {
+  if (!projects) {
     return <div>Loading...</div>;
   }
 
@@ -265,13 +270,13 @@ const ProjectListPage: React.FC = () => {
         )}
       </AnimatePresence>
       <div id="sentinel" className="h-4"></div>
-      {loading && (
+      {!projects && (
         <div className="flex justify-center items-center mt-8">
           <Spinner size="large" />
         </div>
       )}
-      {!loading && filteredProjects.length === 0 && (
-        <p className="text-center text-gray-600 dark:text-gray-400 mt-8">No projects found.</p>
+      {!projects && filteredProjects.length === 0 && (
+        <p className="text-center text-gray-600 dark:text-gray-400 mt-8"></p>
       )}
       {!hasMore && filteredProjects.length > 0 && (
         <p className="text-center text-gray-600 dark:text-gray-400 mt-8">No more projects to load.</p>

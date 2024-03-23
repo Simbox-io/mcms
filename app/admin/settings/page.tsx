@@ -11,6 +11,7 @@ import EmptyState from '../../../components/EmptyState';
 import Select from '../../../components/next-gen/Select';
 import Toggle from '../../../components/Toggle';
 import { User } from '@/lib/prisma';
+import { instance } from '@/utils/api';
 
 interface AdminSettings {
   siteTitle: string;
@@ -127,14 +128,8 @@ const AdminSettingsPage: React.FC = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await fetch('/api/admin/settings');
-        if (response.ok) {
-          const data = await response.json();
-          setSettings(data || defaultSettings);
-        } else {
-          console.error('Error fetching admin settings:', response.statusText);
-          setSettings(defaultSettings);
-        }
+        const response = await instance.get('/api/admin/settings');
+          setSettings(response.data || defaultSettings);
       } catch (error) {
         console.error('Error fetching admin settings:', error);
         setSettings(defaultSettings);

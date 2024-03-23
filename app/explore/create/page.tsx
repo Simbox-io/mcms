@@ -5,14 +5,14 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
-import Input from '../../../components/Input';
-import Textarea from '../../../components/Textarea';
-import Button from '../../../components/Button';
-import Card from '../../../components/Card';
-import Select from '../../../components/Select';
+import Input from '../../../components/next-gen/Input';
+import Textarea from '../../../components/next-gen/Textarea';
+import Button from '../../../components/next-gen/Button';
+import Card from '../../../components/next-gen/Card';
+import Select from '../../../components/next-gen/Select';
 import { Tag } from '../../../types/tag';
 import { Editor } from '@tinymce/tinymce-react';
-import Accordion, { AccordionItem } from '../../../components/Accordion';
+import Accordion from '../../../components/next-gen/Accordion';
 
 const CreatePostPage: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -108,11 +108,9 @@ const CreatePostPage: React.FC = () => {
           <div className="mb-6">
             <Input
               label="Title"
-              name="title"
               type="text"
-              id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={setTitle}
               required
               className="w-full"
             />
@@ -150,106 +148,14 @@ const CreatePostPage: React.FC = () => {
              isMulti
             />*/}
           </div>
-          <div className="mb-6">
-            <Accordion>
-              <AccordionItem id="visibility" title="Visibility Settings">
-                <div className="p-4">
-                  <Select
-                    label="Default Visibility"
-                    options={[
-                      { value: 'PUBLIC', label: 'Public' },
-                      { value: 'PRIVATE', label: 'Private' },
-                    ]}
-                    value={settings.defaultVisibility}
-                    onChange={(value) => handleSettingsChange('defaultVisibility', value)}
-                  />
-                </div>
-              </AccordionItem>
-              <AccordionItem id="comments" title="Comment Settings">
-                <div className="p-4">
-                  <div className="mb-4">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={settings.commentSettings.allowComments}
-                        onChange={(e) =>
-                          handleSettingsChange('commentSettings', {
-                            ...settings.commentSettings,
-                            allowComments: e.target.checked,
-                          })
-                        }
-                        className="form-checkbox"
-                      />
-                      <span className="ml-2">Allow Comments</span>
-                    </label>
-                  </div>
-                  <div className="mb-4">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={settings.commentSettings.moderateComments}
-                        onChange={(e) =>
-                          handleSettingsChange('commentSettings', {
-                            ...settings.commentSettings,
-                            moderateComments: e.target.checked,
-                          })
-                        }
-                        className="form-checkbox"
-                      />
-                      <span className="ml-2">Moderate Comments</span>
-                    </label>
-                  </div>
-                </div>
-              </AccordionItem>
-              <AccordionItem id="sharing" title="Sharing Settings">
-                <div className="p-4">
-                  <div className="mb-4">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={settings.sharingSettings.allowSharing}
-                        onChange={(e) =>
-                          handleSettingsChange('sharingSettings', {
-                            ...settings.sharingSettings,
-                            allowSharing: e.target.checked,
-                          })
-                        }
-                        className="form-checkbox"
-                      />
-                      <span className="ml-2">Allow Sharing</span>
-                    </label>
-                  </div>
-                  {/* Add sharing platform options */}
-                </div>
-              </AccordionItem>
-              <AccordionItem id="revisionHistory" title="Revision History Settings">
-                <div className="p-4">
-                  <Input
-                    name="revisionsToKeep"
-                    id="revisionsToKeep"
-                    label="Revisions to Keep"
-                    type="number"
-                    value={settings.revisionHistorySettings.revisionsToKeep.toString()}
-                    onChange={(e) =>
-                      handleSettingsChange('revisionHistorySettings', {
-                        ...settings.revisionHistorySettings,
-                        revisionsToKeep: parseInt(e.target.value),
-                      })
-                    }
-                    className="w-full"
-                  />
-                </div>
-              </AccordionItem>
-            </Accordion>
-          </div>
           <div className="flex justify-end">
-            <Button type="submit" variant="primary" disabled={isSubmitting}>
+            <Button variant="primary" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : 'Create'}
             </Button>
           </div>
-        </form>
-      </Card>
-    </div>
+        </form >
+      </Card >
+    </div >
   );
 };
 

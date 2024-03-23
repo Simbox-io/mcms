@@ -198,13 +198,11 @@ const CreateProjectPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <FormGroup label="Members" htmlFor="members">
                 <Select
-                  id="members"
                   options={users.map((user) => ({ value: user.id, label: user.username }))}
-                  value={selectedMembers} 
+                  value={selectedMembers.toString()} 
                   onChange={(memberIds) =>
                     setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])
                   }
-                  isMulti
                   placeholder="Select project members"
                   className="w-full"
                 />

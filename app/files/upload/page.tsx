@@ -40,7 +40,6 @@ const FileUploadPage: React.FC = () => {
     }
   };
 
-  // app/files/upload/page.tsx
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUploading(true);
@@ -56,7 +55,7 @@ const FileUploadPage: React.FC = () => {
     formData.append('name', name);
     formData.append('description', description);
     formData.append('isPublic', String(isPublic));
-    formData.append('contentType', selectedFile.type); // Add content type to form data
+    formData.append('contentType', selectedFile.type);
 
     if (selectedProject) {
       formData.append('projectId', String(selectedProject));

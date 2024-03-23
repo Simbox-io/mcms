@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react';
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { SearchIcon, XIcon } from '@heroicons/react/outline';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -57,7 +57,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           className="w-full pl-10 pr-10 py-2 text-gray-900 placeholder-gray-500 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:border-gray-700"
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+          <SearchIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
         </div>
         {query && (
           <button
@@ -65,7 +65,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-600 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
             onClick={handleClear}
           >
-            <XMarkIcon className="w-5 h-5" />
+            <XIcon className="w-5 h-5" />
           </button>
         )}
       </div>

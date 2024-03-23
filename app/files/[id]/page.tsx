@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import CommentSection from '@/components/CommentSection';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import instance from '@/utils/api';
 
 const FileDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -19,13 +20,8 @@ const FileDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchFile = async () => {
       try {
-        const response = await fetch(`/api/files/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setFile(data);
-        } else {
-          console.error('Error fetching file:', response.statusText);
-        }
+        const response = await instance.get(`/api/files/${id}`);
+          setFile(response.data);
       } catch (error) {
         console.error('Error fetching file:', error);
       }

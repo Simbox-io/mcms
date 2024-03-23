@@ -11,6 +11,7 @@ import ProjectCard from '@/components/ProjectCard';
 import FileCard from '@/components/FileCard';
 import SpaceCard from '@/components/SpaceCard';
 import { useRouter } from 'next/navigation';
+import instance from '@/utils/api';
 
 interface ProfileProps {
   params: {
@@ -29,12 +30,11 @@ const Profile: React.FC<ProfileProps> = ({ params }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`/api/user/${params.username}`);
-        const data = await response.json();
-        setUser(data);
-        setProjects(data.ownedProjects);
-        setFiles(data.files);
-        setSpaces(data.collaboratedSpaces);
+        const response = await instance.get(`/api/user/${params.username}`);
+        setUser(response.data);
+        setProjects(response.data.ownedProjects);
+        setFiles(response.data.files);
+        setSpaces(response.data.collaboratedSpaces);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching user data:', error);

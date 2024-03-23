@@ -60,8 +60,8 @@ const AdminConfigurationPage: React.FC = () => {
           onItemClick={handleSubpageChange}
         />
       </div>
-      <div className="flex flex-col lg:flex-row h-full w-full">
-        <div className="hidden md:block">
+      <div className="hidden md:block w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 h-screen overflow-y-auto">
           <Sidebar
             items={[
               { id: 'dashboard', label: 'Admin Dashboard' },
@@ -75,16 +75,16 @@ const AdminConfigurationPage: React.FC = () => {
             onItemClick={handleSubpageChange}
           />
         </div>
-        <div className="flex-1 p-8">
-          <Card className="dark:bg-gray-800 shadow-xl">
-            {activeSubpage === 'dashboard' && <DashboardPage />}
-            {activeSubpage === 'posts' && <PostsPage />}
-            {activeSubpage === 'analytics' && <AnalyticsPage />}
-            {activeSubpage === 'plugins' && <PluginsPage />}
-            {activeSubpage === 'users' && <UsersPage />}
-            {activeSubpage === 'settings' && <SettingsPage />}
-          </Card>
-        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        <Card className="dark:bg-gray-800 shadow-xl m-8">
+          {activeSubpage === 'dashboard' && <DashboardPage />}
+          {activeSubpage === 'posts' && <PostsPage />}
+          {activeSubpage === 'analytics' && <AnalyticsPage />}
+          {activeSubpage === 'plugins' && <PluginsPage />}
+          {activeSubpage === 'users' && <UsersPage />}
+          {activeSubpage === 'settings' && <SettingsPage />}
+        </Card>
       </div>
     </div>
   );

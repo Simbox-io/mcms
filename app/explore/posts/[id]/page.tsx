@@ -14,6 +14,7 @@ import {Tag} from '../../../../types/tag';
 import {User} from '@/lib/prisma';
 import Link from 'next/link';
 import Avatar from '../../../../components/Avatar';
+import instance from '@/utils/api';
 
 interface Post {
   id: number;
@@ -40,14 +41,8 @@ const PostDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await fetch(`/api/posts/${id}`);
-
-        if (response.ok) {
-          const data = await response.json();
-          setPost(data);
-        } else {
-          console.error('Error fetching post:', response.statusText);
-        }
+        const response = await instance.get(`/api/posts/${id}`);
+          setPost(response.data);
       } catch (error) {
         console.error('Error fetching post:', error);
       } finally {

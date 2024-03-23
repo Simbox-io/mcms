@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '@/components/base/Card';
+import Card from '@/components/next-gen/Card';
 import Badge from '@/components/next-gen/Badge';
 import Pagination from '@/components/next-gen/Pagination';
 import Button from '@/components/next-gen/Button';
@@ -13,6 +13,7 @@ import Table from '@/components/next-gen/Table';
 import Alert from '@/components/next-gen/Alert';
 import EmptyState from '@/components/EmptyState';
 import Modal from "@/components/next-gen/Modal";
+import { instance } from '@/utils/api';
 
 interface User {
   id: number;
@@ -69,59 +70,43 @@ const DashboardPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAlert, setShowAlert] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
-
+  const userObj = session?.user as User;
+ 
+  
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        if (status === 'unauthenticated' && !session) {
-          router.push('/login');
-          return;
-        }
+    setLoading(true);
+    if (status === 'unauthenticated' && !session) {
+      router.push('/login');
+      return;
+    }
 
-        const [userResponse, projectsResponse, notificationsResponse, activitiesResponse] = await Promise.all([
-          fetch('/api/user'),
-          fetch(`/api/projects?page=${currentPage}`),
-          fetch('/api/notifications'),
-          fetch('/api/activity'),
-        ]);
-
-        if (userResponse.ok) {
-          const userData: User = await userResponse.json();
-          setUser(userData);
-        } else {
-          router.push('/login');
-        }
-
-        if (projectsResponse.ok) {
-          const { projects: fetchedProjects } = await projectsResponse.json();
-          const myProjects = fetchedProjects?.filter((project: Project) =>
-            project.owner.id === user?.id || project.members?.some((member) => member.id === user?.id)
-          ) || [];
-          setProjects(myProjects);
-        }
-
-        if (notificationsResponse.ok) {
-          const { notifications: fetchedNotifications } = await notificationsResponse.json();
-          setNotifications(fetchedNotifications);
-        }
-
-        if (activitiesResponse.ok) {
-          const { activities: fetchedActivities } = await activitiesResponse.json();
-          setActivities(fetchedActivities);
-        }
-      } catch (error) {
-        console.error('Dashboard data fetch error:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    const fetchProjects = async () => {
+      const response = await instance.get(`${process.env.NEXT_PUBLIC_APP_URL}/api/projects`);
+      setProjects(response.data.projects);
     };
-    fetchData();
-  }, [currentPage, router, session, status, user?.id]);
+
+    const fetchNotifications = async () => {
+      const response = await instance.get(`${process.env.NEXT_PUBLIC_APP_URL}/api/notifications`);
+      setNotifications(response.data.notifications);
+    };
+
+    const fetchActivities = async () => {
+      const response = await instance.get(`${process.env.NEXT_PUBLIC_APP_URL}/api/activities`);
+      setActivities(response.data.activities);
+    };
+
+    if (session) {
+      setUser(userObj);
+      fetchProjects();
+      fetchNotifications();
+      fetchActivities();
+      setLoading(false);
+    }
+  }, [session, status]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -140,7 +125,7 @@ const DashboardPage: React.FC = () => {
     router.push('/profile/edit');
   };
 
-  if (status === 'loading') {
+  if (loading) {
     return <Spinner />;
   }
 
@@ -163,7 +148,7 @@ const DashboardPage: React.FC = () => {
       <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Welcome, {user?.firstName}!</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
         <Card header="Projects" >
-          {projects.length === 0 ? (
+          {projects?.length === 0 ? (
             <EmptyState
               title="No Projects"
               description="You don't have any projects yet. Start by creating a new project."
@@ -196,14 +181,14 @@ const DashboardPage: React.FC = () => {
             </>
           )}
         </Card>
-        <Card header="Notifications">
-          {notifications.length === 0 ? (
+        <Card header="Recent Notifications" className='h-auto' bodyClassName='overflow-y-scroll'>
+          {notifications?.length === 0 ? (
             <EmptyState
               title="No Notifications"
               description="You don't have any notifications at the moment."
             />
           ) : (
-            notifications.map((notification) => (
+            notifications?.slice(0,5).map((notification) => (
               <div key={notification.id} className="mb-4">
                 <p className="text-gray-600 dark:text-gray-400">{notification.message}</p>
                 <Badge variant="info">{new Date(notification.createdAt).toLocaleString()}</Badge>
@@ -212,13 +197,13 @@ const DashboardPage: React.FC = () => {
           )}
         </Card>
         <Card header="Activity" >
-          {activities.length === 0 ? (
+          {activities?.length === 0 ? (
             <EmptyState
               title="No Recent Activity"
               description="There hasn't been any recent activity."
             />
           ) : (
-            activities.map((activity) => (
+            activities?.map((activity) => (
               <div key={activity.id} className="mb-4">
                 <p className="text-gray-600 dark:text-gray-400">
                   <span className="font-semibold">{activity.type}</span> - {activity.message}
@@ -262,7 +247,7 @@ const DashboardPage: React.FC = () => {
         <Card header="Your Profile">
           {user && (
             <div className="flex items-center mb-4">
-              <Avatar src={user.avatar} alt={user.username} size="large" />
+              <Avatar src={user.avatar} alt={user.username || ''} size="large" />
               <div className="ml-4">
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-white">{user.username}</h3>
                 <p className="text-gray-600 dark:text-gray-400">{user.email}</p>

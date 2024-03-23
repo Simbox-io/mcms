@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { User, UserSettings, NotificationPreferences, PrivacySettings, ThemePreference, Visibility } from '@/lib/prisma';
 import Select from '@/components/next-gen/Select';
+import instance from '@/utils/api';
 
 export default function UserSettingsPage() {
   const { data: session, status } = useSession();
@@ -24,14 +25,9 @@ export default function UserSettingsPage() {
 
   const fetchUserSettings = async () => {
     try {
-      const res = await fetch(`/api/user`);
-      if (res.ok) {
-        const userData = await res.json();
-        setUser(userData);
-        setSettings(userData.settings);
-      } else {
-        console.error('Failed to fetch user settings');
-      }
+      const res = await instance.get(`/api/user`);
+        setUser(res.data);
+        setSettings(res.data.settings);
     } catch (error) {
       console.error('Error fetching user settings:', error);
     }

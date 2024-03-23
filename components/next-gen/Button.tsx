@@ -105,7 +105,7 @@ const Button: React.FC<ButtonProps> = ({
 
   if (tooltipContent) {
     return (
-      <Tooltip content={tooltipContent} placement={tooltipPlacement}>
+      <Tooltip content={tooltipContent} position={tooltipPlacement}>
         {buttonOrLink}
       </Tooltip>
     );

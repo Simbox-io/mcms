@@ -4,8 +4,9 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/solid';
 
 interface TableColumn<T> {
   header: string;
-  accessor: keyof T;
+  accessor: keyof T | ((data: T) => React.ReactNode);
   sortable?: boolean;
+  cell?: (data: T) => React.ReactNode;
 }
 
 interface TableProps<T> {
@@ -59,25 +60,28 @@ const Table = <T,>({
       <table className={`min-w-full divide-y divide-gray-300 dark:divide-gray-700 ${className}`}>
         <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>
-            {columns.map((column, index) => (
+            {columns?.map((column, index) => (
               <th
                 key={index}
                 scope="col"
-                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                  column.sortable
-                    ? 'cursor-pointer select-none text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                    : 'text-gray-500 dark:text-gray-400'
-                }`}
-                onClick={() => column.sortable && handleSort(column.accessor)}
+                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${column.sortable
+                  ? 'cursor-pointer select-none text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                onClick={() =>
+                  column.sortable &&
+                  typeof column.accessor === 'string' &&
+                  handleSort(column.accessor as keyof T)
+                }
               >
                 <div className="flex items-center space-x-1">
                   <span>{column.header}</span>
                   {column.sortable && (
                     <span className="relative flex items-center">
-                      {sortBy === column.accessor && sortOrder === 'asc' && (
+                      {(sortBy === column.accessor && sortOrder === 'asc') && (
                         <ChevronUpIcon className="h-4 w-4" />
                       )}
-                      {sortBy === column.accessor && sortOrder === 'desc' && (
+                      {(sortBy === column.accessor && sortOrder === 'desc') && (
                         <ChevronDownIcon className="h-4 w-4" />
                       )}
                     </span>
@@ -89,12 +93,11 @@ const Table = <T,>({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-300 dark:bg-gray-900 dark:divide-gray-700">
-          {data.map((row, rowIndex) => (
+          {data?.map((row, rowIndex) => (
             <tr
               key={rowIndex}
-              className={`${rowClassName} ${
-                hoveredRow === row ? 'bg-gray-50 dark:bg-gray-800' : ''
-              } cursor-pointer`}
+              className={`${rowClassName} ${hoveredRow === row ? 'bg-gray-50 dark:bg-gray-800' : ''
+                } cursor-pointer`}
               onClick={() => handleRowClick(row)}
               onMouseEnter={() => handleRowHover(row)}
               onMouseLeave={() => handleRowHover(null)}
@@ -104,7 +107,9 @@ const Table = <T,>({
                   key={columnIndex}
                   className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100"
                 >
-                  {row[column.accessor] as React.ReactNode}
+                  {typeof column.accessor === 'function'
+                    ? column.accessor(row)
+                    : row[column.accessor as keyof T] as React.ReactNode}
                 </td>
               ))}
               {renderRowActions && (

@@ -76,18 +76,18 @@ const AnalyticsPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <Card title="Total Users">
+          <Card header="Total Users">
             <p className="text-4xl font-bold text-gray-800 dark:text-white">{analytics.totalUsers}</p>
           </Card>
-          <Card title="Total Posts">
+          <Card header="Total Posts">
             <p className="text-4xl font-bold text-gray-800 dark:text-white">{analytics.totalPosts}</p>
           </Card>
-          <Card title="Total Projects">
+          <Card header="Total Projects">
             <p className="text-4xl font-bold text-gray-800 dark:text-white">
               {analytics.totalProjects}
             </p>no 
           </Card>
-          <Card title="Total Files">
+          <Card header="Total Files">
             <p className="text-4xl font-bold text-gray-800 dark:text-white">{analytics.totalFiles}</p>
           </Card>
         </div>

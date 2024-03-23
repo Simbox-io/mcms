@@ -10,6 +10,7 @@ import Spinner from '../../../components/Spinner';
 import { User } from '@/lib/prisma';
 import { Menu, Transition } from '@headlessui/react';
 import { createPortal } from 'react-dom';
+import instance from '@/utils/api';
 
 const ActionsMenu: React.FC<{ user: User; onDelete: (userId: string) => void }> = ({ user, onDelete }) => {
   const router = useRouter();
@@ -148,15 +149,11 @@ const UserManagementPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
+    setIsLoading(true);
     const fetchUsers = async () => {
       try {
-        const response = await fetch('/api/users');
-        if (response.ok) {
-          const data = await response.json();
-          setUsers(data);
-        } else {
-          console.error('Error fetching users:', response.statusText);
-        }
+        const response = await instance.get('/api/users');
+          setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {

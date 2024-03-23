@@ -17,6 +17,7 @@ import { IoMdAdd } from 'react-icons/io';
 import Input from '../../../components/next-gen/Input';
 import CategoryFilter from '@/components/CategoryFilter';
 import { AnimatePresence } from 'framer-motion';
+import instance from '@/utils/api';
 
 const FileListPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -31,15 +32,9 @@ const FileListPage: React.FC = () => {
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const response = await fetch(`/api/files?page=${currentPage}`);
-
-        if (response.ok) {
-          const data = await response.json();
-          setFiles(data.files);
-          setTotalPages(data.totalPages);
-        } else {
-          console.error('Error fetching files:', response.statusText);
-        }
+        const response = await instance.get(`/api/files?page=${currentPage}`);
+          setFiles(response.data.files);
+          setTotalPages(response.data.totalPages);
       } catch (error) {
         console.error('Error fetching files:', error);
       } finally {

@@ -12,6 +12,7 @@ import ThumbUpIcon from '@/components/icons/ThumbUpIcon';
 import EyeIcon from '@/components/icons/EyeIcon';
 import CategoryFilter from "@/components/CategoryFilter";
 import { useRouter } from 'next/navigation';
+import instance from '@/utils/api';
 
 const NewsFeed: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -26,12 +27,11 @@ const NewsFeed: React.FC = () => {
     const fetchPosts = useCallback(async () => {
         const nextPage = page + 1;
         try {
-            const response = await fetch(`/api/posts?page=${nextPage}&tags=${selectedTags.join(',')}`);
-            const data = await response.json();
-            if(page===0) { setPosts(data.posts) } else {
-                setPosts((prevPosts) => [...prevPosts, ...data.posts]);
+            const response = await instance.get(`/api/posts?page=${nextPage}&tags=${selectedTags.join(',')}`);
+            if(page===0) { setPosts(response.data.posts) } else {
+                setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
             }
-            setHasMore(data.length > 0);
+            setHasMore(response.data.length > 0);
             setIsLoading(false);
             setPage(nextPage);
         } catch (error) {
@@ -98,6 +98,7 @@ const NewsFeed: React.FC = () => {
                         exit={{ opacity: 0, y: -50 }}
                         transition={{ duration: 0.3 }}
                         className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8"
+                        onClick={() => handlePostClick(post)}
                     >
                         <div className="flex items-center mb-4" onClick={() => handlePostClick}>
                             <Avatar src={post.author.avatar || ''} alt={post.author.username} size="medium" />
