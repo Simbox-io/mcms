@@ -53,7 +53,7 @@ const Avatar: React.FC<AvatarProps> = ({
       {!imageError && src ? (
         <img
           src={src}
-          alt={alt}
+          alt={alt || ''}
           className={`${sizeClasses[size]} ${shapeClasses[shape]} ${className}`}
           style={{ borderColor: `#${borderColor}`, borderWidth }}
           onError={handleImageError}

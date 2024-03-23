@@ -61,7 +61,7 @@ const AdminConfigurationPage: React.FC = () => {
         />
       </div>
       <div className="hidden md:block w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-        <div className="sticky top-0 h-screen overflow-y-auto">
+        <div className="sticky top-0 h-full overflow-y-auto">
           <Sidebar
             items={[
               { id: 'dashboard', label: 'Admin Dashboard' },

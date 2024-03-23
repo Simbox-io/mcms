@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
+import { forEach } from 'lodash';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const projectId = params.id;
@@ -39,7 +40,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 
   const projectId = params.id;
-  const { collaboratorId } = await request.json();
+  const collaborators = await request.json();
+  const collaboratorIds = collaborators.members;
 
   try {
     const project = await cachedPrisma.project.findUnique({
@@ -55,13 +57,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await cachedPrisma.project.update({
-      where: { id: projectId },
-      data: {
-        collaborators: {
-          connect: { id: collaboratorId },
+    forEach(collaboratorIds, async (collaborator: User) => {
+      console.log(collaborator);
+      const res = await cachedPrisma.project.update({
+        where: { id: projectId },
+        data: {
+          collaborators: {
+            connect: { id: collaborator.id },
+          },
         },
-      },
+      });
+      console.log(res);
     });
 
     return NextResponse.json({ message: 'Collaborator added successfully' });
@@ -81,6 +87,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
   const projectId = params.id;
   const { collaboratorId } = await request.json();
+  console.log(collaboratorId);
 
   try {
     const project = await cachedPrisma.project.findUnique({

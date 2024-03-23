@@ -12,22 +12,23 @@ import { FiEdit, FiTrash, FiUsers, FiActivity, FiCheckCircle, FiMenu, FiFile, Fi
 import FileUpload from '@/components/FileUpload';
 import Modal from '@/components/next-gen/Modal';
 import Select from '@/components/next-gen/Select';
-import TagInput from '@/components/TagInput';
+import UserPicker from '@/components/next-gen/UserPicker';
 import Toast from '@/components/Toast';
 import Popover from '@/components/Popover';
-import { Project } from '@/lib/prisma';
+import { Project, User } from '@/lib/prisma';
 import EmptyState from '@/components/EmptyState';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import instance from '@/utils/api';
+import MembersList from '@/components/MembersList';
 
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams();
   const [project, setProject] = useState<Project | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [newMembers, setNewMembers] = useState<string[]>([]);
+  const [newMembers, setNewMembers] = useState<User[]>([]);
   const [permissions, setPermissions] = useState<string[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -35,15 +36,17 @@ const ProjectDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('files');
   const router = useRouter();
 
+  const fetchProject = async () => {
+    try {
+      const response = await instance.get(`/api/projects/${id}`);
+      setProject(response.data);
+      console.log(await response.data);
+    } catch (error) {
+      console.error('Error fetching project:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const response = await instance.get(`/api/projects/${id}`);
-          setProject(response.data);
-      } catch (error) {
-        console.error('Error fetching project:', error);
-      }
-    };
     fetchProject();
   }, [id]);
 
@@ -63,12 +66,12 @@ const ProjectDetailPage: React.FC = () => {
     try {
       const formData = new FormData();
       selectedFiles.forEach((file) => formData.append('file', file));
-  
+
       const response = await fetch(`/api/files`, {
         method: 'POST',
         body: formData,
       });
-  
+
       if (response.ok) {
         const newFiles = await response.json();
         setProject((prevProject) => ({
@@ -88,17 +91,17 @@ const ProjectDetailPage: React.FC = () => {
   };
   const handleAddMembers = async () => {
     try {
-      const response = await fetch(`/api/projects/${project.id}/members`, {
+      const response = await fetch(`/api/projects/${project.id}/collaborators`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ members: newMembers }),
       });
+      console.log (await response.json());
       if (response.ok) {
         // Refresh the project data after successfully adding members
-        const updatedProject = await response.json();
-        setProject(updatedProject);
+        fetchProject();
         setNewMembers([]);
         setToastMessage('Members added successfully');
       } else {
@@ -111,15 +114,15 @@ const ProjectDetailPage: React.FC = () => {
     }
   };
 
-  const handleRemoveMember = async (memberId: number) => {
+  const handleRemoveMember = async (memberId: string) => {
     try {
-      const response = await fetch(`/api/projects/${project.id}/members/${memberId}`, {
+      const response = await fetch(`/api/projects/${project.id}/collaborators`, {
         method: 'DELETE',
+        body: JSON.stringify({ collaboratorId: memberId }),
       });
       if (response.ok) {
         // Refresh the project data after successfully removing a member
-        const updatedProject = await response.json();
-        setProject(updatedProject);
+        fetchProject();
         setToastMessage('Member removed successfully');
       } else {
         console.error('Error removing member:', response.statusText);
@@ -156,70 +159,8 @@ const ProjectDetailPage: React.FC = () => {
     }
   };
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'files':
-        return (
-          <div>
-            <div className="mb-4">
-              {project.files.length === 0 ? (
-                <EmptyState
-                  title="No files uploaded"
-                  description="Start uploading files to share with your team."
-                />
-              ) : (
-                <FileGrid files={project.files} />
-              )}
-            </div>
-            <div>
-              <FileUpload
-                onFileUpload={handleFileUpload}
-                onFileSelect={() => setSelectedFiles}
-                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                maxFiles={10}
-                className="mb-2"
-              />
-            </div>
-          </div>
-        );
-      case 'members':
-        return (
-          <div>
-            <div className="mb-6 h-10 w-full flex justify-between align-center">
-              <TagInput
-                tags={newMembers}
-                onChange={setNewMembers}
-                placeholder="Enter member usernames..."
-                className='fill md:w-1/2 h-auto flex-grow mr-4'
-              />
-              <Button onClick={handleAddMembers} className="flex flex-shrink">
-                <div className="flex items-center">
-                  <FiUserPlus className="mr-2" />
-                  Add
-                </div>
-              </Button>
-            </div>
-            {/*<MembersList
-              members={project.collaborators}
-              onRemoveMember={handleRemoveMember}
-        />*/}
-          </div>
-        );
-      case 'activity':
-        return (
-          <div>
-            {/*Activity timeline component*/}
-          </div>
-        );
-      case 'reports':
-        return (
-          <div>
-            {/*Report dashboard component*/}
-          </div>
-        );
-      default:
-        return null;
-    }
+  const handleSetMembers = (users: User[]) => {
+    setNewMembers(users);
   };
 
   return (
@@ -229,16 +170,16 @@ const ProjectDetailPage: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="container rounded-lg mx-auto my-auto mt-2 px-4 py-8 dark:bg-gray-900 dark:text-white"
     >
-      <Breadcrumbs items={[{ label: 'Projects', href: '/projects/all-projects' }, { label: project.name, href: '' }]} className='mb-4'/>
+      <Breadcrumbs items={[{ label: 'Projects', href: '/projects/all-projects' }, { label: project?.name, href: '' }]} className='mb-4' />
       <Card className="mb-4">
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <div className="flex flex-col md:flex-row items-center mb-4 md:mb-0">
-            <Avatar src={project.owner.avatar || ''} alt={project.owner.username} size="large" className="mb-2 md:mb-0 md:mr-4" />
+            <Avatar src={project?.owner?.avatar || ''} alt={''} size="large" className="mb-2 md:mb-0 md:mr-4" />
             <div>
-              <h1 className="text-2xl md:text-3xl font-semibold">{project.name}</h1>
-              <p className="text-gray-600 dark:text-gray-400">Created by <Link href={`/profile/${project.owner.username}`}>{project.owner.username}</Link></p>
+              <h1 className="text-2xl md:text-3xl font-semibold">{project?.name}</h1>
+              <p className="text-gray-600 dark:text-gray-400">Created by <Link href={`/profile/${project?.owner?.username}`}>{project?.owner?.username}</Link></p>
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                {formatDate(project.createdAt.toString())}
+                {formatDate(project?.createdAt?.toString())}
               </p>
             </div>
           </div>
@@ -251,7 +192,7 @@ const ProjectDetailPage: React.FC = () => {
             </Button>
           </div>
         </div>
-        <p className="text-gray-800 dark:text-gray-200 mb-8" dangerouslySetInnerHTML={{ __html: project.description.toString()}} />
+        <p className="text-gray-800 dark:text-gray-200 mb-8" dangerouslySetInnerHTML={{ __html: project?.description?.toString() }} />
       </Card>
       <div className="block md:hidden mb-4">
         <Popover
@@ -300,33 +241,83 @@ const ProjectDetailPage: React.FC = () => {
         />
       </div>
       <div className="hidden md:block">
-        <Tabs
-          tabs={[
-            {
-              label: 'Files',
-              icon: <FiFile className="mr-2" />,
-              content: renderTabContent(),
-            },
-            {
-              label: 'Members',
-              icon: <FiUsers className="mr-2" />,
-              content: renderTabContent(),
-            },
-            {
-              label: 'Activity',
-              icon: <FiActivity className="mr-2" />,
-              content: renderTabContent(),
-            },
-            {
-              label: 'Reports',
-              icon: <FiCheckCircle className="mr-2" />,
-              content: renderTabContent(),
-            },
-          ]}
-        />
-      </div>
-      <div className="block md:hidden">
-        {renderTabContent()}
+        <div className="hidden md:block">
+          <Tabs
+            tabs={[
+              {
+                label: 'Files',
+                icon: <FiFile className="mr-2" />,
+                content: (
+                  <div>
+                    <div className="mb-4">
+                      {project?.files?.length === 0 ? (
+                        <EmptyState
+                          title="No files uploaded"
+                          description="Start uploading files to share with your team."
+                        />
+                      ) : (
+                        <FileGrid files={project?.files} />
+                      )}
+                    </div>
+                    <div>
+                      <FileUpload
+                        onFileUpload={handleFileUpload}
+                        onFileSelect={() => setSelectedFiles}
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                        maxFiles={10}
+                        className="mb-2"
+                      />
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                label: 'Members',
+                icon: <FiUsers className="mr-2" />,
+                content: (
+                  <div>
+                    <div className="mb-6 h-10 w-full flex justify-between align-center">
+                      <UserPicker
+                        selectedUsers={newMembers}
+                        onChange={handleSetMembers}
+                        placeholder="Enter member usernames..."
+                        className="fill md:w-1/2 h-auto flex-grow mr-4"
+                      />
+                      <Button onClick={handleAddMembers} className="flex flex-shrink">
+                        <div className="flex items-center">
+                          <FiUserPlus className="mr-2" />
+                          Add
+                        </div>
+                      </Button>
+                    </div>
+                    {project?.collaborators?.length > 0 && (<MembersList
+                      members={project?.collaborators}
+                      onRemoveMember={(member) => handleRemoveMember(member)}
+                    />)}
+                  </div>
+                ),
+              },
+              {
+                label: 'Activity',
+                icon: <FiActivity className="mr-2" />,
+                content: (
+                  <div>
+                    {/* Activity timeline component */}
+                  </div>
+                ),
+              },
+              {
+                label: 'Reports',
+                icon: <FiCheckCircle className="mr-2" />,
+                content: (
+                  <div>
+                    {/* Report dashboard component */}
+                  </div>
+                ),
+              },
+            ]}
+          />
+        </div>
       </div>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Configure Permissions" className="w-full md:w-1/2">
         <div className="mb-4">

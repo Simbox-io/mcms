@@ -3,14 +3,11 @@ import React from 'react';
 import Avatar from '@/components/next-gen/Avatar';
 import Button from '@/components/next-gen/Button';
 import Tooltip from '@/components/next-gen/Tooltip';
+import { User } from '@/lib/prisma';
 
 interface MembersListProps {
-    members: {
-        id: number;
-        username: string;
-        avatar: string;
-    }[];
-    onRemoveMember: (memberId: number) => void;
+    members: User[];
+    onRemoveMember: (memberId: string) => void;
 }
 
 const MembersList: React.FC<MembersListProps> = ({ members, onRemoveMember }) => {
@@ -19,7 +16,7 @@ const MembersList: React.FC<MembersListProps> = ({ members, onRemoveMember }) =>
             {members.map((member) => (
                 <li key={member.id} className="flex items-center justify-between">
                     <div className="flex items-center">
-                        <Avatar src={member.avatar} alt={member.username} size="medium" />
+                        <Avatar src={member.avatar || ''} alt={member.username} size="medium" />
                         <span className="ml-2 font-semibold">{member.username}</span>
                     </div>
                     <Tooltip content="Remove member">

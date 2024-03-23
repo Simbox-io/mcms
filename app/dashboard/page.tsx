@@ -136,7 +136,7 @@ const DashboardPage: React.FC = () => {
   const currentPageProjects = projects.slice(startIndex, endIndex);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 h-full">
       {showAlert && (
         <Alert
           variant="info"
@@ -147,7 +147,9 @@ const DashboardPage: React.FC = () => {
       )}
       <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Welcome, {user?.firstName}!</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-        <Card header="Projects" >
+        <Card header="Projects" 
+          bodyClassName='px-0 py-0 overflow-y-scroll h-72'
+        >
           {projects?.length === 0 ? (
             <EmptyState
               title="No Projects"
@@ -162,7 +164,7 @@ const DashboardPage: React.FC = () => {
             <>
               <Table
                 columns={[
-                  { header: 'Name', accessor: 'name' },
+                  { header: ' ', accessor: 'name' },
                 ]}
                 data={currentPageProjects}
                 rowClassName="cursor-pointer"
@@ -174,7 +176,7 @@ const DashboardPage: React.FC = () => {
                   totalPages={totalPages}
                   onPageChange={handlePageChange}
                 />)}
-                <Button variant="primary" className='mt-4' onClick={handleCreateProject}>
+                <Button variant="primary" className='mx-4 my-4' onClick={handleCreateProject}>
                   Create Project
                 </Button>
               </div>
