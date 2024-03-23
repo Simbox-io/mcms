@@ -3,9 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { User } from '@/lib/prisma';
 import Dropdown from './Dropdown';
 import Button from './Button';
+import { Session } from 'next-auth';
+import { User } from '@/lib/prisma';
+
+// Update the type of data to Session<User> | null
+const { data: session, status } = useSession<Session<User>>();
 
 const Header: React.FC = () => {
   const router = useRouter();
