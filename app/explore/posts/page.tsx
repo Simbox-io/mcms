@@ -96,7 +96,7 @@ const NewsFeed: React.FC = () => {
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -50 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.2 }}
                         className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8"
                         onClick={() => handlePostClick(post)}
                     >
