@@ -52,7 +52,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const fetchSearchResults = async (query: string) => {
   setIsLoading(true);
   try {
-    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&public=true`);
+const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
     const data = await response.json();
     setSearchResults(data.results);
   } catch (error) {
