@@ -10,7 +10,7 @@ export const instance = axios.create({
 });
 
 export const fetcher = (url: string) => {
-    return instance.get(`${process.env.NEXT_PUBLIC_APP_URL}/${url}`).then((res) => {
+    return instance.get(`${url}`).then((res) => {
       if (!res.data) {
         throw Error(res.data.message);
       }

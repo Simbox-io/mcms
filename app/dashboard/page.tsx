@@ -85,17 +85,17 @@ const DashboardPage: React.FC = () => {
     }
 
     const fetchProjects = async () => {
-      const response = await instance.get(`${process.env.NEXT_PUBLIC_APP_URL}/api/projects`);
+      const response = await instance.get(`api/projects`);
       setProjects(response.data.projects);
     };
 
     const fetchNotifications = async () => {
-      const response = await instance.get(`${process.env.NEXT_PUBLIC_APP_URL}/api/notifications`);
+      const response = await instance.get(`api/notifications`);
       setNotifications(response.data.notifications);
     };
 
     const fetchActivities = async () => {
-      const response = await instance.get(`${process.env.NEXT_PUBLIC_APP_URL}/api/activities`);
+      const response = await instance.get(`api/activities`);
       setActivities(response.data.activities);
     };
 

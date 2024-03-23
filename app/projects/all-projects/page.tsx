@@ -12,8 +12,6 @@ import { FiGrid, FiList, FiFilter } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
 import Input from '../../../components/next-gen/Input';
 import CategoryFilter from '@/components/CategoryFilter';
-import Accordion from '@/components/Accordion';
-import { useAPI } from '@/lib/hooks/useAPI';
 import instance from '@/utils/api';
 
 interface Project {
@@ -46,7 +44,7 @@ const ProjectListPage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await instance.get(`api/projects`);
+      const data = await instance.get('api/projects');
       if (data?.data.projects) {
         setProjects(data.data.projects);
       }
