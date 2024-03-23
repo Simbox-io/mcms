@@ -178,33 +178,31 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <div className="border-b border-gray-200 dark:border-gray-700">
         <Tabs tabs={tabs} />
       </div>
-       <AnimatePresence>
+      <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="absolute top-20 left-0 right-0 flex justify-center"
+            className="absolute top-14 left-0 right-0 mt-2 w-full sm:w-96 rounded-md shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none sm:left-1/2 sm:transform sm:-translate-x-1/2"
           >
-            <div className="w-full max-w-2xl rounded-md shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none">
-              {isLoading ? (
-                <div className="px-4 py-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full mt-2" />
-                  <Skeleton className="h-4 w-full mt-2" />
-                </div>
-              ) : Object.values(searchResults).flat().length === 0 ? (
-                <div className="px-4 py-2">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No results found.</p>
-                </div>
-              ) : (
-                <SearchResults
-                  results={searchResults}
-                  onResultClick={handleResultClick}
-                />
-              )}
-          </div>
+            {isLoading ? (
+              <div className="px-4 py-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full mt-2" />
+                <Skeleton className="h-4 w-full mt-2" />
+              </div>
+            ) : Object.values(searchResults).flat().length === 0 ? (
+              <div className="px-4 py-2">
+                <p className="text-sm text-gray-500 dark:text-gray-400">No results found.</p>
+              </div>
+            ) : (
+              <SearchResults
+                results={searchResults}
+                onResultClick={handleResultClick}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
