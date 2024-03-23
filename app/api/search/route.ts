@@ -29,8 +29,7 @@ export async function GET(request: NextRequest) {
           AND: [
             {
               OR: [
-                { isPublic: true }, // Include public posts
-                { author: { id: userObj?.id } }, // Include posts authored by the logged-in user
+                { isPublic: true },
               ],
             },
           ],
