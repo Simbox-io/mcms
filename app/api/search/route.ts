@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
             { content: { contains: query, mode: 'insensitive' } },
             { author: { username: { contains: query, mode: 'insensitive' } } },
           ],
+          isPublic: true
         },
         select: {
           id: true,
