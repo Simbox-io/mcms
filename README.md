@@ -50,6 +50,7 @@ Join the MCMS community today and experience the future of content management fo
 - **Axios**: Promise-based HTTP client for the browser and Node.js.
 - **Node-Cache**: A simple caching module for Node.js applications.
 - **SWR**: Stale-while-revalidate, a React Hooks library for data fetching.
+- **React**: A JavaScript library for building user interfaces.
 
 ## Getting Started
 
