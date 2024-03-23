@@ -1,9 +1,8 @@
-// lib/cacheService.ts
-
 import NodeCache from 'node-cache';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { SWRResponse } from 'swr';
 import { PrismaClient } from '@prisma/client';
+import { gzip, ungzip } from 'node-gzip';
 
 interface CacheServiceInterface {
   get<T>(key: string): Promise<T | undefined>;
@@ -31,16 +30,22 @@ class CacheService implements CacheServiceInterface {
     return CacheService.instance;
   }
 
-  async get<T>(key: string): Promise<T | undefined> {
-    return this.cache.get<T>(key);
+  async set<T>(key: string, value: T, ttl?: number): Promise<boolean> {
+    const compressedValue = await gzip(JSON.stringify(value));
+    if (ttl === undefined) {
+      return this.cache.set(key, compressedValue);
+    } else {
+      return this.cache.set(key, compressedValue, ttl);
+    }
   }
 
-  async set<T>(key: string, value: T, ttl?: number): Promise<boolean> {
-    if (ttl === undefined) {
-      return this.cache.set(key, value);
-    } else {
-      return this.cache.set(key, value, ttl);
+  async get<T>(key: string): Promise<T | undefined> {
+    const compressedValue = this.cache.get<Buffer>(key);
+    if (compressedValue === undefined) {
+      return undefined;
     }
+    const decompressedValue = await ungzip(compressedValue);
+    return JSON.parse(decompressedValue.toString());
   }
 
   async delete(key: string): Promise<void> {
@@ -63,14 +68,12 @@ class CacheService implements CacheServiceInterface {
   async wrapAxios(config: AxiosRequestConfig): Promise<AxiosResponse> {
     const cacheKey = JSON.stringify(config);
     const cachedResponse = await this.get<AxiosResponse>(cacheKey);
-
     if (cachedResponse) {
       return Promise.resolve(cachedResponse);
     }
 
     const response = await axios(config);
     await this.set(cacheKey, response);
-
     return response;
   }
 
@@ -81,27 +84,23 @@ class CacheService implements CacheServiceInterface {
           return async (...args: any[]) => {
             const cacheKey = JSON.stringify({ model: prop, args });
             const cachedResult = await this.get(cacheKey);
-
             if (cachedResult !== undefined) {
               return Promise.resolve(cachedResult);
             }
 
             const result = await target[prop](...args);
             await this.set(cacheKey, result);
-
             return result;
           };
         }
         return target[prop];
       },
     });
-
     return wrapper as T;
   }
 
   async wrapSWR<T>(key: string, fetcher: () => Promise<T>): Promise<SWRResponse<T>> {
     const cachedData = await this.get<T>(key);
-
     if (cachedData !== undefined) {
       return Promise.resolve({ data: cachedData, error: undefined });
     }
