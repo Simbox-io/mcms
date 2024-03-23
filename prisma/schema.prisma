@@ -145,7 +145,6 @@ model Post {
   isFeatured  Boolean       @default(false)
   isPinned    Boolean       @default(false)
   isPublished Boolean       @default(false)
-  isPublic    Boolean       @default(true)
   publishedAt DateTime?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
