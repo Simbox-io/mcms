@@ -1,6 +1,6 @@
 import NodeCache from 'node-cache';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { SWRResponse } from 'swr';
+import { SWRResponse, MutatorCallback, MutatorOptions } from 'swr';
 import { PrismaClient } from '@prisma/client';
 import { gzip, ungzip } from 'node-gzip';
 
@@ -78,22 +78,22 @@ class CacheService implements CacheServiceInterface {
   }
 
   wrapPrisma<T extends PrismaClient>(prisma: T): T {
-    const wrapper = new Proxy(prisma, {
+    const wrapper = new Proxy<T>(prisma, {
       get: (target, prop) => {
-        if (typeof target[prop] === 'function') {
-          return async (...args: any[]) => {
+        const property = target[prop as keyof T];
+        if (typeof property === 'function') {
+          return async <R>(...args: any[]): Promise<R> => {
             const cacheKey = JSON.stringify({ model: prop, args });
-            const cachedResult = await this.get(cacheKey);
+            const cachedResult = await this.get<R>(cacheKey);
             if (cachedResult !== undefined) {
               return Promise.resolve(cachedResult);
             }
-
-            const result = await target[prop](...args);
+            const result = await (property as (...args: any[]) => Promise<R>)(...args);
             await this.set(cacheKey, result);
             return result;
           };
         }
-        return target[prop];
+        return property;
       },
     });
     return wrapper as T;
@@ -102,15 +102,95 @@ class CacheService implements CacheServiceInterface {
   async wrapSWR<T>(key: string, fetcher: () => Promise<T>): Promise<SWRResponse<T>> {
     const cachedData = await this.get<T>(key);
     if (cachedData !== undefined) {
-      return Promise.resolve({ data: cachedData, error: undefined });
+      return Promise.resolve({
+        data: cachedData,
+        error: undefined,
+        revalidate: async () => {
+          const data = await fetcher();
+          await this.set(key, data);
+          return data;
+        },
+        isValidating: false,
+        mutate: async (data?: T | Promise<T | undefined> | MutatorCallback<T>, opts?: boolean | MutatorOptions): Promise<T | undefined> => {
+          let newData: T | undefined;
+          if (typeof data === 'function') {
+            newData = await (data as MutatorCallback<T>)(cachedData);
+          } else if (data instanceof Promise) {
+            newData = await data;
+          } else {
+            newData = data;
+          }
+          if (newData !== undefined) {
+            await this.set(key, newData);
+          }
+          if (opts === true || (opts as MutatorOptions)?.revalidate !== false) {
+            newData = await fetcher();
+          }
+          return newData;
+        },
+        isLoading: false,
+      });
     }
-
     try {
       const data = await fetcher();
       await this.set(key, data);
-      return { data, error: undefined };
+      return Promise.resolve({
+        data: cachedData,
+        error: undefined,
+        revalidate: async () => {
+          const data = await fetcher();
+          await this.set(key, data);
+          return data;
+        },
+        isValidating: false,
+        mutate: async (data?: T | Promise<T | undefined> | MutatorCallback<T>, opts?: boolean | MutatorOptions): Promise<T | undefined> => {
+          let newData: T | undefined;
+          if (typeof data === 'function') {
+            newData = await (data as MutatorCallback<T>)(cachedData);
+          } else if (data instanceof Promise) {
+            newData = await data;
+          } else {
+            newData = data;
+          }
+          if (newData !== undefined) {
+            await this.set(key, newData);
+          }
+          if (opts === true || (opts as MutatorOptions)?.revalidate !== false) {
+            newData = await fetcher();
+          }
+          return newData;
+        },
+        isLoading: false,
+      });
     } catch (error) {
-      return { data: undefined, error };
+      return Promise.resolve({
+        data: undefined,
+        error,
+        revalidate: async () => {
+          const data = await fetcher();
+          await this.set(key, data);
+          return data;
+        },
+        isValidating: false,
+        mutate: async (data?: T | Promise<T | undefined> | MutatorCallback<T>, opts?: boolean | MutatorOptions): Promise<T | undefined> => {
+          let newData: T | undefined;
+          if (typeof data === 'function') {
+            newData = await (data as MutatorCallback<T>)(cachedData);
+          } else if (data instanceof Promise) {
+            newData = await data;
+          } else {
+            newData = data;
+          }
+          if (newData !== undefined) {
+            await this.set(key, newData);
+          }
+          if (opts === true || (opts as MutatorOptions)?.revalidate !== false) {
+            newData = await fetcher();
+          }
+          return newData;
+        },
+        isLoading: false,
+      });
     }
   }
 }
