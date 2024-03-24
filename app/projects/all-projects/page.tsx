@@ -32,7 +32,7 @@ interface Project {
   }[];
 }
 
-const ProjectListPage: React.FC = () => {
+  const AllProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState<'grid' | 'list'>('grid');
@@ -269,4 +269,4 @@ const ProjectListPage: React.FC = () => {
   );
 };
 
-export default ProjectListPage;
+export default AllProjectsPage;
