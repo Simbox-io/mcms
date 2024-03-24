@@ -1,294 +1,273 @@
+// app/spaces/all/page.tsx
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Accordion from '@/components/next-gen/Accordion';
-import Card from '@/components/next-gen/Card';
-import Button from '@/components/next-gen/Button';
-import Spinner from '@/components/next-gen/Spinner';
-import Avatar from '@/components/next-gen/Avatar';
-import { Activity, Space, Page } from '@/lib/prisma';
-import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import { useSession } from 'next-auth/react';
+import Card from '../../../components/next-gen/Card';
+import Button from '../../../components/next-gen/Button';
+import Spinner from '../../../components/next-gen/Spinner';
+import { formatDate } from '../../../utils/dateUtils';
+import { motion } from 'framer-motion';
+import { FiGrid, FiList } from 'react-icons/fi';
+import { IoMdAdd } from 'react-icons/io';
+import Input from '../../../components/next-gen/Input';
+import CategoryFilter from '@/components/CategoryFilter';
+import CacheService from '../../../lib/cacheService';
+import axios from 'axios';
 
-interface ActivityData {
+interface Space {
   id: number;
-  user: {
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  owner: {
+    id: number;
     username: string;
-    avatar: string;
   };
-  message: string;
-}
-
-interface QuickActionData {
-  id: number;
-  label: string;
-}
-
-interface PinnedPageData {
-  id: number;
-  title: string;
-  space: {
+  members: {
     id: number;
-    name: string;
-  };
+    username: string;
+  }[];
 }
 
-interface RecentlyVisitedData {
-  id: number;
-  title: string;
-  space: {
-    id: number;
-    name: string;
-  };
-}
-
-interface PopularSpacesData {
+interface PinnedSpace {
   id: number;
   name: string;
   description: string;
 }
 
-
-const MainPage = () => {
-  const [recentActivity, setRecentActivity] = useState<ActivityData[]>([]);
-  const [quickActions, setQuickActions] = useState<QuickActionData[]>([]);
-  const [pinnedPages, setPinnedPages] = useState<PinnedPageData[]>([]);
-  const [recentlyVisited, setRecentlyVisited] = useState<RecentlyVisitedData[]>([]);
-  const [popularSpaces, setPopularSpaces] = useState<PopularSpacesData[]>([]);
+const AllSpacesPage: React.FC = () => {
   const [spaces, setSpaces] = useState<Space[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeSpace, setActiveSpace] = useState(null);
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [filterQuery, setFilterQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [pinnedSpaces, setPinnedSpaces] = useState<PinnedSpace[]>([]);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [activityData, quickActionsData, pinnedPagesData, recentlyVisitedData, popularSpacesData] = await Promise.all([
-          // Fetch recent activity data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              user: {
-                username: 'John Doe',
-                avatar: 'https://randomuser.me/api/portrait.jpg',
-              },
-              message: 'created a new page',
-            },
-            {
-              id: 2,
-              user: {
-                username: 'Jane Doe',
-                avatar: 'https://randomuser.me/api/portrait.jpg',
-              },
-              message: 'updated the homepage',
-            },
-          ]),
-          // Fetch quick actions data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              label: 'Create Page',
-            },
-            {
-              id: 2,
-              label: 'Create Space',
-            },
-          ]),
-          // Fetch pinned pages data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              title: 'Getting Started',
-              space: {
-                id: 1,
-                name: 'Documentation',
-              },
-            },
-            {
-              id: 2,
-              title: 'Homepage',
-              space: {
-                id: 2,
-                name: 'Company',
-              },
-            },
-          ]),
-          // Fetch recently visited data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              title: 'Getting Started',
-              space: {
-                id: 1,
-                name: 'Documentation',
-              },
-            },
-            {
-              id: 2,
-              title: 'Homepage',
-              space: {
-                id: 2,
-                name: 'Company',
-              },
-            },
-          ]),
-          // Fetch popular spaces data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              name: 'Documentation',
-              description: 'Learn how to use our product',
-            },
-            {
-              id: 2,
-              name: 'Company',
-              description: 'Company-wide information',
-            },
-          ]),
-        ]);
+        const cacheKey = `/api/spaces`;
+        const cachedData = await CacheService.get<{ spaces: Space[] }>(cacheKey);
 
-        setRecentActivity(activityData);
-        setQuickActions(quickActionsData);
-        setPinnedPages(pinnedPagesData);
-        setRecentlyVisited(recentlyVisitedData);
-        setPopularSpaces(popularSpacesData);
-        setLoading(false);
+        if (cachedData) {
+          setSpaces(cachedData.spaces);
+        } else {
+          const response = await axios.get(`/api/spaces`);
+          if (response.status === 200) {
+            const data = response.data;
+            setSpaces(data.spaces);
+            await CacheService.set(cacheKey, data);
+          } else {
+            console.error('Error fetching spaces:', response.statusText);
+          }
+        }
+
+        // Fetch pinned spaces data
+        const pinnedSpacesData = await Promise.resolve([
+          {
+            id: 1,
+            name: 'Documentation',
+            description: 'Learn how to use our product',
+          },
+          {
+            id: 2,
+            name: 'Company',
+            description: 'Company-wide information',
+          },
+        ]);
+        setPinnedSpaces(pinnedSpacesData);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setLoading(false);
+        console.error('Error fetching spaces:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  const handleQuickAction = (action: any) => {
-    // Handle quick action functionality
-    console.log('Quick action clicked:', action);
+  const filterSpaces = (spaces: Space[], filterQuery: string) => {
+    return spaces.filter(
+      (space: Space) =>
+        space.name.toLowerCase().includes(filterQuery.toLowerCase()) ||
+        space.description.toLowerCase().includes(filterQuery.toLowerCase())
+    );
   };
 
-  const handlePageClick = (page: any) => {
-    router.push(`/pages/${page.id}`);
+  const filteredSpaces = React.useMemo(() => {
+    return filterSpaces(spaces, filterQuery);
+  }, [spaces, filterQuery]);
+
+  const handleCreateSpace = () => {
+    router.push('/spaces/create');
   };
 
-  const handleSpaceClick = (space: any) => {
-    setActiveSpace(space.id);
+  const handleSelectSpace = (space: Space) => {
     router.push(`/spaces/${space.id}`);
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Spinner size="large" />
-      </div>
-    );
+  const handleChangeCategory = (category: string) => {
+    console.log(category);
+  };
+
+  const toggleView = () => {
+    setView(view === 'grid' ? 'list' : 'grid');
+  };
+
+  if (status === 'unauthenticated') {
+    router.push('/login');
+    return null;
   }
 
   return (
-    <div className='flex'>
-      <div className="container mx-auto px-4 py-4">
-        <h2 className="text-2xl font-bold mt-8 mb-4"></h2>
-        <div className="flex flex-row space-x-4 mb-8">
-          {quickActions.map((action) => (
-            <Button
-              key={action.id}
-              variant="primary"
-              className="w-full"
-              onClick={() => handleQuickAction(action)}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">All Spaces</h2>
+        <div className="flex items-center space-x-4">
+          <Button variant="primary" onClick={handleCreateSpace}>
+            <IoMdAdd />
+          </Button>
+          <Button variant="secondary" onClick={toggleView}>
+            {view === 'grid' ? <FiList /> : <FiGrid />}
+          </Button>
+        </div>
+      </div>
+      <div className="mb-8">
+        <div className="flex justify-between">
+          <div className="flex-grow mr-4">
+            <Input
+              type="text"
+              placeholder="Filter spaces..."
+              value={filterQuery}
+              onChange={setFilterQuery}
+              className=""
+            />
+          </div>
+          <CategoryFilter onSelect={handleChangeCategory} options={[{ label: 'test' }, { label: 'test2' }]} className='' />
+        </div>
+      </div>
+      <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Pinned Spaces</h2>
+      {pinnedSpaces.length === 0 ? (
+        <p>No pinned spaces found.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+          {pinnedSpaces.map((space) => (
+            <motion.div
+              key={space.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleSelectSpace(space as Space)}
             >
-              {action.label}
-            </Button>
+              <Card className="h-72">
+                <div className="p-4">
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                    {space.name}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    {space.description.slice(0, 100)}...
+                  </p>
+                </div>
+              </Card>
+            </motion.div>
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-          <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold mb-4">Recent Activity</h2>
-            {recentActivity.length === 0 ? (
-              <p>No recent activity found.</p>
-            ) : (
-              <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <Card key={activity.id}>
-                    <div className="flex items-center space-x-4">
-                      <Avatar src={activity.user.avatar} alt={activity.user.username} />
-                      <div>
-                        <p className="font-bold">{activity.user.username}</p>
-                        <p className="text-sm text-gray-500">{activity.message}</p>
+      )}
+      {isLoading ? (
+        <div className="flex justify-center items-center mt-8">
+          <Spinner size="large" />
+        </div>
+      ) : (
+        <AnimatePresence mode="wait">
+          {view === 'grid' ? (
+            <motion.div
+              key="grid"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {filteredSpaces.map((space) => (
+                <motion.div
+                  key={space.id}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleSelectSpace(space)}
+                >
+                  <Card className="h-72">
+                    <div className="p-4">
+                      <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                        {space.name}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        {space.description.slice(0, 100)}...
+                      </p>
+                      <div className="flex justify-between items-center mt-auto">
+                        <p className="text-gray-600 dark:text-gray-400">
+                          Created by {space.owner.username}
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {formatDate(space.createdAt)}
+                        </p>
                       </div>
                     </div>
                   </Card>
-                ))}
-              </div>
-            )}
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Pinned Pages</h2>
-            {pinnedPages.length === 0 ? (
-              <p>No pinned pages found.</p>
-            ) : (
-              <div className="space-y-4">
-                {pinnedPages.map((page) => (
-                  <Card key={page.id} onClick={() => handlePageClick(page)}>
-                    <h3 className="text-xl font-bold">{page.title}</h3>
-                    <p className="text-gray-500">{page.space.name}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >
+              {filteredSpaces.map((space) => (
+                <motion.div
+                  key={space.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleSelectSpace(space)}
+                >
+                  <Card>
+                    <div className="flex items-center p-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                          {space.name}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-4">
+                          {space.description}
+                        </p>
+                        <div className="flex items-center space-x-4">
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Created by {space.owner.username}
+                          </p>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {formatDate(space.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </Card>
-                ))}
-              </div>
-            )}
-
-            <h2 className="text-2xl font-bold mt-8 mb-4">Recently Visited</h2>
-            {recentlyVisited.length === 0 ? (
-              <p>No recently visited pages found.</p>
-            ) : (
-              <div className="space-y-4">
-                {recentlyVisited.map((page) => (
-                  <Card key={page.id} onClick={() => handlePageClick(page)}>
-                    <h3 className="text-xl font-bold">{page.title}</h3>
-                    <p className="text-gray-500">{page.space.name}</p>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-4">What&apos;s Happening</h2>
-          <Accordion
-            items={[
-              {
-                title: 'Popular Spaces',
-                content: (
-                  <div className="space-y-4">
-                    {popularSpaces.map((space) => (
-                      <Card key={space.id} onClick={() => handleSpaceClick(space)}>
-                        <h3 className="text-xl font-bold">{space.name}</h3>
-                        <p className="text-gray-500">{space.description}</p>
-                      </Card>
-                    ))}
-                  </div>
-                ),
-              },
-              {
-                title: 'Announcements',
-                content: (
-                  <div className="space-y-4">
-                    {/* Add announcement content */}
-                    <p>No announcements available.</p>
-                  </div>
-                ),
-              },
-            ]}
-          />
-        </div>
-      </div>
-    </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
+      {!isLoading && filteredSpaces.length === 0 && (
+        <p className="text-center text-gray-600 dark:text-gray-400 mt-8">No spaces found.</p>
+      )}
+    </motion.div>
   );
 };
 
-export default MainPage;
+export default AllSpacesPage;
