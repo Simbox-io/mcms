@@ -7,7 +7,7 @@ import Card from '../../../components/next-gen/Card';
 import Button from '../../../components/next-gen/Button';
 import Spinner from '../../../components/next-gen/Spinner';
 import { formatDate } from '../../../utils/dateUtils';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FiGrid, FiList } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
 import Input from '../../../components/next-gen/Input';
