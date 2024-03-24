@@ -6,7 +6,9 @@ import { useSession } from 'next-auth/react';
 import AllProjectsPage from './all-projects/page';
 import CreateProjectPage from './create/page';
 import ProjectDetailsPage from './[id]/page';
-
+import TrendingProjectsPage from './trending/page';
+import RecentProjectsPage from './recent/page';
+     
 const ProjectsPage: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -27,6 +29,8 @@ const ProjectsPage: React.FC = () => {
       {/* You can use Next.js' nested routing here */}
       {/* For example: */}
       <AllProjectsPage />
+      <TrendingProjectsPage />
+      <RecentProjectsPage />
       {/* <CreateProjectPage /> */}
       {/* <ProjectDetailsPage /> */}
     </div>
