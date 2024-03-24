@@ -117,7 +117,7 @@ const AllSpacesPage: React.FC = () => {
         ) : (
           <div className="space-y-4">
             {pinnedSpaces.map((space) => (
-              <Card key={space.id} onClick={() => handleSpaceClick(space)}>
+             <Card key={space.id} onClick={() => handleSpaceClick(space)} className="flex justify-center items-center h-screen">
                 <h3 className="text-xl font-bold">{space.name}</h3>
                 <p className="text-gray-500">{space.description}</p>
               </Card>
@@ -126,6 +126,7 @@ const AllSpacesPage: React.FC = () => {
         )}
 
         <div className="mt-12">
+          
           <h2 className="text-2xl font-bold mb-4">What's Happening</h2>
           <Accordion
             items={[
