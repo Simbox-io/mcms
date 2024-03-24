@@ -12,6 +12,8 @@ import { FiGrid, FiList, FiFilter } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
 import Input from '../../../components/next-gen/Input';
 import CategoryFilter from '@/components/CategoryFilter';
+import CacheService from '../../../lib/cacheService';
+import axios from 'axios';
 import instance from '@/utils/api';
 
 interface Project {
@@ -40,46 +42,31 @@ const ProjectListPage: React.FC = () => {
   const { data: session, status } = useSession();
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-
-
   useEffect(() => {
     const fetchData = async () => {
-      const data = await instance.get('api/projects');
-      if (data?.data.projects) {
-        setProjects(data.data.projects);
-      }
-    }
-    fetchData();
-  }, []);
+      try {
+        const cacheKey = `/api/projects?page=${currentPage}`;
+        const cachedData = await CacheService.get<{ projects: Project[] }>(cacheKey);
 
-  /*const fetchProjects = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/projects?page=${currentPage}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (currentPage === 1) {
-          setProjects(data.projects);
-          setFilteredProjects(data.projects);
+        if (cachedData) {
+          setProjects(cachedData.projects);
+        } else {
+          const response = await axios.get(`/api/projects?page=${currentPage}`);
+          if (response.status === 200) {
+            const data = response.data;
+            setProjects(data.projects);
+            await CacheService.set(cacheKey, data);
+          } else {
+            console.error('Error fetching projects:', response.statusText);
+          }
         }
-        else {
-          setProjects((prevProjects) => [...prevProjects, ...data.projects]);
-          setFilteredProjects((prevProjects) => [...prevProjects, ...data.projects]);
-          setHasMore(data.projects.length > 0);
-        }
-      } else {
-        console.error('Error fetching projects:', response.statusText);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
       }
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    };
+    fetchData();
   }, [currentPage]);
 
-  useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
-*/
   const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
 
   const filterProjects = (projects: Project[], filterQuery: string) => {
@@ -166,7 +153,6 @@ const ProjectListPage: React.FC = () => {
         <div className="flex justify-between">
           <div className="flex-grow mr-4 ">
             <Input
-
               type="text"
               placeholder="Filter projects..."
               value={filterQuery}
