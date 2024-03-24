@@ -10,19 +10,20 @@ import Button from '../../components/Button';
 import Pagination from '../../components/Pagination';
 import Spinner from '../../components/Spinner';
 import { formatDate } from '../../utils/dateUtils';
+import CacheService from '../../lib/cacheService';
 
 interface Project {
-  id: number;
+  id: string;
   name: string;
   description: string;
   createdAt: string;
   updatedAt: string;
   owner: {
-    id: number;
+    id: string;
     username: string;
   };
   members: {
-    id: number;
+    id: string;
     username: string;
   }[];
 }
@@ -38,14 +39,26 @@ const ProjectListPage: React.FC = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch(`/api/projects?page=${currentPage}`);
+        const cacheKey = `/api/projects?page=${currentPage}`;
+        const cachedData = await CacheService.get<{ projects: Project[]; totalPages: number }>(cacheKey);
 
-        if (response.ok) {
-          const data = await response.json();
-          setProjects(data.projects);
-          setTotalPages(data.totalPages);
+        if (cachedData) {
+          setProjects(cachedData.projects);
+          setTotalPages(cachedData.totalPages);
         } else {
-          console.error('Error fetching projects:', response.statusText);
+          const response = await CacheService.wrapAxios({
+            url: `/api/projects?page=${currentPage}`,
+            method: 'GET',
+          });
+
+          if (response.status === 200) {
+            const data = response.data;
+            setProjects(data.projects);
+            setTotalPages(data.totalPages);
+            await CacheService.set(cacheKey, data);
+          } else {
+            console.error('Error fetching projects:', response.statusText);
+          }
         }
       } catch (error) {
         console.error('Error fetching projects:', error);
