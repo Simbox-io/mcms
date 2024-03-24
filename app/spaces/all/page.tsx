@@ -116,11 +116,10 @@ const AllSpacesPage: React.FC = () => {
           <p>No pinned spaces found.</p>
         ) : (
           <div className="space-y-4">
-            {pinnedSpaces.map((space) => (
-             <Card key={space.id} onClick={() => handleSpaceClick(space)} className="flex justify-center items-center h-screen">
-                <h3 className="text-xl font-bold">{space.name}</h3>
-                <p className="text-gray-500">{space.description}</p>
-              </Card>
+            {pinnedSpaces.map((space) =><Card key={space.id} onClick={() => handleSpaceClick(space)} className="flex justify-center items-center h-screen">
+  <h3 className="text-xl font-bold">{space.name.replace("'", "&apos;")}</h3>
+  <p className="text-gray-500">{space.description.replace("'", "&apos;")}</p>
+</Card>
             ))}
           </div>
         )}
