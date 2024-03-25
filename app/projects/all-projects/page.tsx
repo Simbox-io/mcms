@@ -14,7 +14,6 @@ import Input from '../../../components/next-gen/Input';
 import CategoryFilter from '@/components/CategoryFilter';
 import CacheService from '../../../lib/cacheService';
 import axios from 'axios';
-import instance from '@/utils/api';
 
 interface Project {
   id: number;
@@ -135,7 +134,7 @@ interface Project {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.3 }}
       className="container mx-auto px-4 py-8"
     >
       <div className="flex justify-between items-center mb-8">
@@ -170,7 +169,7 @@ interface Project {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {filterProjects(projects, filterQuery).map((project) => (
@@ -210,7 +209,7 @@ interface Project {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             className="space-y-4"
           >
             {filteredProjects.map((project) => (

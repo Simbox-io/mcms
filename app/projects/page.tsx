@@ -4,8 +4,6 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import AllProjectsPage from './all-projects/page';
-import CreateProjectPage from './create/page';
-import ProjectDetailsPage from './[id]/page';
 import TrendingProjectsPage from './trending/page';
 import RecentProjectsPage from './recent/page';
      

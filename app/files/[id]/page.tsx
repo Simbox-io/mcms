@@ -9,11 +9,14 @@ import { useRouter } from 'next/navigation';
 import CommentSection from '@/components/CommentSection';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import instance from '@/utils/api';
+import Spinner from '@/components/base/Spinner';
+import axios from 'axios';
 
 const FileDetailPage: React.FC = () => {
   const { id } = useParams();
   const [file, setFile] = useState<File | null>(null);
   const [viewed, setViewed] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
   const user = session?.user as User | undefined;
   const router = useRouter();
@@ -24,12 +27,14 @@ const FileDetailPage: React.FC = () => {
         const response = await instance.get(`/api/files/${id}`);
         setFile(response.data);
         if (!viewed) {
-          await instance.put(`/api/files/${id}`);
+          await instance.put(`/api/files/${id}/view`);
           setViewed(true);
         }
+        
       } catch (error) {
         console.error('Error fetching file:', error);
       }
+      setLoading(false);
     };
     fetchFile();
   }, [id]);
@@ -49,8 +54,12 @@ const FileDetailPage: React.FC = () => {
     }
   };
 
+  if(loading) {
+    return <div className='flex h-full w-full justify-center align-middle'><Spinner /></div>;
+  }
+
   if (!file) {
-    return <div>Loading...</div>;
+    return <div>File not found</div>;
   }
 
   return (
