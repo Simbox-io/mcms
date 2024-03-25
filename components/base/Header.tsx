@@ -9,6 +9,7 @@ import Button from './Button';
 import SearchBar from "@/components/base/SearchBar";
 import Skeleton from './Skeleton';
 import useSWR from 'swr';
+import instance from '@/utils/api';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -23,8 +24,8 @@ const Header: React.FC = () => {
   const user = session?.user as User;
 
   const fetcher = async (url: string) => {
-    const res = await fetch(url);
-    const data = await res.json();
+    const res = await instance.get(url);
+    const data = await res.data;
     return data;
   };
 

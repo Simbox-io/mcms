@@ -34,13 +34,19 @@ const ProjectDetailPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState<'success' | 'error' | 'warning' | 'info'>('info');
   const [activeTab, setActiveTab] = useState('files');
+  const [viewed, setIsViewed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   const fetchProject = async () => {
     try {
       const response = await instance.get(`/api/projects/${id}`);
       setProject(response.data);
-      console.log(await response.data);
+      if(viewed === false) {
+        const viewedResponse = await instance.put(`/api/projects/${id}/view`);
+        setIsViewed(true);
+      }
+      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching project:', error);
     }

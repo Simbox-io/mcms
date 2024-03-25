@@ -143,6 +143,7 @@ const DashboardPage: React.FC = () => {
           onClose={() => setShowAlert(false)}
           className="mb-8"
           message='Welcome to your dashboard! Here you can manage your projects, view notifications, and track activity.'
+          autoDismissTimeout={10000}
         />
       )}
       <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Welcome, {user?.firstName}!</h1>

@@ -24,7 +24,6 @@ const ProjectsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-semibold text-gray-800 dark:text-white mb-8">Projects</h1>
       {/* Render the child components */}
       {/* You can use Next.js' nested routing here */}
       {/* For example: */}
