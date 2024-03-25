@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import instance from '@/utils/api';
 import MembersList from '@/components/MembersList';
+import Spinner from '@/components/base/Spinner';
 
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -169,6 +170,10 @@ const ProjectDetailPage: React.FC = () => {
     setNewMembers(users);
   };
 
+  if(isLoading) {
+    return <Spinner/>
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -187,6 +192,9 @@ const ProjectDetailPage: React.FC = () => {
               <p className="text-gray-500 dark:text-gray-400 text-sm">
                 {formatDate(project?.createdAt?.toString())}
               </p>
+            </div>
+            <div>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Views: {project?.views}</p>
             </div>
           </div>
           <div className="flex items-center">

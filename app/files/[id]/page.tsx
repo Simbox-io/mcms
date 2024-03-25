@@ -13,6 +13,7 @@ import instance from '@/utils/api';
 const FileDetailPage: React.FC = () => {
   const { id } = useParams();
   const [file, setFile] = useState<File | null>(null);
+  const [viewed, setViewed] = useState(false);
   const { data: session } = useSession();
   const user = session?.user as User | undefined;
   const router = useRouter();
@@ -21,7 +22,11 @@ const FileDetailPage: React.FC = () => {
     const fetchFile = async () => {
       try {
         const response = await instance.get(`/api/files/${id}`);
-          setFile(response.data);
+        setFile(response.data);
+        if (!viewed) {
+          await instance.put(`/api/files/${id}`);
+          setViewed(true);
+        }
       } catch (error) {
         console.error('Error fetching file:', error);
       }
@@ -51,7 +56,7 @@ const FileDetailPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumbs items={[{label: 'All Files', href:'/files/all-files'}, {label: file.name, href:''}]} className='mb-4'/>
-      <Card className='mb-8'>
+      <Card className='mb-8' footer={<p>Views: {file.views}</p>}>
         <h1 className="text-3xl font-semibold mb-4 text-gray-800 dark:text-white">{file.name}</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
           Uploaded on {new Date(file.createdAt).toLocaleDateString()}
