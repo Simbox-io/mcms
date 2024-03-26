@@ -11,7 +11,7 @@ import Pagination from '../../../components/Pagination';
 import Spinner from '../../../components/Spinner';
 import { formatDate } from '../../../utils/dateUtils';
 import { getImageUrl } from '../../../utils/imageUtils';
-import { FiGrid, FiList, FiFilter } from 'react-icons/fi';
+import { FiGrid, FiList, FiFilter, FiSidebar } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
 import Input from '../../../components/Input';
 import CategoryFilter from '../../../components/CategoryFilter';
@@ -93,7 +93,7 @@ const FileListPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [view, setView] = useState<'grid' | 'list' | 'tree'>('grid');
   const [filterQuery, setFilterQuery] = useState('');
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -128,7 +128,13 @@ const FileListPage: React.FC = () => {
   };
 
   const toggleView = () => {
-    setView(view === 'grid' ? 'list' : 'grid');
+    if (view === 'grid') {
+      setView('list');
+    } else if (view === 'list') {
+      setView('tree');
+    } else {
+      setView('grid');
+    }
   };
 
   const handleChangeCategory = (category: string) => {
@@ -153,7 +159,7 @@ const FileListPage: React.FC = () => {
             <IoMdAdd />
           </Button>
           <Button variant="secondary" onClick={toggleView}>
-            {view === 'grid' ? <FiList /> : <FiGrid />}
+            {view === 'grid' ? <FiList /> : view === 'list' ? <FiSidebar /> : <FiGrid />}
           </Button>
         </div>
       </div>
@@ -214,7 +220,7 @@ const FileListPage: React.FC = () => {
                   )}
                 </div>
               </>
-            ) : (
+            ) : view === 'list' ? (
               <div className="flex flex-col space-y-4">
                 {files.map((file) => (
                   <Card key={file.id}>
@@ -233,6 +239,48 @@ const FileListPage: React.FC = () => {
                   onPageChange={handlePageChange}
                 />
               </div>
+            ) : (
+              <div className="flex">
+                <div className="w-1/4">
+                  <Sidebar
+                    categories={[]} // Replace with actual categories data
+                    onCategoryClick={() => {}} // Handle category click
+                  />
+                </div>
+                <div className="w-3/4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {files.map((file) => (
+                      <Card key={file.id}>
+                        <div className="flex items-center justify-center h-48 bg-gray-100 dark:bg-gray-800">
+                          <img
+                            src={getImageUrl(file.thumbnail)}
+                            alt={file.name}
+                            className="max-w-full max-h-full"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                            {file.name}
+                          </h2>
+                          <p className="text-gray-600 dark:text-gray-400 mb-2">
+                            Size: {formatFileSize(file.size)}
+                          </p>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Uploaded on {formatDate(file.createdAt)}
+                          </p>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                  <div className="mt-8">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
+                </div>
+              </div>
             )}
           </AnimatePresence>
         </>
@@ -240,7 +288,6 @@ const FileListPage: React.FC = () => {
     </div>
   );
 };
-
 
 // Helper function to format file size
 function formatFileSize(size: number): string {
@@ -255,4 +302,5 @@ function formatFileSize(size: number): string {
 
   return `${fileSize?.toFixed(2)} ${units[unitIndex]}`;
 }
+
 export default FileListPage;
