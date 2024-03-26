@@ -5,36 +5,110 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '../../../components/next-gen/Card';
-import Button from '../../../components/next-gen/Button';
-import Pagination from '../../../components/next-gen/Pagination';
-import Spinner from '../../../components/next-gen/Spinner';
+import Card from '../../../components/Card';
+import Button from '../../../components/Button';
+import Pagination from '../../../components/Pagination';
+import Spinner from '../../../components/Spinner';
 import { formatDate } from '../../../utils/dateUtils';
-import FileCard from '@/components/FileCard';
-import { File } from '@/lib/prisma';
+import { getImageUrl } from '../../../utils/imageUtils';
 import { FiGrid, FiList, FiFilter } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
-import Input from '../../../components/next-gen/Input';
-import CategoryFilter from '@/components/CategoryFilter';
+import Input from '../../../components/Input';
+import CategoryFilter from '../../../components/CategoryFilter';
 import { AnimatePresence } from 'framer-motion';
-import instance from '@/utils/api';
+
+interface File {
+  id: number;
+  name: string;
+  url: string;
+  thumbnail: string;
+  size: number;
+  createdAt: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  subcategories: Category[];
+}
+
+const Sidebar: React.FC<{
+  categories: Category[];
+  onCategoryClick: (category: Category) => void;
+}> = ({ categories, onCategoryClick }) => {
+  return (
+    <div className="sidebar">
+      {categories.map((category) => (
+        <div key={category.id}>
+          <div
+            className="category"
+            onClick={() => onCategoryClick(category)}
+          >
+            {category.name}
+          </div>
+          {category.subcategories.map((subcategory) => (
+            <div
+              key={subcategory.id}
+              className="subcategory"
+              onClick={() => onCategoryClick(subcategory)}
+            >
+              {subcategory.name}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const TableView: React.FC<{ files: File[] }> = ({ files }) => {
+  return (
+    <table className="table-view">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Size</th>
+          <th>Date Added</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {files.map((file) => (
+          <tr key={file.id}>
+            <td>{file.name}</td>
+            <td>{formatFileSize(file.size)}</td>
+            <td>{formatDate(file.createdAt)}</td>
+            <td>
+              <button className="download-button">Download</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
 
 const FileListPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [filterQuery, setFilterQuery] = useState('');
   const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [filterQuery, setFilterQuery] = useState('');
   const router = useRouter();
   const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const response = await instance.get(`/api/files?page=${currentPage}`);
-          setFiles(response.data.files);
-          setTotalPages(response.data.totalPages);
+        const response = await fetch(`/api/files?page=${currentPage}`);
+        if (response.ok) {
+          const data = await response.json();
+          setFiles(data.files);
+          setTotalPages(data.totalPages);
+        } else {
+          console.error('Error fetching files:', response.statusText);
+        }
       } catch (error) {
         console.error('Error fetching files:', error);
       } finally {
@@ -45,14 +119,6 @@ const FileListPage: React.FC = () => {
     fetchFiles();
   }, [currentPage]);
 
-  const toggleView = () => {
-    setView(view === 'grid' ? 'list' : 'grid');
-  };
-
-  const handleChangeCategory = (category: string) => {
-    console.log(category);
-  };
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -61,8 +127,12 @@ const FileListPage: React.FC = () => {
     router.push('/files/upload');
   };
 
-  const handleOpenFile = (file: File) => {
-    router.push(`/files/${file.id}`);
+  const toggleView = () => {
+    setView(view === 'grid' ? 'list' : 'grid');
+  };
+
+  const handleChangeCategory = (category: string) => {
+    console.log(category);
   };
 
   if (status === 'loading') {
@@ -107,53 +177,82 @@ const FileListPage: React.FC = () => {
         </div>
       ) : (
         <>
-        <AnimatePresence mode="wait">
-        {view === 'grid' ? (
-          <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {files.map((file) => (
-              <FileCard key={file.id} file={file} onClick={() => handleOpenFile(file)} />
-            ))}
-          </div>
-          <div className="mt-8">
-            {totalPages > 1 && (<Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />)}
-          </div>
-          </>
-        ) : (
-          <div className="flex flex-col space-y-4">
-            {files.map((file) => (
-              <Card key={file.id}>
-                <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{file.name}</h2>
-                  <div className="flex flex-col items-end space-x-2">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Uploaded {formatDate(file.createdAt.toString())}
-                  </p>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    by {file.uploadedBy.username}
-                  </div>
-                  </div>
+          <AnimatePresence mode="wait">
+            {view === 'grid' ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {files.map((file) => (
+                    <Card key={file.id}>
+                      <div className="flex items-center justify-center h-48 bg-gray-100 dark:bg-gray-800">
+                        <img
+                          src={getImageUrl(file.thumbnail)}
+                          alt={file.name}
+                          className="max-w-full max-h-full"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                          {file.name}
+                        </h2>
+                        <p className="text-gray-600 dark:text-gray-400 mb-2">
+                          Size: {formatFileSize(file.size)}
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          Uploaded on {formatDate(file.createdAt)}
+                        </p>
+                      </div>
+                    </Card>
+                  ))}
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{file.description}</p>
-              </Card>
-            ))}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          </div>
-        )}
-        </AnimatePresence>
+                <div className="mt-8">
+                  {totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col space-y-4">
+                {files.map((file) => (
+                  <Card key={file.id}>
+                    <div className="flex justify-between items-center mb-2">
+                      <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{file.name}</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Uploaded {formatDate(file.createdAt)}
+                      </p>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{formatFileSize(file.size)}</p>
+                  </Card>
+                ))}
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </AnimatePresence>
         </>
       )}
     </div>
-      
   );
 };
 
+
+// Helper function to format file size
+function formatFileSize(size: number): string {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let unitIndex = 0;
+  let fileSize = size;
+
+  while (fileSize >= 1024 && unitIndex < units.length - 1) {
+    fileSize /= 1024;
+    unitIndex++;
+  }
+
+  return `${fileSize?.toFixed(2)} ${units[unitIndex]}`;
+}
 export default FileListPage;
