@@ -31,6 +31,15 @@ interface Category {
   name: string;
   subcategories: Category[];
 }
+interface InputProps {
+  type: string;
+  placeholder: string;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  className: string;
+  name?: string;
+  id?: string;
+}
 
 const Sidebar: React.FC<{
   categories: Category[];
