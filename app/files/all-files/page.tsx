@@ -176,14 +176,15 @@ const FileListPage: React.FC = () => {
         <div className="flex justify-between">
           <div className="flex-grow mr-4 ">
             <Input
-  type="text"
-  name="filterQuery"
-  id="filterQuery"
-  placeholder="Filter projects..."
-  value={filterQuery}
-  onChange={(e) => setFilterQuery(e.target.value)}
-  className=""
-/>
+            type="text"
+            name="filterQuery"
+            id="filterQuery"
+            placeholder="Filter projects..."
+            value={filterQuery}
+            onChange={(e) => setFilterQuery(e.target.value)}
+            className=""
+          />
+        </div>          
           <CategoryFilter onSelect={handleChangeCategory} options={[{ label: 'test' }, { label: 'test2' }]} className=''/>
         </div>
       </div>
