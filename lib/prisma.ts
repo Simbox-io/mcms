@@ -670,6 +670,8 @@ export type AdminSettings = {
   sesAccessKey: string;
   sesSecretAccessKey: string;
   emailFrom: string;
+  databaseType: string;
+  databaseUrl: string;
 };
 
 export type Plugin = {

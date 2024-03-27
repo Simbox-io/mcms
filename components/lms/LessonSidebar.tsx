@@ -1,8 +1,10 @@
 // components/LessonSidebar.tsx
-import { Lesson } from '@/lib/prisma';
+import { Course, Lesson } from '@/lib/prisma';
 
 type LessonSidebarProps = {
-  lesson: Lesson;
+  lesson: Lesson & {
+    course: Course;
+  };
 };
 
 export default function LessonSidebar({ lesson }: LessonSidebarProps) {
