@@ -170,6 +170,24 @@ const Header: React.FC = () => {
                   News
                 </Button>
                 <Dropdown
+                  label="Courses"
+                  options={['Dashboard', 'All Courses', 'Featured']}
+                  value=""
+                  onChange={(value) => {
+                    if (value === 'Dashboard') {
+                      router.push('/courses/dashboard');
+                    } else if (value === 'All Courses') {
+                      router.push(`/courses`);
+                    } else if (value === 'Featured') {
+                      router.push(`/courses/featured`);
+                    }
+                    setIsMenuOpen(false);
+                  }}
+                  className="block w-full"
+                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
+                  menuClassName="mt-2 z-10"
+                />
+                <Dropdown
                   label="Projects"
                   options={['All Projects', 'Trending', 'Recent', 'My Project 1']}
                   value=""
@@ -385,13 +403,40 @@ const Header: React.FC = () => {
           <div className="flex flex-col px-2 pt-2 pb-3 space-y-1 sm:px-3 mr-2">
             <Link href="/explore">
               <Button
-              variant="text"
+                variant="text"
                 className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 block text-left px-3 py-2 rounded-md text-base font-medium text-left"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Explore
               </Button>
             </Link>
+            <Link href="/explore/posts">
+              <Button
+                variant="text"
+                className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 block text-left px-3 py-2 rounded-md text-base font-medium text-left"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                News
+              </Button>
+            </Link>
+            <Dropdown
+              label="Courses"
+              options={['Dashboard', 'Courses', 'Featured']}
+              value=""
+              onChange={(value) => {
+                if (value === 'Dashboard') {
+                  router.push('/courses/dashboard');
+                } else if (value === 'Courses') {
+                  router.push(`/courses`);
+                } else if (value === 'Featured') {
+                  router.push(`/courses/featured`);
+                }
+                setIsMenuOpen(false);
+              }}
+              className="block w-full"
+              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
+              menuClassName="mt-2 z-10"
+            />
             <Dropdown
               label="Files"
               options={['All Files', 'Shared with Me', 'Recent']}

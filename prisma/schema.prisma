@@ -11,39 +11,45 @@ generator client {
 }
 
 model User {
-  id                    String            @id @default(uuid())
-  username              String            @unique
-  email                 String            @unique
+  id                    String                 @id @default(uuid())
+  username              String                 @unique
+  email                 String                 @unique
   passwordHash          String
   firstName             String?
   lastName              String?
   avatar                String?
   bio                   String?
-  role                  Role              @default(USER)
+  role                  Role                   @default(USER)
   posts                 Post[]
   comments              Comment[]
   files                 File[]
-  ownedProjects         Project[]         @relation("OwnedProjects")
-  collaboratedProjects  Project[]         @relation("CollaboratedProjects")
-  followedBy            User[]            @relation("UserFollows")
-  following             User[]            @relation("UserFollows")
+  ownedProjects         Project[]              @relation("OwnedProjects")
+  collaboratedProjects  Project[]              @relation("CollaboratedProjects")
+  followedBy            User[]                 @relation("UserFollows")
+  following             User[]                 @relation("UserFollows")
   bookmarks             Bookmark[]
   commentReactions      CommentReaction[]
   fileReactions         FileReaction[]
   notifications         Notification[]
   activities            Activity[]
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
+  studentRole           SchoolRole             @default(STUDENT)
+  courses               Course[]
+  enrollments           Enrollment[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
   profile               Profile?
   settings              UserSettings?
   badges                Badge[]
-  points                Int               @default(0)
+  points                Int                    @default(0)
   spaces                Space[]
-  collaboratedSpaces    Space[]           @relation("CollaboratedSpaces")
+  collaboratedSpaces    Space[]                @relation("CollaboratedSpaces")
   viewedSpaces          SpaceView[]
   tutorials             Tutorial[]
-  collaboratedTutorials Tutorial[]        @relation("CollaboratedTutorials")
+  collaboratedTutorials Tutorial[]             @relation("CollaboratedTutorials")
   quillPosts            QuillPost[]
+  Progress              Progress[]
+  AssignmentSubmission  AssignmentSubmission[]
+  QuizSubmission        QuizSubmission[]
 }
 
 model UserSettings {
@@ -468,6 +474,8 @@ model AdminSettings {
   sesAccessKey             String?
   sesSecretAccessKey       String?
   emailFrom                String?
+  databaseType             String
+  databaseUrl              String
 }
 
 model Tag {
@@ -479,6 +487,8 @@ model Tag {
   tutorials Tutorial[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  Course    Course?    @relation(fields: [courseId], references: [id])
+  courseId  String?
 }
 
 model Badge {
@@ -683,6 +693,7 @@ model Notification {
   user      User                  @relation(fields: [userId], references: [id])
   userId    String
   message   String
+  content   String?
   link      String?
   isRead    Boolean               @default(false)
   isHidden  Boolean               @default(false)
@@ -744,6 +755,149 @@ model Bookmark {
   tutorial   Tutorial? @relation(fields: [tutorialId], references: [id])
   tutorialId String?
   createdAt  DateTime  @default(now())
+}
+
+model Course {
+  id            String           @id @default(uuid())
+  title         String
+  description   String
+  image         String
+  instructor    User             @relation(fields: [instructorId], references: [id])
+  instructorId  String
+  enrollments   Enrollment[]
+  lessons       Lesson[]
+  categories    CourseCategory[]
+  tags          Tag[]
+  announcements Announcement[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  CourseTag     CourseTag?       @relation(fields: [courseTagId], references: [id])
+  courseTagId   String?
+}
+
+model Lesson {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  videoUrl    String
+  course      Course       @relation(fields: [courseId], references: [id])
+  courseId    String
+  content     String
+  duration    Int?
+  published   Boolean      @default(false)
+  quizzes     Quiz[]
+  assignments Assignment[]
+  progress    Progress[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime
+}
+
+model Enrollment {
+  id          String    @id @default(uuid())
+  student     User      @relation(fields: [studentId], references: [id])
+  studentId   String
+  course      Course    @relation(fields: [courseId], references: [id])
+  courseId    String
+  review      Review?
+  enrolledAt  DateTime  @default(now())
+  progress    Float    @default(0)
+  completedAt DateTime?
+}
+
+model Progress {
+  id          String    @id @default(uuid())
+  student     User      @relation(fields: [studentId], references: [id])
+  studentId   String
+  lesson      Lesson    @relation(fields: [lessonId], references: [id])
+  lessonId    String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+}
+
+model Quiz {
+  id             String           @id @default(uuid())
+  title          String
+  description    String
+  lesson         Lesson           @relation(fields: [lessonId], references: [id])
+  lessonId       String
+  dueDate        DateTime?
+  questions      QuizQuestion[]
+  QuizSubmission QuizSubmission[]
+}
+
+model QuizQuestion {
+  id            String   @id @default(uuid())
+  question      String
+  choices       String[]
+  correctAnswer String
+  quiz          Quiz     @relation(fields: [quizId], references: [id])
+  quizId        String
+}
+
+model Assignment {
+  id                   String                 @id @default(uuid())
+  title                String
+  description          String
+  dueDate              DateTime
+  lesson               Lesson                 @relation(fields: [lessonId], references: [id])
+  lessonId             String
+  AssignmentSubmission AssignmentSubmission[]
+}
+
+model CourseCategory {
+  id      String   @id @default(uuid())
+  name    String
+  courses Course[]
+}
+
+model CourseTag {
+  id      String   @id @default(uuid())
+  name    String
+  courses Course[]
+}
+
+model Review {
+  id           String     @id @default(uuid())
+  rating       Int
+  comment      String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
+  enrollmentId String     @unique
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  course    Course   @relation(fields: [courseId], references: [id])
+  courseId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AssignmentSubmission {
+  id           String     @id @default(uuid())
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  solution     String
+  submittedAt  DateTime   @default(now())
+}
+
+model QuizSubmission {
+  id          String   @id @default(uuid())
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  quizId      String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  answers     String[]
+  submittedAt DateTime @default(now())
+}
+
+enum SchoolRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
 }
 
 enum Role {

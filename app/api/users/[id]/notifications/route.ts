@@ -18,13 +18,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const notifications = await cachedPrisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      include: {
-        settings: {
-          include: {
-            commentSettings: true,
-          },
-        },
-      },
     });
 
     return NextResponse.json(notifications);

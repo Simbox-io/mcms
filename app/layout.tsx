@@ -43,10 +43,10 @@ export default async function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem enableColorScheme >
           <Providers>
             <Header />
-            {isImpersonated && <div className="bg-red-500 text-white p-2 flex justify-between">Impersonating User {user.username} <StopImpersonationButton/></div>}
+            {isImpersonated && <div className="bg-red-500 text-white p-2 flex justify-between">Impersonating User {user.username} <StopImpersonationButton /></div>}
             <main className="flex-grow overflow-auto">
               {children}
-              <div id='portal-root'/>
+              <div id='portal-root' />
               <Analytics />
               <SpeedInsights />
             </main>

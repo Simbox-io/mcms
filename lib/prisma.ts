@@ -2,6 +2,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import cacheService from './cacheService';
+import { NumberColorFormat } from '@faker-js/faker';
 
 declare global {
   var prisma: PrismaClient | undefined;
@@ -594,6 +595,7 @@ export type Notification = {
   user: User;
   userId: string;
   message: string;
+  content?: string;
   link?: string | null;
   isRead: boolean;
   isHidden: boolean;
@@ -684,8 +686,126 @@ export type Image = {
   contentType: string;
   data: Buffer;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
 }
+
+export type Course = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  instructorId: string;
+  progress: number;
+  enrollments: Enrollment[];
+  lessons: Lesson[];
+  categories: CourseCategory[];
+  tags: Tag[];
+  announcements: Announcement[];
+  createdAt: Date;
+  updatedAt?: Date;
+  courseTagId: string | null;
+};
+
+export type Lesson = {
+  id: string;
+  title: string;
+  description: string;
+  videoUrl: string;
+  courseId: string;
+  content: string;
+  duration?: number;
+  published: boolean;
+  quizzes: Quiz[];
+  assignments: Assignment[];
+  progress: Progress[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type Enrollment = {
+  id: string;
+  studentId: string;
+  courseId: string;
+  review: Review | null;
+  progress: number;
+  enrolledAt: Date;
+  completedAt: Date | null;
+};
+
+export type Progress = {
+  id: string;
+  studentId: string;
+  lessonId: string;
+  completed: boolean;
+  completedAt: Date | null;
+};
+
+export type Quiz = {
+  id: string;
+  title: string;
+  description: string;
+  lessonId: string;
+  dueDate: Date;
+  questions: QuizQuestion[];
+};
+
+export type QuizQuestion = {
+  id: string;
+  question: string;
+  choices: string[];
+  correctAnswer: string;
+  quizId: string;
+};
+
+export type Assignment = {
+  id: string;
+  title: string;
+  description: string;
+  dueDate: Date;
+  lessonId: string;
+};
+
+export type CourseCategory = {
+  id: string;
+  name: string;
+  courses: Course[];
+};
+
+export type CourseTag = {
+  id: string;
+  name: string;
+  courses: Course[];
+};
+
+export type Review = {
+  id: string;
+};
+
+export type Announcement = {
+  id: string;
+  courseId: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+  updatedAt?: Date;
+};
+
+export type QuizSubmission = {
+  id: string;
+  quizId: string;
+  userId: string;
+  answers: string[];
+  submittedAt: Date;
+};
+
+export type AssignmentSubmission = {
+  id: string;
+  assignmentId: string;
+  userId: string;
+  solution: string;
+  submittedAt: Date;
+};
+
 
 export enum Role {
   ADMIN = 'ADMIN',
