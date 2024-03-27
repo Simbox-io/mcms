@@ -16,7 +16,7 @@ export default function UpcomingDeadlines({ assignments, quizzes }: UpcomingDead
         {assignments.map((assignment) => (
           <li key={assignment.id} className="flex justify-between items-center">
             <span>{assignment.title}</span>
-            <span className="text-gray-500">{assignment.dueDate}</span>
+            <span className="text-gray-500">{assignment.dueDate.toLocaleDateString()}</span>
           </li>
         ))}
         {quizzes.map((quiz) => (

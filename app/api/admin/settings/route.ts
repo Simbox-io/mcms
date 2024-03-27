@@ -52,7 +52,9 @@ export async function PUT(request: NextRequest) {
     sesRegion,
     sesAccessKey,
     sesSecretAccessKey,
-    emailFrom
+    emailFrom,
+    databaseType,
+    databaseUrl,
   } = await request.json();
   try {
     const updatedSettings = await cachedPrisma.adminSettings.upsert({
@@ -89,7 +91,9 @@ export async function PUT(request: NextRequest) {
         sesRegion,
         sesAccessKey,
         sesSecretAccessKey,
-        emailFrom
+        emailFrom,
+        databaseType,
+        databaseUrl,
       },
       create: {
         siteTitle,
@@ -123,7 +127,9 @@ export async function PUT(request: NextRequest) {
         sesRegion,
         sesAccessKey,
         sesSecretAccessKey,
-        emailFrom
+        emailFrom,
+        databaseType,
+        databaseUrl,
       },
     });
 

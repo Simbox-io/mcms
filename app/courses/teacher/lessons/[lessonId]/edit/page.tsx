@@ -2,7 +2,7 @@
 'use client'
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Lesson } from '@/lib/prisma';
+import { Course, Lesson } from '@/lib/prisma';
 import LessonSidebar from '@/components/lms/LessonSidebar';
 import instance from '@/utils/api';
 import dynamic from 'next/dynamic';
@@ -11,8 +11,12 @@ const ContentEditor = dynamic(() => import('@/components/lms/ContentEditor'), {
   ssr: false,
 });
 
+interface CourseLesson extends Lesson {
+  lesson: Lesson;
+  course: Course;
+}
 
-async function getLesson(lessonId: string): Promise<Lesson> {
+async function getLesson(lessonId: string): Promise<CourseLesson> {
   const res = await instance.get(`/api/lms/lessons/${lessonId}`);
   if (res.status !== 200) {
     throw new Error('Failed to fetch lesson');
@@ -20,7 +24,7 @@ async function getLesson(lessonId: string): Promise<Lesson> {
   return res.data;
 }
 
-async function updateLessonContent(lessonId: string, content: string): Promise<Lesson> {
+async function updateLessonContent(lessonId: string, content: string): Promise<CourseLesson> {
   const res = await instance.put(`/api/lms/lessons/${lessonId}/content`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -35,7 +39,7 @@ async function updateLessonContent(lessonId: string, content: string): Promise<L
 export default function EditLessonPage({ params }: { params: { lessonId: string } }) {
   const router = useRouter();
   const { lessonId } = params;
-  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [lesson, setLesson] = useState<CourseLesson | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
