@@ -1,3 +1,4 @@
+'use server'
 import { Course, CourseCategory, Tag } from '@/lib/prisma';
 import { FiGrid, FiList } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
@@ -14,6 +15,7 @@ async function getCourses(page: number, perPage: number, category: string, tags:
   if (search) queryParams.append('search', search);
 
   const res = await instance.get(`/api/lms/courses?${queryParams.toString()}`);
+  console.log(res);
   if (res.status !== 200) {
     throw new Error('Failed to fetch courses');
   }
