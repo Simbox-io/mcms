@@ -1,4 +1,3 @@
-'use server'
 import { Course, CourseCategory, Tag } from '@/lib/prisma';
 import { FiGrid, FiList } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
