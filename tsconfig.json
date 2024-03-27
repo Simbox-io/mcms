@@ -23,6 +23,6 @@
     },
     "allowImportingTsExtensions": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/RichTextEditor.tsx", "app/courses/.layout.tsx", "prisma/seed/lms.mts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/RichTextEditor.tsx", "app/courses/.layout.tsx", "prisma/seed/lms.mts", "app/api/lms/seed/.route.ts"],
   "exclude": ["node_modules"]
 }

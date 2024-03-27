@@ -2,7 +2,6 @@
 
 import { PrismaClient } from '@prisma/client';
 import cacheService from './cacheService';
-import { NumberColorFormat } from '@faker-js/faker';
 
 declare global {
   var prisma: PrismaClient | undefined;
