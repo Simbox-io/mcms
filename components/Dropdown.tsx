@@ -5,6 +5,7 @@ import Button from './Button';
 
 interface DropdownProps {
   label: string;
+  image?: string;
   options: string[];
   value: string;
   onChange: (value: string) => void;
@@ -12,10 +13,12 @@ interface DropdownProps {
   buttonClassName?: string;
   menuClassName?: string;
   menuItemClassName?: string;
+  arrowEnabled?: boolean;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
   label,
+  image,
   options,
   value,
   onChange,
@@ -23,6 +26,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   buttonClassName = '',
   menuClassName = '',
   menuItemClassName = '',
+  arrowEnabled = true,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -52,21 +56,24 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   return (
     <div ref={dropdownRef} className={`relative inline-block text-left ${className}`}>
-      <Button variant="dropdown" onClick={handleToggle} className={buttonClassName} size='dropdown'>
+      <Button variant="dropdown" onClick={handleToggle} className={`${buttonClassName} flex items-center px-4`} size='dropdown'>
         {value || label}
-        <svg
-          className="-mr-1 ml-2 h-5 w-5"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
+        {image && <img src={image} alt={label} className="h-8 w-8 ml-2 rounded-full" />}
+        {arrowEnabled && (
+            <svg
+                className="-mr-1 ml-2 h-5 w-5"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+            >
+              <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+              />
+            </svg>
+        )}
       </Button>
       {
         isOpen && (

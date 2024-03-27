@@ -5,6 +5,7 @@ interface SkeletonProps {
   variant?: 'text' | 'rectangular' | 'circular';
   width?: string;
   height?: string;
+  count?: number;
   className?: string;
   style?: React.CSSProperties;
   animation?: 'pulse' | 'wave';
@@ -42,7 +43,7 @@ const Skeleton: React.FC<SkeletonProps> = ({
     }
   };
 
-  return (
+  return (    
     <div
       className={`skeleton ${getVariantClasses()} ${getAnimationClasses()} ${className}`}
       style={{ width, height, ...style }}

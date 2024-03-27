@@ -1,28 +1,42 @@
 // app/api/users/[id]/posts/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import prisma from '../../../../../lib/prisma';
+import { getSession } from '@/lib/auth';
+import cachedPrisma from '@/lib/prisma';
+import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const token = await getToken({ req: request });
+  const session = await getSession(request);
+  const userObj = session?.user as User;
 
-  if (!token) {
+  if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const userId = params.id;
 
   try {
-    const posts = await prisma.post.findMany({
+    const posts = await cachedPrisma.post.findMany({
       where: {
         authorId: userId,
       },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        createdAt: true,
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        tags: true,
+        comments: true,
+        bookmarks: true,
+        settings: {
+          include: {
+            commentSettings: true,
+            sharingSettings: true,
+            revisionHistorySettings: true,
+          },
+        },
       },
     });
 

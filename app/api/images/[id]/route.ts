@@ -1,13 +1,12 @@
 // app/api/images/[id]/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma, { Image } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const imageId = parseInt(params.id);
 
   try {
-    const image = await prisma.image.findUnique({
+    const image = await cachedPrisma.image.findUnique({
       where: { id: imageId },
     });
 
@@ -23,6 +22,41 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     });
   } catch (error) {
     console.error('Error fetching image:', error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const imageId = parseInt(params.id);
+  const { data, contentType } = await request.json();
+
+  try {
+    const updatedImage = await cachedPrisma.image.update({
+      where: { id: imageId },
+      data: {
+        data,
+        contentType,
+      },
+    });
+
+    return NextResponse.json(updatedImage);
+  } catch (error) {
+    console.error('Error updating image:', error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const imageId = parseInt(params.id);
+
+  try {
+    await cachedPrisma.image.delete({
+      where: { id: imageId },
+    });
+
+    return NextResponse.json({ message: 'Image deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting image:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

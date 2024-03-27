@@ -5,6 +5,7 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    "jsx": "react",
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -19,8 +20,9 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "allowImportingTsExtensions": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/RichTextEditor.tsx", "app/courses/.layout.tsx", "prisma/seed/lms.mts"],
   "exclude": ["node_modules"]
 }

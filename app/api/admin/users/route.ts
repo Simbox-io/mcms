@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 const secret = process.env.NEXTAUTH_SECRET;
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await cachedPrisma.user.findUnique({
       where: { email: userObj.email },
       select: {
         id: true,

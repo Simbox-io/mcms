@@ -1,7 +1,6 @@
 // app/api/projects/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
@@ -11,28 +10,30 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalProjects = await prisma.project.count();
+    const totalProjects = await cachedPrisma.project.count();
     const totalPages = Math.ceil(totalProjects / perPage);
 
-    const projects = await prisma.project.findMany({
+    const projects = await cachedPrisma.project.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
+      include: {
+        owner: true,
+        collaborators: true,
+        files: true,
+        tags: true,
+        comments: true,
+        spaces: true,
+        bookmarks: true,
+        settings: {
+          include: {
+            visibilitySettings: true,
+            collaborationSettings: true,
+            notificationSettings: true,
+          },
+        },
+      },
       orderBy: {
         createdAt: 'desc',
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-        members: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
       },
     });
 
@@ -51,20 +52,52 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const { name, description, repository, members } = await request.json();
+  const { name, description, collaborators, tags, settings } = await request.json();
 
   try {
-    const newProject = await prisma.project.create({
+    const newProject = await cachedPrisma.project.create({
       data: {
         name,
         description,
-        repository,
-        members: {
-          connect: members.map((memberId: number) => ({ id: memberId })),
+        owner: { connect: { id: user.id } },
+        collaborators: {
+          connect: collaborators?.map((collaboratorId: string) => ({ id: collaboratorId })),
         },
-        owner: {
-          connect: { id: user.id },
+        tags: {
+          connectOrCreate: tags?.map((tag: string) => ({
+            where: { name: tag },
+            create: { name: tag },
+          })),
         },
+        settings: settings
+          ? {
+              create: {
+                visibilitySettings: settings.visibilitySettings
+                  ? {
+                      create: {
+                        visibility: settings.visibilitySettings.visibility,
+                      },
+                    }
+                  : undefined,
+                collaborationSettings: settings.collaborationSettings
+                  ? {
+                      create: {
+                        allowCollaborators: settings.collaborationSettings.allowCollaborators,
+                        collaboratorRoles: settings.collaborationSettings.collaboratorRoles,
+                      },
+                    }
+                  : undefined,
+                notificationSettings: settings.notificationSettings
+                  ? {
+                      create: {
+                        notifyOnActivity: settings.notificationSettings.notifyOnActivity,
+                        notifyOnMentions: settings.notificationSettings.notifyOnMentions,
+                      },
+                    }
+                  : undefined,
+              },
+            }
+          : undefined,
       },
     });
 

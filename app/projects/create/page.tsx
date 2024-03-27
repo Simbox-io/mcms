@@ -1,26 +1,26 @@
 // app/projects/create/page.tsx
-
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
-import Input from '../../../components/Input';
-import Textarea from '../../../components/Textarea';
-import Button from '../../../components/Button';
-import Card from '../../../components/Card';
-import Select from '../../../components/Select';
-
-interface User {
-  id: string;
-  username: string;
-}
+import Input from '../../../components/next-gen/Input';
+import Button from '../../../components/next-gen/Button';
+import Card from '../../../components/next-gen/Card';
+import Select from '../../../components/next-gen/Select';
+import FileUpload from '../../../components/FileUpload';
+import TagInput from '../../../components/base/TagInput';
+import FormGroup from '../../../components/FormGroup';
+import { Editor } from '@tinymce/tinymce-react';
+import { User } from '../../../lib/prisma';
+import { motion } from 'framer-motion';
 
 const CreateProjectPage: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [repository, setRepository] = useState('');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const token = useToken();
@@ -31,33 +31,57 @@ const CreateProjectPage: React.FC = () => {
       const fetchedUsers = await fetchUsers();
       setUsers(fetchedUsers);
     };
-
     getUsers();
-  });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
+      // Upload files first
+      const uploadResults = await Promise.all(
+        selectedFiles.map((file) => handleUpload(file))
+      );
+      // Filter out successful uploads
+      const successfulUploads = uploadResults.filter((result) => result.success);
+      const filePaths = successfulUploads.map((result) => result.path);
+      // Check for failed uploads
+      const failedUploads = uploadResults.filter((result) => !result.success);
+      if (failedUploads.length > 0) {
+        // Display error messages for failed uploads
+        failedUploads.forEach((result) => {
+          console.error(`Error uploading file: ${result.file.name}`, result.error);
+          // You can display the error message to the user using a toast or alert
+        });
+      }
+
+      const formData = {
+        name,
+        description,
+        repository,
+        members: selectedMembers,
+        files: filePaths,
+        //tags: selectedTags,
+      };
+
       const response = await fetch('/api/projects', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, description, repository, members: selectedMembers }),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        router.push('/projects');
+        const newProject = await response.json();
+        router.push(`/projects/${newProject.id}`);
       } else {
         console.error('Error creating project:', response.statusText);
       }
     } catch (error) {
       console.error('Error creating project:', error);
     }
-
     setIsSubmitting(false);
   };
 
@@ -82,63 +106,135 @@ const CreateProjectPage: React.FC = () => {
     }
   };
 
+  const handleFileSelect = (files: FileList | null) => {
+    if (files) {
+      const selectedFiles = Array.from(files);
+      setSelectedFiles(selectedFiles);
+    }
+  };
+
+  const handleUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', file.name);
+    formData.append('description', '');
+    formData.append('isPublic', 'true');
+    formData.append('contentType', file.type);
+
+
+    try {
+      const response = await fetch('/api/files', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, path: data.url, file };
+      } else {
+        console.error('Error uploading file:', response.statusText);
+        return { success: false, error: response.statusText, file };
+      }
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      return { success: false, error: error.message, file };
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Card>
-        <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Create Project</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <Input
-              label="Name"
-              name="name"
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full"
-            />
-          </div>
-          <div className="mb-6">
-            <label htmlFor="description" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
-              Description
-            </label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={setDescription}
-              required
-              rows={4}
-            />
-          </div>
-          <div className="mb-6">
-            <Input
-              label="Repository"
-              name="repository"
-              type="text"
-              id="repository"
-              value={repository}
-              onChange={(e) => setRepository(e.target.value)}
-              className="w-full"
-            />
-          </div>
-          <div className="mb-6">
-            {/*<Select
-              title="Members"
-              options={users.map(user => ({ value: user.id, label: user.username }))}
-              value={selectedMembers}
-              onChange={(memberIds) => setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])}
-              isMulti
-            />*/}
-          </div>
-          <div className="flex justify-end">
-            <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create'}
-            </Button>
-          </div>
-        </form>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto px-4 py-8"
+    >
+      <Card className="max-w-3xl mx-auto shadow-lg">
+        <div className="px-6 py-4">
+          <h1 className="text-2xl font-semibold text-white">Create Project</h1>
+        </div>
+        <div className="p-6">
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormGroup label="Project Name" htmlFor="name">
+                <Input
+                  type="text"
+                  value={name}
+                  onChange={setName}
+                  required
+                  className="w-full"
+                />
+              </FormGroup>
+              <FormGroup label="Repository" htmlFor="repository">
+                <Input
+                  type="text"
+                  value={repository}
+                  onChange={setRepository}
+                  className="w-full"
+                />
+              </FormGroup>
+            </div>
+            <FormGroup label="Description" htmlFor="description" className="mt-6">
+              <Editor
+                apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
+                onEditorChange={(content) => setDescription(content)}
+                init={{
+                  height: 300,
+                  menubar: false,
+                  plugins: [
+                    'advlist autolink lists link image charmap print preview anchor',
+                    'searchreplace visualblocks code fullscreen',
+                    'insertdatetime media table paste code help wordcount',
+                  ],
+                  toolbar:
+                    'undo redo | formatselect | bold italic backcolor | \
+                    alignleft aligncenter alignright alignjustify | \
+                    bullist numlist outdent indent | removeformat | help',
+                }}
+              />
+            </FormGroup>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <FormGroup label="Members" htmlFor="members">
+                <Select
+                  options={users.map((user) => ({ value: user.id, label: user.username }))}
+                  value={selectedMembers.toString()} 
+                  onChange={(memberIds) =>
+                    setSelectedMembers(Array.isArray(memberIds) ? memberIds.map(String) : [])
+                  }
+                  placeholder="Select project members"
+                  className="w-full"
+                />
+              </FormGroup>
+              <FormGroup label="Tags" htmlFor="tags">
+                <TagInput
+                  id="tags"
+                  tags={selectedTags}
+                  onChange={setSelectedTags}
+                  placeholder="Add tags..."
+                />
+              </FormGroup>
+            </div>
+            <FormGroup label="Files" htmlFor="files" className="mt-6">
+              <FileUpload
+                id="files"
+                onFileSelect={handleFileSelect}
+                onFileUpload={() => handleUpload}
+                accept="*"
+                maxFiles={10}
+                showButton={false}
+              />
+            </FormGroup>
+            <div className="mt-8">
+              <Button variant="primary" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? 'Creating...' : 'Create Project'}
+              </Button>
+            </div>
+          </form>
+        </div>
       </Card>
-    </div>
+    </motion.div>
   );
 };
 

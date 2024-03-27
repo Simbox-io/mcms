@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '../../components/Button';
+import Button from '../../components/next-gen/Button';
 
 const OnboardingPage: React.FC = () => {
   const router = useRouter();

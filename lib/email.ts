@@ -12,7 +12,7 @@ interface EmailOptions {
 }
 
 interface EmailConfig {
-  provider: 'smtp' | 'ses';
+  provider: string;
   smtp?: {
     host: string;
     port: number;

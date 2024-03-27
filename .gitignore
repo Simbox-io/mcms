@@ -7,3 +7,5 @@ node_modules
 
 # Sentry Config File
 .sentryclirc
+components/combined_files.txt
+.DS_Store

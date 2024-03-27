@@ -3,16 +3,17 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
-import Sidebar from '@/components/Sidebar';
+import Card from '@/components/next-gen/Card';
+import Button from '@/components/next-gen/Button';
+import Sidebar from '@/components/base/Sidebar';
 import AnalyticsPage from './analytics/page';
 import DashboardPage from './dashboard/page';
+import PostsPage from './posts/page';
 import PluginsPage from './plugins/page';
 import SettingsPage from './settings/page';
 import UsersPage from './users/page';
 import EmptyState from '@/components/EmptyState';
-import Spinner from '@/components/Spinner';
+import Spinner from '@/components/base/Spinner';
 import { User } from '@/lib/prisma';
 
 const AdminConfigurationPage: React.FC = () => {
@@ -49,6 +50,7 @@ const AdminConfigurationPage: React.FC = () => {
         <Sidebar
           items={[
             { id: 'dashboard', label: 'Admin Dashboard' },
+            { id: 'posts', label: 'Posts' },
             { id: 'analytics', label: 'Analytics' },
             { id: 'plugins', label: 'Plugin Management' },
             { id: 'users', label: 'User Management' },
@@ -58,11 +60,12 @@ const AdminConfigurationPage: React.FC = () => {
           onItemClick={handleSubpageChange}
         />
       </div>
-      <div className="flex flex-col lg:flex-row h-full w-full">
-        <div className="hidden md:block">
+      <div className="hidden md:block w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+        <div className="sticky top-0 h-full overflow-y-auto">
           <Sidebar
             items={[
               { id: 'dashboard', label: 'Admin Dashboard' },
+              { id: 'posts', label: 'Posts' },
               { id: 'analytics', label: 'Analytics' },
               { id: 'plugins', label: 'Plugin Management' },
               { id: 'users', label: 'User Management' },
@@ -72,18 +75,19 @@ const AdminConfigurationPage: React.FC = () => {
             onItemClick={handleSubpageChange}
           />
         </div>
-        <div className="flex-1 p-8">
-          <Card className="dark:bg-gray-800 shadow-xl">
-            {activeSubpage === 'dashboard' && <DashboardPage />}
-            {activeSubpage === 'analytics' && <AnalyticsPage />}
-            {activeSubpage === 'plugins' && <PluginsPage />}
-            {activeSubpage === 'users' && <UsersPage />}
-            {activeSubpage === 'settings' && <SettingsPage />}
-          </Card>
-        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        <Card className="dark:bg-gray-800 shadow-xl m-8">
+          {activeSubpage === 'dashboard' && <DashboardPage />}
+          {activeSubpage === 'posts' && <PostsPage />}
+          {activeSubpage === 'analytics' && <AnalyticsPage />}
+          {activeSubpage === 'plugins' && <PluginsPage />}
+          {activeSubpage === 'users' && <UsersPage />}
+          {activeSubpage === 'settings' && <SettingsPage />}
+        </Card>
       </div>
     </div>
-  )
+  );
 };
 
 export default AdminConfigurationPage;

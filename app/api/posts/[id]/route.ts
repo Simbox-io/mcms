@@ -1,15 +1,14 @@
 // app/api/posts/[id]/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const postId = parseInt(params.id);
+  const postId = params.id;
 
   try {
-    const post = await prisma.post.findUnique({
+    const post = await cachedPrisma.post.findUnique({
       where: {
         id: postId,
       },
@@ -18,6 +17,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           select: {
             id: true,
             username: true,
+            avatar: true,
+          },
+        },
+        tags: true,
+        comments: true,
+        bookmarks: true,
+        settings: {
+          include: {
+            commentSettings: true,
+            sharingSettings: true,
+            revisionHistorySettings: true,
           },
         },
       },
@@ -34,8 +44,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const postId = parseInt(params.id);
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const postId = params.id;
   const session = await getSession(request);
   const user = session?.user as User;
 
@@ -43,8 +53,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
+  const { title, content, tags, settings } = await request.json();
+
   try {
-    const post = await prisma.post.findUnique({
+    const post = await cachedPrisma.post.findUnique({
       where: { id: postId },
       include: { author: true },
     });
@@ -57,7 +69,112 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.post.delete({
+    const updatedPost = await cachedPrisma.post.update({
+      where: { id: postId },
+      data: {
+        title,
+        content,
+        tags: {
+          set: tags.map((tag: string) => ({ name: tag })),
+        },
+        settings: settings
+          ? {
+            update: {
+              defaultVisibility: settings.defaultVisibility,
+              commentSettings: settings.commentSettings
+                ? {
+                  update: {
+                    allowComments: settings.commentSettings.allowComments,
+                    moderateComments: settings.commentSettings.moderateComments,
+                  },
+                }
+                : undefined,
+              sharingSettings: settings.sharingSettings
+                ? {
+                  update: {
+                    allowSharing: settings.sharingSettings.allowSharing,
+                    sharePlatforms: settings.sharingSettings.sharePlatforms,
+                  },
+                }
+                : undefined,
+              revisionHistorySettings: settings.revisionHistorySettings
+                ? {
+                  update: {
+                    revisionsToKeep: settings.revisionHistorySettings.revisionsToKeep,
+                  },
+                }
+                : undefined,
+            },
+          }
+          : undefined,
+      },
+    });
+
+    return NextResponse.json(updatedPost);
+  } catch (error) {
+    console.error('Error updating post:', error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const postId = params.id;
+  const session = await getSession(request);
+  const user = session?.user as User;
+
+  if (!session) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const post = await cachedPrisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        author: true,
+        comments: true,
+        settings: {
+          include: {
+            sharingSettings: true,
+            revisionHistorySettings: true,
+            commentSettings: true,
+          },
+        }
+      },
+    });
+
+    if (!post) {
+      return NextResponse.json({ message: 'Post not found' }, { status: 404 });
+    }
+
+    if (post.author.id !== user.id) {
+      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    }
+
+    await cachedPrisma.sharingSettings.delete({
+      where: { id: post.settings?.sharingSettings?.id }
+    });
+
+    await cachedPrisma.revisionHistorySettings.delete({
+      where: { id: post.settings?.revisionHistorySettings?.id },
+    });
+
+    await cachedPrisma.commentSettings.delete({
+      where: { id: post.settings?.commentSettings?.id },  
+    });
+
+    await cachedPrisma.postSettings.delete({
+      where: { postId },
+    });
+
+    await cachedPrisma.comment.deleteMany({
+      where: { postId },
+    });
+
+    await cachedPrisma.bookmark.deleteMany({
+      where: { postId },
+    });
+
+    await cachedPrisma.post.delete({
       where: { id: postId },
     });
 

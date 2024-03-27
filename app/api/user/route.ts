@@ -1,10 +1,9 @@
 // app/api/user/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import cachedPrisma, { User } from '@/lib/prisma';
 import { uploadImage } from '@/lib/uploadImage';
-import { User } from '@/lib/prisma';
+
 
 export async function GET(request: NextRequest) {
   const session = await getSession(request);
@@ -15,9 +14,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await cachedPrisma.user.findUnique({
       where: { id: userObj.id },
-      select: { id: true, username: true, firstName: true, lastName: true, email: true, avatar: true, bio: true },
+      include: {
+        profile: true,
+        settings: {
+          include: {
+            notificationPreferences: true,
+            privacySettings: true,
+            passwordResetSettings: true,
+            accountDeletionSettings: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -29,40 +38,48 @@ export async function GET(request: NextRequest) {
     console.error('User data fetch error:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
-} 
-
+}
 
 export async function PUT(request: NextRequest) {
   const session = await getSession(request);
-  const user = session?.user as User;
+  const userObj = session?.user as User;
 
-  if (!user) {
+  if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
+  const data = await request.formData();
+  const username = data.get('username') as string;
+  const firstName = data.get('firstName') as string || '';
+  const lastName = data.get('lastName') as string || '';
+  const email = data.get('email') as string;
+  const bio = data.get('bio') as string || '';
+  const avatar = data.get('avatar') as File || null;
 
-  const formData = await request.formData();
-  const username = formData.get('username') as string;
-  const firstName = formData.get('firstName') as string;
-  const lastName = formData.get('lastName') as string;
-  const email = formData.get('email') as string;
-  const bio = formData.get('bio') as string;
-  const avatar = formData.get('avatar') as File | null;
-
-  try {
-    let avatarUrl = null;
-    if (avatar) {
+  let avatarUrl;
+  if (avatar) {
+    try {
       avatarUrl = await uploadImage(avatar);
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      return NextResponse.json({ message: 'Failed to upload avatar' }, { status: 500 });
     }
-
-    const updatedUser = await prisma.user.update({
-      where: { email: user.email ?? undefined },
+  }
+  
+  try {
+    const updatedUser = await cachedPrisma.user.update({
+      where: { id: userObj.id },
       data: {
-        username: username ?? undefined,
-        firstName: firstName ?? undefined,
-        lastName: lastName ?? undefined,
+        username: username.toLowerCase(),
+        firstName,
+        lastName,
         email,
         bio,
         avatar: avatarUrl,
+        profile: {
+          update: {
+            bio,
+          },
+        },
       },
     });
 

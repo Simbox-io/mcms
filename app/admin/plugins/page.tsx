@@ -1,14 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Table from '@/components/Table';
-import Button from '@/components/Button';
+import Table from '@/components/next-gen/Table';
+import Button from '@/components/next-gen/Button';
 
 interface Plugin {
   id: number;
   name: string;
   description: string;
   version: string;
+  active: boolean;
 }
 
 const PluginManagementPage: React.FC = () => {
@@ -66,6 +67,42 @@ const PluginManagementPage: React.FC = () => {
     }
   };
 
+  const handleActivatePlugin = async (pluginId: number) => {
+    try {
+      const response = await fetch(`/api/admin/plugins/${pluginId}/activate`, {
+        method: 'PUT',
+      });
+
+      if (response.ok) {
+        setPlugins(
+          plugins.map((plugin) => (plugin.id === pluginId ? { ...plugin, active: true } : plugin))
+        );
+      } else {
+        console.error('Error activating plugin:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error activating plugin:', error);
+    }
+  };
+
+  const handleDeactivatePlugin = async (pluginId: number) => {
+    try {
+      const response = await fetch(`/api/admin/plugins/${pluginId}/deactivate`, {
+        method: 'PUT',
+      });
+
+      if (response.ok) {
+        setPlugins(
+          plugins.map((plugin) => (plugin.id === pluginId ? { ...plugin, active: false } : plugin))
+        );
+      } else {
+        console.error('Error deactivating plugin:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error deactivating plugin:', error);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">
@@ -80,14 +117,28 @@ const PluginManagementPage: React.FC = () => {
           { header: 'Description', accessor: 'description' },
           { header: 'Version', accessor: 'version' },
           {
+            header: 'Status',
+            accessor: 'active',
+            cell: (value: boolean) => (value ? 'Active' : 'Inactive'),
+          },
+          {
             header: 'Actions',
             accessor: 'id',
-            cell: (value: number) => (
-              <Button variant="danger" onClick={() => handleUninstallPlugin(value)}>
-                Uninstall
-              </Button>
+            cell: (value: number, row: Plugin) => (
+              <>
+                {row.active ? (
+                  <Button variant="danger" onClick={() => handleDeactivatePlugin(value)}>
+                    Deactivate
+                  </Button>
+                ) : (
+                  <Button onClick={() => handleActivatePlugin(value)}>Activate</Button>
+                )}
+                <Button variant="danger" onClick={() => handleUninstallPlugin(value)}>
+                  Uninstall
+                </Button>
+              </>
             ),
-          } as any, 
+          } as any,
         ]}
         data={plugins}
       />

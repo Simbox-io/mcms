@@ -5,16 +5,19 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToken } from '../../../lib/useToken';
-import Card from '../../../components/Card';
-import Button from '../../../components/Button';
-import Input from '../../../components/Input';
-import Textarea from '../../../components/Textarea';
-import Select from '../../../components/Select';
+import Card from '../../../components/next-gen/Card';
+import Button from '../../../components/next-gen/Button';
+import Input from '../../../components/next-gen/Input';
+import Textarea from '../../../components/next-gen/Textarea';
+import Select from '../../../components/next-gen/Select';
 import { Project } from '@/lib/prisma';
+import FileUpload from '@/components/FileUpload';
+import Toast from '@/components/Toast';
 
 const FileUploadPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [description, setDescription] = useState('');
+  const [name, setName] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -46,11 +49,14 @@ const FileUploadPage: React.FC = () => {
       setIsUploading(false);
       return;
     }
-
+    
     const formData = new FormData();
     formData.append('file', selectedFile);
+    formData.append('name', name);
     formData.append('description', description);
     formData.append('isPublic', String(isPublic));
+    formData.append('contentType', selectedFile.type);
+
     if (selectedProject) {
       formData.append('projectId', String(selectedProject));
     }
@@ -65,7 +71,7 @@ const FileUploadPage: React.FC = () => {
       });
 
       if (response.ok) {
-        router.push('/files');
+        router.push('/files/all-files');
       } else {
         console.error('Error uploading file:', response.statusText);
       }
@@ -85,7 +91,7 @@ const FileUploadPage: React.FC = () => {
       });
 
       if (response.ok) {
-        const projects: Project[] = await response.json();
+        const projects: Project[] = await response.json() || [];
         return projects;
       } else {
         console.error('Error fetching projects:', response.statusText);
@@ -103,15 +109,23 @@ const FileUploadPage: React.FC = () => {
         <h1 className="text-3xl font-semibold mb-8 text-gray-800 dark:text-white">Upload File</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <Input
-              label='File'
-              name="file"
-              value={selectedFile?.name || ''}
-              type="file"
-              id="file"
-              onChange={handleFileChange}
-              required
-              className="w-full"
+            <FileUpload
+              onFileUpload={() => handleFileChange}
+              onFileSelect={(files: FileList | null) => {
+                if (files && files.length > 0) {
+                  setSelectedFile(files[0]);
+                }
+              }}
+            />
+          </div>
+          <div className="mb-6">
+            <label htmlFor="name" className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
+              Name
+            </label>
+            <Textarea
+              value={name}
+              onChange={setName}
+              rows={4}
             />
           </div>
           <div className="mb-6">
@@ -124,34 +138,8 @@ const FileUploadPage: React.FC = () => {
               rows={4}
             />
           </div>
-          <div className="mb-6">
-            <Select
-              label='Visibility'
-              value={isPublic.toString()}
-              onChange={(value) => setIsPublic(value === 'true')}
-              options={[
-                { value: 'true', label: 'Public' },
-                { value: 'false', label: 'Private' },
-              ]}
-            />
-          </div>
-          <div className="mb-6">
-            <Select
-              label='Project'
-              options={projects && projects.map(project => ({ value: project.id.toString(), label: project.name }))}
-              value={selectedProject !== null ? selectedProject : ''}
-              onChange={(projectId: string | string[]) => {
-                if (typeof projectId === 'string') {
-                  setSelectedProject(projectId);
-                } else if (Array.isArray(projectId) && projectId.length > 0) {
-                  setSelectedProject(projectId[0]);
-                }
-              }}
-              placeholder="Select a project"
-            />
-          </div>
           <div className="flex justify-end">
-            <Button type="submit" variant="primary" disabled={isUploading}>
+            <Button variant="primary" disabled={isUploading}>
               {isUploading ? 'Uploading...' : 'Upload'}
             </Button>
           </div>

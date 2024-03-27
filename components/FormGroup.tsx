@@ -2,7 +2,7 @@
 import React from 'react';
 
 interface FormGroupProps {
-  label: string;
+  label?: string;
   children: React.ReactNode;
   htmlFor?: string;
   className?: string;

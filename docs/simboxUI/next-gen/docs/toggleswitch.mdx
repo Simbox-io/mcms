@@ -1,0 +1,38 @@
+# ToggleSwitch
+
+The ToggleSwitch component is a customizable toggle switch that allows users to switch between two states.
+
+## Usage
+
+```tsx
+import ToggleSwitch from './ToggleSwitch';
+
+<ToggleSwitch
+  checked={isChecked}
+  onChange={handleToggle}
+  label="Enable feature"
+  size="medium"
+/>
+```
+
+## Props
+
+| Prop      | Type                         | Default   | Description                                                    |
+| --------- | ---------------------------- | --------- | -------------------------------------------------------------- |
+| checked   | boolean                      | -         | The checked state of the toggle switch.                        |
+| onChange  | (checked: boolean) => void   | -         | Callback function invoked when the toggle state changes.       |
+| label     | string                       | ''        | The label text for the toggle switch.                          |
+| disabled  | boolean                      | false     | Whether the toggle switch is disabled.                         |
+| className | string                       | ''        | Additional CSS classes to apply to the toggle switch container. |
+| size      | 'small' \| 'medium' \| 'large' | 'medium' | The size of the toggle switch.                                 |
+
+## Additional Features
+
+- Supports three sizes: 'small', 'medium' (default), and 'large'.
+- Smooth animation when toggling between states using framer-motion.
+- Automatically adapts to dark mode using Tailwind's dark mode classes.
+- Focuses on accessibility with proper keyboard navigation and ARIA attributes.
+
+## Customization
+
+The ToggleSwitch component can be customized using the `className` prop to apply additional CSS classes and override the default styles. The colors and sizes can be adjusted by modifying the Tailwind classes in the component.
