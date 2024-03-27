@@ -808,6 +808,27 @@ export type AssignmentSubmission = {
   submittedAt: Date;
 };
 
+export type Achievement = {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  criteria: any;
+};
+
+export type UserAchievement = {
+  id: string;
+  userId: string;
+  achievementId: string;
+  earnedAt: Date;
+};
+
+export type CourseRecommendation = {
+  id: string;
+  userId: string;
+  courseId: string;
+  score: number;
+};
 
 export enum Role {
   ADMIN = 'ADMIN',

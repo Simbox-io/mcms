@@ -31,7 +31,7 @@ interface Project {
   }[];
 }
 
-  const AllProjectsPage: React.FC = () => {
+const AllProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState<'grid' | 'list'>('grid');
@@ -134,124 +134,99 @@ interface Project {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.2 }}
       className="container mx-auto px-4 py-8"
     >
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Projects</h1>
-        <div className="flex items-center space-x-4">
-          <Button variant="primary" onClick={handleCreateProject}>
-            <IoMdAdd />
-          </Button>
-          <Button variant="secondary" onClick={toggleView}>
-            {view === 'grid' ? <FiList /> : <FiGrid />}
-          </Button>
-        </div>
-      </div>
-      <div className="mb-8">
-        <div className="flex justify-between">
-          <div className="flex-grow mr-4 ">
-            <Input
-              type="text"
-              placeholder="Filter projects..."
-              value={filterQuery}
-              onChange={setFilterQuery}
-              className=""
-            />
-          </div>
-          <CategoryFilter onSelect={handleChangeCategory} options={[{ label: 'test' }, { label: 'test2' }]} className='' />
-        </div>
-      </div>
-      <AnimatePresence mode="wait">
-        {view === 'grid' ? (
-          <motion.div
-            key="grid"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {filterProjects(projects, filterQuery).map((project) => (
-              <motion.div
-                key={project.id}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleSelectProject(project)}
-              >
-                <Card className='h-72'>
-                  <div className="p-4">
-                    <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-                      {project.name}
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4" dangerouslySetInnerHTML={{ __html: project.description.slice(0, 500) }} />
-                    <div className="flex justify-between items-center">
-
-                    </div>
-                    <div className="mt-4">
-                      {project.members && (<><p className="text-gray-600 dark:text-gray-400 mb-2">Members:</p>
-                        <ul className="list-disc list-inside">
-                          {project.members?.map((member) => (
-                            <li key={member.id} className="text-gray-600 dark:text-gray-400">
-                              {member.username}
-                            </li>
-                          ))}
-                        </ul></>)}
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="list"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-4"
-          >
-            {filteredProjects.map((project) => (
-              <motion.div
-                key={project.id}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleSelectProject(project)}
-              >
-                <Card>
-                  <div className="flex items-center p-4">
-                    <div className="flex-1">
+        <AnimatePresence mode="wait">
+          {view === 'grid' ? (
+            <motion.div
+              key="grid"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {filterProjects(projects, filterQuery).map((project) => (
+                <motion.div
+                  key={project.id}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleSelectProject(project)}
+                >
+                  <Card className='h-72'>
+                    <div className="p-4">
                       <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
                         {project.name}
                       </h2>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4" dangerouslySetInnerHTML={{ __html: project.description }} />
-                      <div className="flex items-center space-x-4">
-                        <p className="text-gray-600 dark:text-gray-400">
-                          Created by {project.owner.username}
-                        </p>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          {formatDate(project.createdAt)}
-                        </p>
+                      <p className="text-gray-600 dark:text-gray-400 mb-4" dangerouslySetInnerHTML={{ __html: project.description.slice(0, 500) }} />
+                      <div className="flex justify-between items-center">
+
+                      </div>
+                      <div className="mt-4">
+                        {project.members && (<><p className="text-gray-600 dark:text-gray-400 mb-2">Members:</p>
+                          <ul className="list-disc list-inside">
+                            {project.members?.map((member) => (
+                              <li key={member.id} className="text-gray-600 dark:text-gray-400">
+                                {member.username}
+                              </li>
+                            ))}
+                          </ul></>)}
                       </div>
                     </div>
-                    <div className="ml-4">
-                      {project.members && (<><p className="text-gray-600 dark:text-gray-400 mb-2">Members:</p>
-                        <ul className="list-disc list-inside">
-                          {project.members?.map((member) => (
-                            <li key={member.id} className="text-gray-600 dark:text-gray-400">
-                              {member.username}
-                            </li>
-                          ))}
-                        </ul></>)}
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.1 }}
+              className="space-y-4"
+            >
+              {filteredProjects.map((project) => (
+                <motion.div
+                  key={project.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleSelectProject(project)}
+                >
+                  <Card>
+                    <div className="flex items-center p-4">
+                      <div className="flex-1">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                          {project.name}
+                        </h2>
+                        <p className="text-gray-600 dark:text-gray-400 mb-4" dangerouslySetInnerHTML={{ __html: project.description }} />
+                        <div className="flex items-center space-x-4">
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Created by {project.owner.username}
+                          </p>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {formatDate(project.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        {project.members && (<><p className="text-gray-600 dark:text-gray-400 mb-2">Members:</p>
+                          <ul className="list-disc list-inside">
+                            {project.members?.map((member) => (
+                              <li key={member.id} className="text-gray-600 dark:text-gray-400">
+                                {member.username}
+                              </li>
+                            ))}
+                          </ul></>)}
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       <div id="sentinel" className="h-4"></div>
       {!projects && (
         <div className="flex justify-center items-center mt-8">
