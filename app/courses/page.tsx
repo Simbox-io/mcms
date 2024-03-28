@@ -3,6 +3,8 @@ import { FiGrid, FiList } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
 import Button from '@/components/next-gen/Button';
 import CourseCard from '@/components/lms/CourseCard';
+import CacheService from '../../../lib/cacheService';
+import axios from 'axios';
 import instance from '@/utils/api';
 
 async function getCourses(page: number, perPage: number, category: string, tags: string[], search: string) {
