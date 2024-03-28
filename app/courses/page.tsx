@@ -1,10 +1,20 @@
+import instance from '@/utils/api';
 import { Course, CourseCategory, Tag } from '@/lib/prisma';
 import { FiGrid, FiList } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
 import Button from '@/components/next-gen/Button';
 import CourseCard from '@/components/lms/CourseCard';
 import axios from 'axios';
-import instance from '@/utils/api';
+
+interface CourseWithDetails extends Course {
+  instructor: {
+    firstName: string;
+    lastName: string;
+    username: string;
+  };
+  categories: CourseCategory[];
+  tags: Tag[];
+}
 
 async function getCourses(page: number, perPage: number, category: string, tags: string[], search: string) {
   const queryParams = new URLSearchParams();
@@ -17,16 +27,11 @@ async function getCourses(page: number, perPage: number, category: string, tags:
 
   try {
     const res = await axios.get(`/api/lms/courses?${queryParams.toString()}`);
-    console.log(res);
     if (res.status !== 200) {
       throw new Error('Failed to fetch courses');
     }
     return res.data as Promise<{
-      courses: (Course & {
-        instructor: { firstName: string; lastName: string; username: string };
-        categories: { name: string }[];
-        tags: { name: string }[];
-      })[];
+      courses: CourseWithDetails[];
       totalCount: number;
     }>;
   } catch (error) {
