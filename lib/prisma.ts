@@ -25,8 +25,8 @@ export type User = {
   username: string;
   email: string;
   passwordHash: string;
-  firstName?: string | null;
-  lastName?: string | null;
+  firstName: string;
+  lastName: string;
   avatar?: string | null;
   bio?: string | null;
   role: Role;
