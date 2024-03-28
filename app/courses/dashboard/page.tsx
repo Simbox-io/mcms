@@ -1,6 +1,7 @@
 // app/dashboard/page.tsx
-import { getServerSession } from 'next-auth/next';
-import authOptions from '@/app/api/auth/[...nextauth]/options';
+'use client'
+import React, { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Enrollment, Notification, User, Course, Assignment, Quiz, Achievement, UserAchievement, CourseRecommendation, CourseCategory, Tag } from '@/lib/prisma';
 import DashboardCourseCard from '@/components/lms/DashboardCourseCard';
 import NotificationList from '@/components/lms/NotificationList';
@@ -27,69 +28,80 @@ interface CourseRecommendationWithDetails extends CourseRecommendation {
   course: CourseWithDetails;
 }
 
-async function getEnrolledCourses(userId: string): Promise<EnrolledCourse[]> {
-  const res = await instance.get(`/api/users/${userId}/enrolledCourses`);
-  if (res.status !== 200) {
-    throw new Error('Failed to fetch enrolled courses');
-  }
-  return res.data;
-}
+export default function DashboardPage() {
+  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [upcomingAssignments, setUpcomingAssignments] = useState<Assignment[]>([]);
+  const [upcomingQuizzes, setUpcomingQuizzes] = useState<Quiz[]>([]);
+  const [userAchievements, setUserAchievements] = useState<(UserAchievement & { achievement: Achievement })[]>([]);
+  const [courseRecommendations, setCourseRecommendations] = useState<CourseRecommendationWithDetails[]>([]);
+  const { data: session } = useSession();
+  const user = session?.user as User;
 
-async function getNotifications(id: string): Promise<Notification[]> {
-  const res = await instance.get(`/api/users/${id}/notifications`);
-  if (res.status !== 200) {
-    throw new Error('Failed to fetch notifications');
-  }
-  return res.data?.notifications || [];
-}
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    async function getEnrolledCourses(userId: string): Promise<EnrolledCourse[]> {
+      const res = await instance.get(`/api/users/${userId}/enrolledCourses`);
+      if (res.status !== 200) {
+        throw new Error('Failed to fetch enrolled courses');
+      }
+      return res.data;
+    }
+    
+    async function getNotifications(id: string): Promise<Notification[]> {
+      const res = await instance.get(`/api/users/${id}/notifications`);
+      if (res.status !== 200) {
+        throw new Error('Failed to fetch notifications');
+      }
+      return res.data?.notifications || [];
+    }
+    
+    async function getUpcomingAssignments(userId: string): Promise<Assignment[]> {
+      const res = await instance.get(`/api/users/${userId}/upcomingAssignments`);
+      if (res.status !== 200) {
+        throw new Error('Failed to fetch upcoming assignments');
+      }
+      return res.data;
+    }
+    
+    async function getUpcomingQuizzes(userId: string): Promise<Quiz[]> {
+      const res = await instance.get(`/api/users/${userId}/upcomingQuizzes`);
+      if (res.status !== 200) {
+        throw new Error('Failed to fetch upcoming quizzes');
+      }
+      return res.data;
+    }
+    
+    async function getUserAchievements(userId: string): Promise<(UserAchievement & { achievement: Achievement })[]> {
+      const res = await instance.get(`/api/users/${userId}/achievements`);
+      if (res.status !== 200) {
+        throw new Error('Failed to fetch user achievements');
+      }
+      return res.data;
+    }
+    
+    async function getCourseRecommendations(userId: string): Promise<CourseRecommendationWithDetails[]> {
+      const res = await instance.get(`/api/users/${userId}/courseRecommendations`);
+      if (res.status !== 200) {
+        throw new Error('Failed to fetch course recommendations');
+      }
+      return res.data;
+    }
 
-async function getUpcomingAssignments(userId: string): Promise<Assignment[]> {
-  const res = await instance.get(`/api/users/${userId}/upcomingAssignments`);
-  if (res.status !== 200) {
-    throw new Error('Failed to fetch upcoming assignments');
-  }
-  return res.data;
-}
+    getEnrolledCourses(user.id).then(setEnrolledCourses).catch(console.error);
+    //getNotifications(user.id).then(setNotifications).catch(console.error);
+    getUpcomingAssignments(user.id).then(setUpcomingAssignments).catch(console.error);
+    getUpcomingQuizzes(user.id).then(setUpcomingQuizzes).catch(console.error);
+    getUserAchievements(user.id).then(setUserAchievements).catch(console.error);
+    getCourseRecommendations(user.id).then(setCourseRecommendations).catch(console.error);
+  } , [user]);
 
-async function getUpcomingQuizzes(userId: string): Promise<Quiz[]> {
-  const res = await instance.get(`/api/users/${userId}/upcomingQuizzes`);
-  if (res.status !== 200) {
-    throw new Error('Failed to fetch upcoming quizzes');
-  }
-  return res.data;
-}
-
-async function getUserAchievements(userId: string): Promise<(UserAchievement & { achievement: Achievement })[]> {
-  const res = await instance.get(`/api/users/${userId}/achievements`);
-  if (res.status !== 200) {
-    throw new Error('Failed to fetch user achievements');
-  }
-  return res.data;
-}
-
-async function getCourseRecommendations(userId: string): Promise<CourseRecommendationWithDetails[]> {
-  const res = await instance.get(`/api/users/${userId}/courseRecommendations`);
-  if (res.status !== 200) {
-    throw new Error('Failed to fetch course recommendations');
-  }
-  return res.data;
-}
-
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
   if (!session) {
     // Handle unauthorized access
     return <div>Access Denied</div>;
   }
-
-  const user = session.user as User;
-  const [enrolledCourses, upcomingAssignments, upcomingQuizzes, userAchievements, courseRecommendations] = await Promise.all([
-    getEnrolledCourses(user.id),
-    getUpcomingAssignments(user.id),
-    getUpcomingQuizzes(user.id),
-    getUserAchievements(user.id),
-    getCourseRecommendations(user.id),
-  ]);
 
   return (
     <div className="bg-white dark:bg-gray-900 min-h-screen">
