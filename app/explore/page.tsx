@@ -2,9 +2,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/base/Card';
-import ProjectCard from '@/components/ProjectCard';
-import FileCard from '@/components/FileCard';
-import SpaceCard from '@/components/SpaceCard';
 import Button from '@/components/Button';
 import Skeleton from '@/components/Skeleton';
 import { User } from '@/lib/prisma';

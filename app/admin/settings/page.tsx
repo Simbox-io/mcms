@@ -46,6 +46,8 @@ interface AdminSettings {
   sesAccessKey: '',
   sesSecretAccessKey: '',
   emailFrom: '',
+  databaseUrl: '',
+  databaseType: '',
 }
 
 
@@ -82,6 +84,8 @@ const defaultSettings: AdminSettings = {
   sesAccessKey: '',
   sesSecretAccessKey: '',
   emailFrom: '',
+  databaseUrl: '',
+  databaseType: '',
 };
 
 const AdminSettingsPage: React.FC = () => {
@@ -118,6 +122,8 @@ const AdminSettingsPage: React.FC = () => {
     sesAccessKey: '',
     sesSecretAccessKey: '',
     emailFrom: '',
+    databaseUrl: '',
+    databaseType: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -520,6 +526,30 @@ const AdminSettingsPage: React.FC = () => {
                 label="Require Login to Download"
                 checked={settings.requireLoginToDownload}
                 onChange={() => handleToggle('requireLoginToDownload')}
+              />
+            </div>
+          </Card>
+
+          <Card className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Database Settings</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Database URL"
+                type="text"
+                id="databaseUrl"
+                name="databaseUrl"
+                value={settings.databaseUrl}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                label="Database Type"
+                type="text"
+                id="databaseType"
+                name="databaseType"
+                value={settings.databaseType}
+                onChange={handleChange}
+                required
               />
             </div>
           </Card>
