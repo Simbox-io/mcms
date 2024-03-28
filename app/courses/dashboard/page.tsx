@@ -8,7 +8,7 @@ import UpcomingDeadlines from '@/components/lms/UpcomingDeadlines';
 import UserAchievements from '@/components/lms/UserAchievements';
 import RecommendedCourses from '@/components/lms/RecommendedCourses';
 import instance from '@/utils/api';
-import { Course, CourseCategory } from '@/lib/prisma';
+import { CourseCategory } from '@/lib/prisma';
 
 interface EnrolledCourse extends Enrollment {
   course: Course;
