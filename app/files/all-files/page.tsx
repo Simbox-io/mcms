@@ -15,7 +15,7 @@ import { FiGrid, FiList, FiFilter, FiSidebar } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
 import Input from '../../../components/Input';
 import CategoryFilter from '../../../components/CategoryFilter';
-import { AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface File {
   id: number;
