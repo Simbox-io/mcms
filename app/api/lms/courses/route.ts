@@ -35,16 +35,8 @@ export async function GET(request: Request) {
             username: true,
           },
         },
-        categories: {
-          select: {
-            name: true,
-          },
-        },
-        tags: {
-          select: {
-            name: true,
-          },
-        },
+        categories: true, // Include the entire CourseCategory object
+        tags: true, // Include the entire Tag object
       },
     });
 
