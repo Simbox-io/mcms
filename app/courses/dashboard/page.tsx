@@ -1,7 +1,7 @@
 // app/dashboard/page.tsx
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/app/api/auth/[...nextauth]/options';
-import { Enrollment, Notification, User, Course, Assignment, Quiz, Achievement, UserAchievement, CourseRecommendation, CourseCategory } from '@/lib/prisma';
+import { Enrollment, Notification, User, Course, Assignment, Quiz, Achievement, UserAchievement, CourseRecommendation, CourseCategory, Tag } from '@/lib/prisma';
 import DashboardCourseCard from '@/components/lms/DashboardCourseCard';
 import NotificationList from '@/components/lms/NotificationList';
 import UpcomingDeadlines from '@/components/lms/UpcomingDeadlines';
@@ -20,7 +20,7 @@ interface CourseWithDetails extends Pick<Course, Exclude<keyof Course, 'categori
     username: string;
   };
   categories: CourseCategory[];
-  tags: { name: string }[];
+  tags: Tag[];
 }
 
 interface CourseRecommendationWithDetails extends CourseRecommendation {
