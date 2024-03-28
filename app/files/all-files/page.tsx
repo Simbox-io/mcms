@@ -160,34 +160,7 @@ const FileListPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Files</h1>
-        <div className="flex items-center space-x-4">
-          <Button variant="primary" onClick={handleUpload}>
-            <IoMdAdd />
-          </Button>
-          <Button variant="secondary" onClick={toggleView}>
-            {view === 'grid' ? <FiList /> : view === 'list' ? <FiSidebar /> : <FiGrid />}
-          </Button>
-        </div>
-      </div>
-      <div className="mb-8">
-        <div className="flex justify-between">
-          <div className="flex-grow mr-4 ">
-            <Input
-            type="text"
-            name="filterQuery"
-            id="filterQuery"
-            placeholder="Filter projects..."
-            value={filterQuery}
-            onChange={(e) => setFilterQuery(e.target.value)}
-            className=""
-          />
-        </div>          
-          <CategoryFilter onSelect={handleChangeCategory} options={[{ label: 'test' }, { label: 'test2' }]} className=''/>
-        </div>
-      </div>
+    <>
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
           <Spinner size="large" />
@@ -296,7 +269,7 @@ const FileListPage: React.FC = () => {
           </AnimatePresence>
         </>
       )}
-    </div>
+    </>
   );
 };
 

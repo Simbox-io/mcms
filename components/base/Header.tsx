@@ -183,9 +183,9 @@ const Header: React.FC = () => {
                     }
                     setIsMenuOpen(false);
                   }}
-                  className="block w-full"
-                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
-                  menuClassName="mt-2 z-10"
+                  className="ml-4"
+                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
+                  menuClassName="mt-2"
                 />
                 <Dropdown
                   label="Projects"
