@@ -14,10 +14,6 @@ type CourseData = Course & {
   tags: {
     name: string;
   }[];
-  progress: any[];
-  enrollments: any[];
-  lessons: any[];
-  announcements: any[];
 };
 
 export async function GET(request: Request) {
@@ -64,6 +60,10 @@ export async function GET(request: Request) {
             name: true,
           },
         },
+        progress: true,
+        enrollments: true,
+        lessons: true,
+        announcements: true,
       },
     });
 
