@@ -8,18 +8,19 @@ import UpcomingDeadlines from '@/components/lms/UpcomingDeadlines';
 import UserAchievements from '@/components/lms/UserAchievements';
 import RecommendedCourses from '@/components/lms/RecommendedCourses';
 import instance from '@/utils/api';
+import { Course, CourseCategory } from '@/lib/prisma';
 
 interface EnrolledCourse extends Enrollment {
   course: Course;
 }
 
-interface CourseWithDetails extends Course {
+interface CourseWithDetails extends Pick<Course, Exclude<keyof Course, 'categories' | 'tags'>> {
   instructor: {
     firstName: string;
     lastName: string;
     username: string;
   };
-  categories: { name: string }[];
+  categories: CourseCategory[];
   tags: { name: string }[];
 }
 
