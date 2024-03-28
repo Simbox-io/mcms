@@ -116,6 +116,7 @@ const FileUploadPage: React.FC = () => {
                   setSelectedFile(files[0]);
                 }
               }}
+              showButton={false}
             />
           </div>
           <div className="mb-6">

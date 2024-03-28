@@ -12,6 +12,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
     const router = useRouter();
     const [view, setView] = useState<'grid' | 'list'>('grid');
     const [filterQuery, setFilterQuery] = useState('');
+    const [viewingFile, setViewingFile] = useState(false)
 
     const handleUploadFile = () => {
         router.push('/files/upload');
@@ -44,7 +45,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
                         </Button>
                     </div>
                 </div>
-                <div className="mb-8">
+                {viewingFile === false && (<div className="mb-8">
                     <div className="flex justify-between">
                         <div className="flex-grow mr-4 ">
                             <Input
@@ -57,7 +58,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
                         </div>
                         <CategoryFilter onSelect={handleChangeCategory} options={[{ label: 'test' }, { label: 'test2' }]} className='mt-1' />
                     </div>
-                </div>
+                </div>)}
                 <AnimatePresence mode="wait">
                     {view === 'grid' ? (
                         <motion.div
