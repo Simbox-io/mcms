@@ -1,29 +1,14 @@
 import { NextResponse } from 'next/server';
 import cachedPrisma from '@/lib/prisma';
-import { Course } from '@/lib/prisma';
-
-type CourseData = Course & {
-  instructor: {
-    firstName: string;
-    lastName: string;
-    username: string;
-  };
-  categories: {
-    name: string;
-  }[];
-  tags: {
-    name: string;
-  }[];
-};
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
-  const page: number = parseInt(searchParams.get('page') || '1');
-  const perPage: number = parseInt(searchParams.get('perPage') || '9');
-  const category: string | null = searchParams.get('category');
-  const tags: string[] = searchParams.get('tags')?.split(',') || [];
-  const search: string | null = searchParams.get('search');
+  const page = parseInt(searchParams.get('page') || '1');
+  const perPage = parseInt(searchParams.get('perPage') || '9');
+  const category = searchParams.get('category');
+  const tags = searchParams.get('tags')?.split(',') || [];
+  const search = searchParams.get('search');
 
   try {
     const totalCount = await cachedPrisma.course.count({
@@ -34,7 +19,7 @@ export async function GET(request: Request) {
       },
     });
 
-    const courses: CourseData[] = await cachedPrisma.course.findMany({
+    const courses = await cachedPrisma.course.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       where: {
@@ -60,10 +45,6 @@ export async function GET(request: Request) {
             name: true,
           },
         },
-        progress: true,
-        enrollments: true,
-        lessons: true,
-        announcements: true,
       },
     });
 
