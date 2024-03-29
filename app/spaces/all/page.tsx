@@ -13,52 +13,12 @@ import CacheService from '../../../lib/cacheService';
 import axios from 'axios';
 import instance from '@/utils/api';
 
-interface ActivityData {
-  id: number;
-  user: {
-    username: string;
-    avatar: string;
-  };
-  message: string;
-}
-
-interface QuickActionData {
-  id: number;
-  label: string;
-}
-
-interface PinnedPageData {
-  id: number;
-  title: string;
-  space: {
-    id: number;
-    name: string;
-  };
-}
-
-interface RecentlyVisitedData {
-  id: number;
-  title: string;
-  space: {
-    id: number;
-    name: string;
-  };
-}
-
-interface PopularSpacesData {
-  id: number;
-  name: string;
-  description: string;
-}
-
-
 const AllSpacesPage: React.FC = () => {
-  const [recentActivity, setRecentActivity] = useState<ActivityData[]>([]);
-  const [quickActions, setQuickActions] = useState<QuickActionData[]>([]);
-  const [pinnedPages, setPinnedPages] = useState<PinnedPageData[]>([]);
-  const [recentlyVisited, setRecentlyVisited] = useState<RecentlyVisitedData[]>([]);
-  const [popularSpaces, setPopularSpaces] = useState<PopularSpacesData[]>([]);
-  const [spaces, setSpaces] = useState<Space[]>([]);
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
+  const [quickActions, setQuickActions] = useState<{ id: number; label: string }[]>([]);
+  const [pinnedPages, setPinnedPages] = useState<Page[]>([]);
+  const [recentlyVisited, setRecentlyVisited] = useState<Page[]>([]);
+  const [popularSpaces, setPopularSpaces] = useState<Space[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSpace, setActiveSpace] = useState(null);
   const router = useRouter();
@@ -67,99 +27,18 @@ const AllSpacesPage: React.FC = () => {
     const fetchData = async () => {
       try {
         const [activityData, quickActionsData, pinnedPagesData, recentlyVisitedData, popularSpacesData] = await Promise.all([
-          // Fetch recent activity data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              user: {
-                username: 'John Doe',
-                avatar: 'https://randomuser.me/api/portrait.jpg',
-              },
-              message: 'created a new page',
-            },
-            {
-              id: 2,
-              user: {
-                username: 'Jane Doe',
-                avatar: 'https://randomuser.me/api/portrait.jpg',
-              },
-              message: 'updated the homepage',
-            },
-          ]),
-          // Fetch quick actions data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              label: 'Create Page',
-            },
-            {
-              id: 2,
-              label: 'Create Space',
-            },
-          ]),
-          // Fetch pinned pages data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              title: 'Getting Started',
-              space: {
-                id: 1,
-                name: 'Documentation',
-              },
-            },
-            {
-              id: 2,
-              title: 'Homepage',
-              space: {
-                id: 2,
-                name: 'Company',
-              },
-            },
-          ]),
-          // Fetch recently visited data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              title: 'Getting Started',
-              space: {
-                id: 1,
-                name: 'Documentation',
-              },
-            },
-            {
-              id: 2,
-              title: 'Homepage',
-              space: {
-                id: 2,
-                name: 'Company',
-              },
-            },
-          ]),
-          // Fetch popular spaces data
-          // for now, let's use sample data
-          Promise.resolve([
-            {
-              id: 1,
-              name: 'Documentation',
-              description: 'Learn how to use our product',
-            },
-            {
-              id: 2,
-              name: 'Company',
-              description: 'Company-wide information',
-            },
-          ]),
+          instance.get('/api/activities'),
+          instance.get('/api/quick-actions'),
+          instance.get('/api/pinned-pages'),
+          instance.get('/api/recently-visited'),
+          instance.get('/api/popular-spaces'),
         ]);
 
-        setRecentActivity(activityData);
-        setQuickActions(quickActionsData);
-        setPinnedPages(pinnedPagesData);
-        setRecentlyVisited(recentlyVisitedData);
-        setPopularSpaces(popularSpacesData);
+        setRecentActivity(activityData.data);
+        setQuickActions(quickActionsData.data);
+        setPinnedPages(pinnedPagesData.data);
+        setRecentlyVisited(recentlyVisitedData.data);
+        setPopularSpaces(popularSpacesData.data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -175,11 +54,11 @@ const AllSpacesPage: React.FC = () => {
     console.log('Quick action clicked:', action);
   };
 
-  const handlePageClick = (page: any) => {
+  const handlePageClick = (page: Page) => {
     router.push(`/pages/${page.id}`);
   };
 
-  const handleSpaceClick = (space: any) => {
+  const handleSpaceClick = (space: Space) => {
     setActiveSpace(space.id);
     router.push(`/spaces/${space.id}`);
   };
@@ -209,7 +88,6 @@ const AllSpacesPage: React.FC = () => {
           ))}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
           <div className="md:col-span-2">
             <h2 className="text-2xl font-bold mb-4">Recent Activity</h2>
             {recentActivity.length === 0 ? (
