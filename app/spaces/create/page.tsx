@@ -11,6 +11,7 @@ import Checkbox from '@/components/next-gen/Checkbox';
 import Radio from '@/components/next-gen/Radio';
 import Spinner from '@/components/next-gen/Spinner';
 import { Space, CollaboratorRole, ExportFormat } from '@/lib/prisma';
+import instance from '@/utils/api';
 
 const CreateSpacePage = () => {
   const [name, setName] = useState('');
@@ -28,7 +29,7 @@ const CreateSpacePage = () => {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e: Event) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name) {
@@ -65,7 +66,23 @@ const CreateSpacePage = () => {
           },
         },
       };
-      router.push(`/spaces/${newSpace.name}`);
+
+      // Make an API request to create the space on the server
+      const response = await fetch('/api/spaces', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newSpace),
+      });
+
+      if (response.ok) {
+        const createdSpace = await response.json();
+        // Redirect to the newly created space page using the actual space ID or name
+        router.push(`/spaces/${createdSpace.id}`);
+      } else {
+        throw new Error('Failed to create space');
+      }
     } catch (error) {
       console.error('Error creating space:', error);
       setError('An error occurred while creating the space. Please try again.');
@@ -83,7 +100,7 @@ const CreateSpacePage = () => {
     >
       <h1 className="text-4xl font-bold mb-8 text-center">Create New Space</h1>
       <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-        <form onSubmit={() => handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="mb-6">
             <label htmlFor="name" className="block mb-2 font-bold text-gray-700 dark:text-gray-200">
               Name
@@ -143,8 +160,8 @@ const CreateSpacePage = () => {
             {loading ? <Spinner size="small" /> : 'Create Space'}
           </Button>
         </form>
-      </div >
-    </motion.div >
+      </div>
+    </motion.div>
   );
 };
 
