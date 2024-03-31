@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs';
 import prisma from '@/lib/prisma';
 import { UserJSON } from '@clerk/nextjs/server';
-import { Webhook } from 'svix';
+import { Svix, Webhook } from 'svix';
 
 
 export async function GET(request: NextRequest) {
@@ -49,16 +49,16 @@ export async function POST(request: NextRequest) {
     "svix-id": svix_id,
     "svix-timestamp": svix_timestamp,
     "svix-signature": svix_signature,
-  }) as UserJSON;
+  }) as any;
 
   console.error(payload)
   
-  const id = payload.id as string;
-  const username = payload.username as string;
-  const firstName = payload.first_name as string || '';
-  const lastName = payload.last_name as string || '';
-  const email = payload.email_addresses[0].email_address as string;
-  const avatarUrl = payload.image_url as string || '';
+  const id = payload.data.id as string;
+  const username = payload.data.username as string;
+  const firstName = payload.data.first_name as string || '';
+  const lastName = payload.data.last_name as string || '';
+  const email = payload.data.email_addresses[0].email_address as string;
+  const avatarUrl = payload.data.image_url as string || '';
 
   try {
     const user = await prisma.user.findUnique({
