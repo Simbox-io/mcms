@@ -1,12 +1,13 @@
 {
-  "name": "mcms-shadcn",
+  "name": "mcms",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.19.1",
