@@ -77,14 +77,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   const debouncedFetchSearchResults = debounce(fetchSearchResults, 500);
-
+  
   useEffect(() => {
     if (searchQuery.trim() !== '') {
       debouncedFetchSearchResults(searchQuery);
     } else {
       setSearchResults({ posts: [], files: [], projects: [], spaces: [], tutorials: [], users: [] });
     }
-  }, [searchQuery]);
+  }, [searchQuery, debouncedFetchSearchResults]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
