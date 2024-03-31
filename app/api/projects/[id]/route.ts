@@ -1,14 +1,14 @@
 // app/api/projects/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const projectId = params.id;
 
   try {
-    const project = await cachedPrisma.project.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
         owner: true,
@@ -41,17 +41,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   const projectId = params.id;
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session) {
+  if (!session.sessionId) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const { name, description, collaborators, tags, settings } = await request.json();
 
   try {
-    const project = await cachedPrisma.project.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: { owner: true },
     });
@@ -60,11 +60,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Project not found' }, { status: 404 });
     }
 
+    if (!user) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
     if (project.owner.id !== user.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedProject = await cachedPrisma.project.update({
+    const updatedProject = await prisma.project.update({
       where: { id: projectId },
       data: {
         name,
@@ -116,15 +120,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   const projectId = params.id;
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session) {
+  if (!session.sessionId) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const project = await cachedPrisma.project.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: { owner: true },
     });
@@ -133,11 +137,15 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Project not found' }, { status: 404 });
     }
 
+    if (!user) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
     if (project.owner.id !== user.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await cachedPrisma.project.delete({
+    await prisma.project.delete({
       where: { id: projectId },
     });
 

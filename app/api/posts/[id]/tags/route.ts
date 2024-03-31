@@ -1,14 +1,14 @@
 // app/api/posts/[id]/tags/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const postId = params.id;
 
   try {
-    const tags = await cachedPrisma.tag.findMany({
+    const tags = await prisma.tag.findMany({
       where: {
         posts: {
           some: {
@@ -26,8 +26,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { tags } = await request.json();
 
   try {
-    const post = await cachedPrisma.post.findUnique({
+    const post = await prisma.post.findUnique({
       where: { id: postId },
       include: { author: true },
     });
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedPost = await cachedPrisma.post.update({
+    const updatedPost = await prisma.post.update({
       where: { id: postId },
       data: {
         tags: {

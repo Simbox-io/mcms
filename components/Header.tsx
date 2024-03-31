@@ -1,484 +1,583 @@
-'use client';
-import React, { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { signOut, useSession } from 'next-auth/react';
+'use client'
+import React, { useEffect, useState, useRef } from "react"
+import {
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
+    navigationMenuTriggerStyle
+} from "./ui/navigation-menu"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger
+} from "./ui/accordion"
+import {
+    Sheet,
+    SheetContent,
+    SheetTrigger
+} from "./ui/sheet"
+import { Menu } from 'lucide-react'
+import { Button } from "./ui/button"
+import { ScrollArea } from "./ui/scroll-area"
+import SearchBar from "./SearchBar"
+import { cn } from "@/lib/utils"
+import Link from "next/link"
 import { useRouter } from 'next/navigation';
-import { User, Notification } from '@/lib/prisma';
-import Dropdown from './Dropdown';
-import Button from './Button';
-import { SearchResult } from "@/components/SearchResults";
-import Skeleton from './Skeleton';
-import SearchBar from "@/components/SearchBar";
-import { debounce } from 'lodash';
+import { File, Project, Space, User, Course, Notification } from "@/lib/prisma"
+import useSWR from 'swr';
+import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
+import { ModeToggle } from "@/components/mode-toggle"
 
-const Header: React.FC = () => {
-  const router = useRouter();
-  const { data: sessionData, status: sessionStatus } = useSession();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const notificationsRef = useRef<HTMLDivElement>(null);
-  const user = sessionData?.user as User;
-  const [isLoading, setIsLoading] = useState(false);
+export default function Header() {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+    const [projects, setProjects] = useState([]);
+    const [spaces, setSpaces] = useState([]);
+    const [courses, setcourses] = useState([]);
+    const [files, setFiles] = useState([]);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const searchRef = useRef<HTMLDivElement>(null);
+    const notificationsRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
+    const { user } = useUser();
 
-  const handleLogout = async () => {
-    await signOut();
-    router.push('/login');
-  };
-
-  const handleSearch = (query: string) => {
-    if (query.trim() !== '') {
-      router.push(`/search?q=${encodeURIComponent(query)}`);
-    }
-  };
-
-  const [searchResults, setSearchResults] = useState<{
-    posts: SearchResult[];
-    files: SearchResult[];
-    projects: SearchResult[];
-    spaces: SearchResult[];
-    tutorials: SearchResult[];
-    users: SearchResult[];
-  }>({
-    posts: [],
-    files: [],
-    projects: [],
-    spaces: [],
-    tutorials: [],
-    users: [],
-  });
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch('/api/notifications');
+    const fetcher = async (url: string) => {
+        const res = await fetch(url);
         const data = await res.json();
-        setNotifications(data.notifications);
-        setUnreadCount(data.notifications.filter((notification: Notification) => !notification.isRead).length);
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
+        return data;
     };
 
-    if (user) {
-      fetchNotifications();
-    }
-  }, [user]);
+    const { data: notificationsData, error, mutate } = useSWR('/api/notifications', fetcher);
+    const notifications = notificationsData?.notifications?.filter((notification: Notification) => !notification.isRead) || [];
+    const unreadCount = notificationsData?.notifications?.filter((notification: Notification) => !notification.isRead).length || 0;
 
-  useEffect(() => {
+    useEffect(() => {
+        fetch('/api/projects').then(async res => setProjects(await res.json()));
+        fetch('/api/spaces').then(async res => setSpaces(await res.json()));
+        fetch('/api/lms/courses').then(async res => setcourses(await res.json()));
+        fetch('/api/files').then(async res => setFiles(await res.json()));
+    }, []);
+
+    const markNotificationAsRead = async (notificationId: string) => {
+        try {
+            mutate(
+                (prevData: any) => ({
+                    ...prevData,
+                    notifications: prevData.notifications.map((notification: Notification) =>
+                        notification.id === notificationId ? { ...notification, isRead: true } : notification
+                    ),
+                }),
+                false
+            );
+            await fetch(`/api/notifications/${notificationId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ isRead: true }),
+            });
+            mutate();
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+        }
+    };
+
+    const handleClearNotifications = async () => {
+        try {
+            if (!notifications || notifications.length === 0) return;
+            mutate(
+                (prevData: any) => ({
+                    ...prevData,
+                    notifications: prevData.notifications.map((notification: Notification) =>
+                        notifications.some((notification: Notification) => notification.id === notification.id)
+                            ? { ...notification, isRead: true }
+                            : notification
+                    ),
+                }),
+                false
+            );
+            for (const notification of notifications) {
+                await fetch(`/api/notifications/${notification.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ isRead: true }),
+                });
+            }
+            mutate();
+        } catch (error) {
+            console.error('Error clearing notifications:', error);
+        }
+    };
+
+    const handleSearch = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchTerm.trim() !== '') {
+            router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+        }
+    };
+
+    const handleToggle = (
+        isOpen: boolean,
+        setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+    ) => {
+        setIsOpen(!isOpen);
+    };
+
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        isMenuOpen
-      ) {
-        setIsMenuOpen(false);
-      }
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node) &&
-        isSearchOpen
-      ) {
-        setIsSearchOpen(false);
-      }
-      if (
-        notificationsRef.current &&
-        !notificationsRef.current.contains(event.target as Node) &&
-        isNotificationsOpen
-      ) {
-        setIsNotificationsOpen(false);
-      }
+        if (
+            menuRef.current &&
+            !menuRef.current.contains(event.target as Node) &&
+            isMenuOpen
+        ) {
+            setIsMenuOpen(false);
+        }
+        if (
+            searchRef.current &&
+            !searchRef.current.contains(event.target as Node) &&
+            isSearchOpen
+        ) {
+            setIsSearchOpen(false);
+        }
+        if (
+            notificationsRef.current &&
+            !notificationsRef.current.contains(event.target as Node) &&
+            isNotificationsOpen
+        ) {
+            setIsNotificationsOpen(false);
+        }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isMenuOpen, isSearchOpen, isNotificationsOpen]);
+    useEffect(() => {
+        document.addEventListener('mouseup', handleClickOutside);
+        return () => {
+            document.removeEventListener('mouseup', handleClickOutside);
+        };
+    });
 
-  const markNotificationAsRead = async (notificationId: string) => {
-    try {
-      await fetch(`/api/notifications/${notificationId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ isRead: true }),
-      });
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((notification) =>
-          notification.id === notificationId ? { ...notification, isRead: true } : notification
-        )
-      );
-      setUnreadCount((prevCount) => prevCount - 1);
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-    }
-  };
-
-  const debouncedFetchSearchResults = useRef(
-    debounce((query) => fetchSearchResults(query), 300)
-  ).current;
-
-  useEffect(() => {
-    if (searchTerm.trim() !== '') {
-      debouncedFetchSearchResults(searchTerm);
-    } else {
-      setSearchResults({
-        posts: [],
-        files: [],
-        projects: [],
-        spaces: [],
-        tutorials: [],
-        users: [],
-      });
-    }
-  }, [searchTerm, debouncedFetchSearchResults]);
-
-  const fetchSearchResults = async (query: string) => {
-    if (query.trim() === '') {
-      setSearchResults({
-        posts: [],
-        files: [],
-        projects: [],
-        spaces: [],
-        tutorials: [],
-        users: [],
-      });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      setSearchResults(data.results);
-    } catch (error) {
-      console.error('Error fetching search results:', error);
-    }
-    setIsLoading(false);
-  };
-
-  const handleClearNotifications = async (notifications: Notification[]) => {
-    try {
-      for (const notification of notifications) {
-        await fetch(`/api/notifications/${notification.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ isHidden: true }),
-        });
-      }
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((notification) => ({ ...notification, isHidden: true }))
-      );
-      setUnreadCount(0);
-    } catch (error) {
-      console.error('Error clearing notifications:', error);
-    }
-  };
-
-  return (
-    <header className="bg-white dark:bg-gray-800 shadow z-10">
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex flex-shrink space-x-1 items-center">
-            <img src="/logo.png" alt="MCMS" className="h-16 w-16 sm:h-12 sm:w-12" />
-            <Link href="/">
-              <span className="hidden md:block mx-1 mr-4 text-xl font-bold text-blue-600 dark:text-blue-400">MCMS</span>
-            </Link>
-            <nav className="hidden md:ml-4 md:flex mx-1 space-x-1 xl:space-x-6">
-              <Button
-                variant="dropdown"
-                size="medium"
-                onClick={() => router.push('/explore')}
-                className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 rounded-md text-sm font-medium flex items-center"
-              >
-                Explore
-              </Button>
-              <Button
-                variant="dropdown"
-                size="medium"
-                onClick={() => router.push('/explore/posts')}
-                className="hidden ml-4 md:block text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 rounded-md text-sm font-medium flex items-center"
-              >
-                News
-              </Button>
-              <Dropdown
-                label="Projects"
-                options={['All Projects', 'Trending', 'Recent', 'My Project 1']}
-                value=""
-                onChange={(value) => router.push(`/projects/${value.toLowerCase().replace(' ', '-')}`)}
-                className="ml-4"
-                buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                menuClassName="mt-2"
-              />
-              <Dropdown
-                label="Files"
-                options={['All Files', 'Shared with Me', 'Recent']}
-                value=""
-                onChange={(value) => router.push(`/files/${value.toLowerCase().replace(' ', '-')}`)}
-                className="ml-4"
-                buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                menuClassName="mt-2"
-              />
-              <Dropdown
-                label="Spaces"
-                options={['All', 'Recent', 'Space 1', 'Space 2']}
-                value=""
-                onChange={(value) => router.push(`/spaces/${value.toLowerCase().replace(' ', '-')}`)}
-                className="ml-4"
-                buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                menuClassName="mt-2"
-              />
-            </nav>
-          </div>
-          <div className="flex items-center">
-            <button
-              className="lg:hidden text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 focus:outline-none"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              aria-label="Search"
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </button>
-            <div className="hidden lg:block md:w-48 xl:w-80">
-              <SearchBar onSearch={handleSearch} placeholder="Search..." />
-            </div>
-          </div>
-          {sessionStatus === 'loading' ? (
-            <Skeleton variant="rectangular" width='40' height='40' className="ml-4" />
-          ) : sessionData ? (
-            <div className="relative flex items-center md:ml-4">
-              <button
-                className="relative z-10 mx-3 text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-0 py-2 rounded-md text-sm font-medium flex items-left"
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                aria-label="Notifications"
-                aria-expanded={isNotificationsOpen}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                  />
-                </svg>
-                {unreadCount > 0 && (
-                  <span className="absolute top-2 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-              {isNotificationsOpen && (
-                <div
-                  ref={notificationsRef}
-                  className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="notifications-menu"
-                >
-                  <div className="py-1">
-                    {notifications.length === 0 && (
-                      <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-200">
-                        No notifications
-                      </div>
-                    )}
-                    <Button variant="outline-secondary" size="small" onClick={() => handleClearNotifications(notifications)} className='flex justify-end w-full hover:bg-white hover:dark:bg-gray-700 dark:text-gray-100 border-none focus:ring-0 dark:focus:ring-0'>
-                      Mark all as read
-                    </Button>
-                    {notifications.length > 0 && (
-                      notifications.map((notification) => (
-                        notification.isHidden ? null : (
-                          <div
-                            key={notification.id}
-                            className={`px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${(!notification.isRead && !notification.isHidden) &&
-                              'bg-blue-50 dark:bg-blue-900'
-                            }`}
-                          >
-                            <div className="flex justify-between items-center">
-                              <span>{notification.message}</span>
-                              {!notification.isRead && (
-                                <button
-                                  className="ml-2 focus:outline-none"
-                                  onClick={() => markNotificationAsRead(notification.id)}
+    return (
+        <header className="bg-white dark:bg-black border-zinc-200 dark:border-zinc-700 shadow z-10 w-full">
+            <div className="max-w-8xl mx-auto px-2 lg:px-12">
+                <div className="flex justify-between items-center h-16">
+                    <div className='flex justify-between'>
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="shrink-0 md:hidden mt-2 bg-zinc-200 dark:bg-zinc-800"
                                 >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4 text-blue-600 dark:text-blue-400"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                </button>
-                              )}
-                            </div>
-                            {notification.link && (
-                              <Link href={notification.link}>
-                                <span className="block mt-1 text-xs text-blue-600 dark:text-blue-400">
-                                  View
-                                </span>
-                              </Link>
-                            )}
-                          </div>
-                        ))))}
-                  </div>
-                </div>
-              )}
-               <Dropdown
-                label={user?.username || ''}
-                image={user?.avatar || ''}
-                options={
-                  user?.role === 'ADMIN'
-                    ? ['Dashboard', 'Analytics', 'Reports', 'Profile', 'Settings', 'Admin', 'Logout']
-                    : ['Dashboard', 'Analytics', 'Reports', 'Profile', 'Settings', 'Logout']
-                }
-                value=""
-                onChange={(value) => {
-                  if (value === 'Logout') {
-                    handleLogout();
-                  } else {
-                    router.push(`/${value.toLowerCase()}`);
-                  }
-                }}
-                className="ml-0 md:ml-1"
-                buttonClassName="z-1 mx-1 text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 py-1 rounded-lg text-xs flex items-left"
-                menuClassName="mt-3"
-                arrowEnabled={false}
-              />
-            </div>
-          ) : (
-            <>
-              <Link href="/login">
-                <span
-                  className="text-white hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium mx-4 bg-gray-500"
-                >
-                  Login
-                </span>
-              </Link>
-              <Link href="/register">
-                <span className="text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                  Register
-                </span>
-              </Link>
-            </>
-          )}
-          <button
-            className="ml-4 md:hidden text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 focus:outline-none"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-            aria-expanded={isMenuOpen}
-          >
-            <svg
-              className="h-6 w-6 transition-transform duration-300 ease-in-out transform"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              style={{ transform: isMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
-            >
-              {isMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
-        </div>
-      </div>
-      {isMenuOpen && (
-        <div ref={menuRef} className="md:hidden transition-all duration-300 ease-in-out">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 mr-2">
-            <Link href="/explore">
-              <span
-                className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 block text-left px-3 py-2 rounded-md text-base font-medium text-right"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </span>
-            </Link>
-            <Dropdown
-              label="Files"
-              options={['All Files', 'Shared with Me', 'Recent']}
-              value=""
-              onChange={(value) => {
-                router.push(`/files/${value.toLowerCase().replace(' ', '-')}`);
-                setIsMenuOpen(false);
-              }}
-              className="block w-full"
-              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
-              menuClassName="mt-2 z-10"
-            />
-            <Dropdown
-              label="Projects"
-              options={['Project 1', 'Project 2', 'Project 3']}
-              value=""
-              onChange={(value) => {
-                router.push(`/projects/${value.toLowerCase().replace(' ', '-')}`);
-                setIsMenuOpen(false);
-              }}
-              className="block w-full"
-              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
-              menuClassName="mt-2 z-10"
-            />
-            <Dropdown
-              label="Spaces"
-              options={['All Spaces', 'Trending', 'Space 1']}
-              value=""
-              onChange={(value) => {
-                router.push(`/spaces/${value.toLowerCase().replace(' ', '-')}`);
-                setIsMenuOpen(false);
-              }}
-              className="block w-full"
-              buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
-              menuClassName="mt-2 z-10"
-            />
-          </div>
-        </div>
-      )}
-      {isSearchOpen && (
-        <div ref={searchRef} className="px-4 py-2 transition-all duration-300 ease-in-out">
-          <SearchBar onSearch={handleSearch} />
-        </div>
-      )}
-    </header>
-  );
-};
+                                    <Menu className="h-5 w-5" />
+                                    <span className="sr-only">Menu</span>
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left">
+                                <nav className="grid gap-6 text-lg font-medium">
+                                    <Link href="/explore">Explore</Link>
+                                    <Link href="/news">News</Link>
+                                    <Accordion type="single" collapsible className="w-full">
+                                        <AccordionItem value="projects">
+                                            <AccordionTrigger>Projects</AccordionTrigger>
+                                            <AccordionContent asChild>
+                                                <span className="text-lg" onClick={() => router.push('/projects')}>
+                                                    All projects
+                                                </span>
+                                            </AccordionContent>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push(`/projects/${user?.username}`)}>
+                                                    My projects
+                                                </span>
+                                            </AccordionContent>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push('/projects/create')}>
+                                                    Create project
+                                                </span>
+                                            </AccordionContent>
+                                            {projects.length > 0 && projects?.map((project: Project) => (
+                                                <AccordionContent key={project.id}>
+                                                    <span className="ml-4 text-lg" key={project.name} onClick={() => router.push(`/projects/${project.id}`)}>
+                                                        {project.description}
+                                                    </span>
+                                                </AccordionContent>
+                                            ))}
 
-export default Header;
+                                        </AccordionItem>
+                                        <AccordionItem value="files">
+                                            <AccordionTrigger>Files</AccordionTrigger>
+                                            <AccordionContent>
+
+                                                <span className="text-lg" onClick={() => router.push('/files')}>
+                                                    All files
+                                                </span>
+                                            </AccordionContent>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push(`/files/${user?.username}`)}>
+                                                    My files
+                                                </span>
+                                            </AccordionContent>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push('/files/upload')}>
+                                                    Upload file
+                                                </span>
+                                            </AccordionContent>
+                                            {files.length > 0 && files?.map((file: File) => (
+                                                <AccordionContent key={file.id}>
+                                                    <span className="ml-4 text-lg" key={file.name} onClick={() => router.push(`/files/${file.id}`)}>
+                                                        {file.description}
+                                                    </span>
+                                                </AccordionContent>
+                                            ))}
+
+                                        </AccordionItem>
+                                        <AccordionItem value="spaces">
+                                            <AccordionTrigger>Spaces</AccordionTrigger>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push('/spaces')}>
+                                                    All spaces
+                                                </span>
+                                            </AccordionContent>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push(`/spaces/${user?.username}`)}>
+                                                    My spaces
+                                                </span>
+                                            </AccordionContent>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push('/spaces/create')}>
+                                                    Create space
+                                                </span>
+                                            </AccordionContent>
+                                            {spaces.length > 0 && spaces?.map((space: Space) => (
+                                                <AccordionContent key={space.id}>
+                                                    <span className="ml-4 text-lg" key={space.name} onClick={() => router.push(`/spaces/${space.id}`)}>
+                                                        {space.description}
+                                                    </span>
+                                                </AccordionContent>
+                                            ))}
+                                        </AccordionItem>
+                                        <AccordionItem value="courses">
+                                            <AccordionTrigger>Courses</AccordionTrigger>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push('/courses')}>
+                                                    All courses
+                                                </span>
+                                            </AccordionContent>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push(`/courses/${user?.username}`)}>
+                                                    My courses
+                                                </span>
+                                            </AccordionContent>
+                                            <AccordionContent>
+                                                <span className="text-lg" onClick={() => router.push('/courses/create')}>
+                                                    Create course
+                                                </span>
+                                            </AccordionContent>
+
+                                            {courses.length > 0 && courses?.map((course: Course) => (
+                                                <AccordionContent key={course.id}>
+                                                    <span className="ml-4 text-lg" key={course.id} onClick={() => router.push(`/courses/${course.id}`)}>
+                                                        {course.description}
+                                                    </span>
+                                                </AccordionContent>
+                                            ))}
+                                        </AccordionItem>
+                                    </Accordion>
+
+                                </nav>
+                            </SheetContent>
+                        </Sheet>
+                        <Link href="/">
+                            <div className='flex items-center'>
+                                <img src="/logo.png" alt="" className="h-14 w-14" />
+                                <span className="hidden xl:block mx-1 mr-4 text-xl font-bold text-blue-600 dark:text-blue-400">MCMS</span>
+                            </div>
+                        </Link>
+                        <NavigationMenu className="hidden md:block mt-2">
+                            <NavigationMenuList>
+                                <NavigationMenuItem>
+                                    <Link href="/explore" legacyBehavior passHref>
+                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                            Explore
+                                        </NavigationMenuLink>
+                                    </Link>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <Link href="/news" legacyBehavior passHref>
+                                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                            News
+                                        </NavigationMenuLink>
+                                    </Link>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <div className={'w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] grid grid-cols-2'}>
+                                            <ul className="grid gap-2">
+                                                <ListItem title="All projects" href="/projects" />
+                                                <ListItem title="My projects" href={`/projects/${user?.username}`} />
+                                                <ListItem title="Create project" href="/projects/create" />
+                                            </ul>
+                                            {projects?.length > 0 ? (
+                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                    <ScrollArea className="h-72 w-48 rounded-md border">
+                                                        {projects?.map((project: Project) => (
+                                                            <ListItem className="ml-4" key={project.name} href={`/projects/${project.id}`} title={project.name}>
+                                                                {project.description}
+                                                            </ListItem>
+                                                        ))}
+                                                    </ScrollArea>
+                                                </ul>
+                                            ) : (
+                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                    <ListItem className="ml-4" title="No projects saved" />
+                                                </ul>
+                                            )}
+                                        </div>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger>Files</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <div className={'w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] grid grid-cols-2'}>
+                                            <ul className="grid gap-2">
+                                                <ListItem title="All files" href="/files" />
+                                                <ListItem title="My files" href={`/files/${user?.username}`} />
+                                                <ListItem title="Upload file" href="/files/upload" />
+                                            </ul>
+                                            {files?.length > 0 ? (
+                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                    <ScrollArea className="h-72 w-48 rounded-md border">
+                                                        {files?.map((file: File) => (
+                                                            <ListItem className="ml-4" key={file.name} href={`/files/${file.id}`} title={file.name}>
+                                                                {file.description}
+                                                            </ListItem>
+                                                        ))}
+                                                    </ScrollArea>
+                                                </ul>
+                                            ) : (
+                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                    <ListItem className="ml-4" title="No files saved" />
+                                                </ul>
+                                            )}
+                                        </div>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger>Spaces</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <div className={'w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] grid grid-cols-2'}>
+                                            <ul className="grid gap-2">
+                                                <ListItem title="All spaces" href="/spaces" />
+                                                <ListItem title="My spaces" href={`/spaces/${user?.username}`} />
+                                                <ListItem title="Create spaces" href="/spaces/create" />
+                                            </ul>
+                                            {spaces?.length > 0 ? (
+                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                    <ScrollArea className="h-72 w-48 rounded-md border">
+                                                        {spaces?.map((space: Space) => (
+                                                            <ListItem className="ml-4" key={space.name} href={`/spaces/${space.id}`} title={space.name}>
+                                                                {space.description}
+                                                            </ListItem>
+                                                        ))}
+                                                    </ScrollArea>
+                                                </ul>
+                                            ) : (
+                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                    <ListItem className="ml-4" title="No spaces saved" />
+                                                </ul>
+                                            )}
+                                        </div>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger>Courses</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <div className={'w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] grid grid-cols-2'}>
+                                            <ul className="grid gap-2">
+                                                <ListItem title="All courses" href="/courses" />
+                                                <ListItem title="My courses" href={`/courses/${user?.username}`} />
+                                                <ListItem title="Create course" href="/courses/create" />
+                                            </ul>
+                                            {courses?.length > 0 ? (
+                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                    <ScrollArea className="h-72 w-48 rounded-md border">
+                                                        {courses?.map((course: Course) => (
+                                                            <ListItem className="ml-4" key={course.id} href={`/courses/${course.id}`} title={course.title}>
+                                                                {course.description}
+                                                            </ListItem>
+                                                        ))}
+                                                    </ScrollArea>
+                                                </ul>
+                                            ) : (
+                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                    <ListItem className="ml-4" title="No courses saved" />
+                                                </ul>
+                                            )}
+                                        </div>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                            </NavigationMenuList>
+                        </NavigationMenu>
+                    </div>
+                    <div className="flex items-center align-middle">
+                        <div className="flex items-center mr-6">
+                            <button
+                                className="lg:hidden text-zinc-500 hover:text-zinc-900 dark:text-zinc-100 dark:hover:text-zinc-500 focus:outline-none ml-2"
+                                onClick={() => handleToggle(isSearchOpen, setIsSearchOpen)}
+                            >
+                                <svg
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                    />
+                                </svg>
+                            </button>
+                            <div className="hidden flex-grow lg:block md:w-48 xl:w-80">
+                                <SearchBar onSearch={() => handleSearch} value={searchTerm} onChange={setSearchTerm} />
+                            </div>
+                            <SignedIn>
+                                <div className="relative flex justify-between items-center md:ml-4">
+                                    <button
+                                        className="relative z-10 mx-3 text-zinc-500 hover:text-zinc-900 dark:text-zinc-100 dark:hover:text-zinc-500 px-0 py-2 rounded-md text-sm font-medium flex items-left"
+                                        onClick={() => handleToggle(isNotificationsOpen, setIsNotificationsOpen)}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-6 w-6"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                                            />
+                                        </svg>
+                                        {unreadCount > 0 && (
+                                            <span className="absolute top-2 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                                                {unreadCount}
+                                            </span>
+                                        )}
+                                    </button>
+                                    {isNotificationsOpen && (
+                                        <div
+                                            ref={notificationsRef}
+                                            className="origin-top-right ml-24 absolute right-0 top-full w-80 rounded-md shadow-xl bg-white dark:bg-zinc-700 ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                        >
+                                            <div className="py-1">
+                                                {(!notifications || notifications.length === 0) && (
+                                                    <div className="px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200">
+                                                        No notifications
+                                                    </div>
+                                                )}
+                                                {notifications.length > 1 && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size='sm'
+                                                        onClick={() => handleClearNotifications()}
+                                                        className="flex justify-end w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 hover:dark:bg-zinc-600 dark:focus:ring-0"
+                                                    >
+                                                        Mark all as read
+                                                    </Button>
+                                                )}
+                                                <div className="overflow-y-auto max-h-96">
+                                                    {notifications.map((notification: Notification) => (
+                                                        <div
+                                                            key={notification.id}
+                                                            className={`z-1 px-4 py-3 text-sm text-zinc-700 dark:text-zinc-200 ${!notification.isRead && !notification.isHidden
+                                                                ? 'bg-blue-50 dark:bg-blue-900'
+                                                                : ''
+                                                                }`}
+                                                        >
+                                                            <div className="flex justify-between items-center">
+                                                                <span>{notification.message}</span>
+                                                                <button
+                                                                    className="ml-2 focus:outline-none"
+                                                                    onClick={() => markNotificationAsRead(notification.id)}
+                                                                >
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        className="h-4 w-4 text-blue-600 dark:text-blue-400"
+                                                                        viewBox="0 0 20 20"
+                                                                        fill="currentColor"
+                                                                    >
+                                                                        <path
+                                                                            fillRule="evenodd"
+                                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                                            clipRule="evenodd"
+                                                                        />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                            {notification.link && (
+                                                                <Link href={notification.link}>
+                                                                    <span className="block mt-1 text-xs text-blue-600 dark:text-blue-400">
+                                                                        View
+                                                                    </span>
+                                                                </Link>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </SignedIn>
+                            <UserButton />
+                        </div>
+                        <SignedOut>
+                            <SignInButton/>
+                        </SignedOut>
+                    </div>
+                </div>
+            </div>
+            {isSearchOpen && (
+                <div ref={searchRef} className="px-4 py-2 md:hidden">
+                    <SearchBar onSearch={() => handleSearch} />
+                </div>
+            )}
+        </header>
+    )
+}
+
+const ListItem = React.forwardRef<
+    React.ElementRef<"a">,
+    React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+    return (
+        <li>
+            <NavigationMenuLink asChild>
+                <a
+                    ref={ref}
+                    className={cn(
+                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                        className
+                    )}
+                    {...props}
+                >
+                    <div className="text-sm font-medium leading-none">{title}</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        {children}
+                    </p>
+                </a>
+            </NavigationMenuLink>
+        </li>
+    )
+})
+ListItem.displayName = "ListItem"

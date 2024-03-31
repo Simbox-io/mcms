@@ -1,12 +1,12 @@
 // app/api/users/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
-import { User } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get('search');
 
   try {
-    const users = await cachedPrisma.user.findMany({
+    const users = await prisma.user.findMany({
       where: {
         OR: [
           { username: { contains: search || '', mode: 'insensitive' } },

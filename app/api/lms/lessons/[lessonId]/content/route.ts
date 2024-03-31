@@ -1,10 +1,10 @@
 // app/api/lessons/[lessonId]/content/route.ts
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { lessonId: string } }) {
   try {
-    const lesson = await cachedPrisma.lesson.findUnique({
+    const lesson = await prisma.lesson.findUnique({
       where: { id: params.lessonId },
       select: { content: true },
     });
@@ -23,7 +23,7 @@ export async function GET(request: Request, { params }: { params: { lessonId: st
 export async function PUT(request: Request, { params }: { params: { lessonId: string } }) {
   try {
     const { content } = await request.json();
-    const updatedLesson = await cachedPrisma.lesson.update({
+    const updatedLesson = await prisma.lesson.update({
       where: { id: params.lessonId },
       data: { content },
     });

@@ -1,12 +1,13 @@
 // app/api/pages/[id]/revert/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { version } = await request.json();
 
   try {
-    const page = await cachedPrisma.page.findUnique({
+    const page = await prisma.page.findUnique({
       where: { id: pageId },
       include: {
         space: {
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const versionToRevert = await cachedPrisma.page.findFirst({
+    const versionToRevert = await prisma.page.findFirst({
       where: {
         id: pageId,
         version,
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Version not found' }, { status: 404 });
     }
 
-    const revertedPage = await cachedPrisma.page.update({
+    const revertedPage = await prisma.page.update({
       where: { id: pageId },
       data: {
         title: versionToRevert.title,

@@ -1,7 +1,7 @@
 // app/api/tutorials/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -10,10 +10,10 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalTutorials = await cachedPrisma.tutorial.count();
+    const totalTutorials = await prisma.tutorial.count();
     const totalPages = Math.ceil(totalTutorials / perPage);
 
-    const tutorials = await cachedPrisma.tutorial.findMany({
+    const tutorials = await prisma.tutorial.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       include: {
@@ -53,8 +53,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
   const { title, content, tags, collaborators, settings } = await request.json();
 
   try {
-    const newTutorial = await cachedPrisma.tutorial.create({
+    const newTutorial = await prisma.tutorial.create({
       data: {
         title,
         content,

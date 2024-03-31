@@ -1,21 +1,22 @@
 // app/api/user/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma, { User } from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma, { User } from '@/lib/prisma';
 import { uploadImage } from '@/lib/uploadImage';
 
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
 
-  if (!session) {
+
+  if (!session.sessionId) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const user = await cachedPrisma.user.findUnique({
-      where: { id: userObj.id },
+    const user = await prisma.user.findUnique({
+      where: { id: userObj?.id },
       include: {
         profile: true,
         settings: {
@@ -40,11 +41,46 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+export async function POST(request: NextRequest) {
+  const session = auth();
 
-  if (!session) {
+  if (!session.sessionId) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const data = await request.json();
+  console.log(data)
+  const id = data.id as string;
+  const username = data.username as string;
+  const firstName = data.first_name as string || '';
+  const lastName = data.last_name as string || '';
+  const email = data.emailAddresses[0].emailAddress as string;
+  const avatarUrl = data.profile_image_url as string || '';
+
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        id,
+        username: username.toLowerCase(),
+        firstName,
+        lastName,
+        email,
+        avatar: avatarUrl,
+      },
+    });
+    return NextResponse.json(newUser);
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  const session = auth();
+    const userObj = await currentUser();
+
+
+  if (!session.sessionId) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
   const data = await request.formData();
@@ -53,21 +89,11 @@ export async function PUT(request: NextRequest) {
   const lastName = data.get('lastName') as string || '';
   const email = data.get('email') as string;
   const bio = data.get('bio') as string || '';
-  const avatar = data.get('avatar') as File || null;
+  const avatarUrl = data.get('avatar') as string || '';
 
-  let avatarUrl;
-  if (avatar) {
-    try {
-      avatarUrl = await uploadImage(avatar);
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
-      return NextResponse.json({ message: 'Failed to upload avatar' }, { status: 500 });
-    }
-  }
-  
   try {
-    const updatedUser = await cachedPrisma.user.update({
-      where: { id: userObj.id },
+    const updatedUser = await prisma.user.update({
+      where: { id: userObj?.id },
       data: {
         username: username.toLowerCase(),
         firstName,

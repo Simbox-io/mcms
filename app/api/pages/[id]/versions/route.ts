@@ -1,12 +1,12 @@
 // app/api/pages/[id]/versions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const pageId = params.id;
 
   try {
-    const versions = await cachedPrisma.page.findMany({
+    const versions = await prisma.page.findMany({
       where: { id: pageId },
       select: {
         id: true,

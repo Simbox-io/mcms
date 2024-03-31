@@ -1,14 +1,13 @@
 // app/api/posts/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
-import { User } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const postId = params.id;
 
   try {
-    const post = await cachedPrisma.post.findUnique({
+    const post = await prisma.post.findUnique({
       where: {
         id: postId,
       },
@@ -21,7 +20,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           },
         },
         tags: true,
-        comments: true,
+        comments: {
+          include: {
+            author: true,
+            likedBy: true,
+            dislikedBy: true,
+          },
+        },
         bookmarks: true,
         settings: {
           include: {
@@ -46,17 +51,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   const postId = params.id;
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session) {
+  if (!session.sessionId) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const { title, content, tags, settings } = await request.json();
 
   try {
-    const post = await cachedPrisma.post.findUnique({
+    const post = await prisma.post.findUnique({
       where: { id: postId },
       include: { author: true },
     });
@@ -65,11 +70,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Post not found' }, { status: 404 });
     }
 
-    if (post.author.id !== user.id) {
+    if (post.author.id !== user?.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedPost = await cachedPrisma.post.update({
+    const updatedPost = await prisma.post.update({
       where: { id: postId },
       data: {
         title,
@@ -119,15 +124,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   const postId = params.id;
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session) {
+  if (!session.sessionId) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const post = await cachedPrisma.post.findUnique({
+    const post = await prisma.post.findUnique({
       where: { id: postId },
       include: {
         author: true,
@@ -146,35 +151,35 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Post not found' }, { status: 404 });
     }
 
-    if (post.author.id !== user.id) {
+    if (post.author.id !== user?.id) {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await cachedPrisma.sharingSettings.delete({
+    await prisma.sharingSettings.delete({
       where: { id: post.settings?.sharingSettings?.id }
     });
 
-    await cachedPrisma.revisionHistorySettings.delete({
+    await prisma.revisionHistorySettings.delete({
       where: { id: post.settings?.revisionHistorySettings?.id },
     });
 
-    await cachedPrisma.commentSettings.delete({
+    await prisma.commentSettings.delete({
       where: { id: post.settings?.commentSettings?.id },  
     });
 
-    await cachedPrisma.postSettings.delete({
+    await prisma.postSettings.delete({
       where: { postId },
     });
 
-    await cachedPrisma.comment.deleteMany({
+    await prisma.comment.deleteMany({
       where: { postId },
     });
 
-    await cachedPrisma.bookmark.deleteMany({
+    await prisma.bookmark.deleteMany({
       where: { postId },
     });
 
-    await cachedPrisma.post.delete({
+    await prisma.post.delete({
       where: { id: postId },
     });
 

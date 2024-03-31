@@ -1,12 +1,12 @@
 // app/api/images/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma, { Image } from '@/lib/prisma';
+import prisma, { Image } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const imageId = parseInt(params.id);
 
   try {
-    const image = await cachedPrisma.image.findUnique({
+    const image = await prisma.image.findUnique({
       where: { id: imageId },
     });
 
@@ -31,7 +31,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { data, contentType } = await request.json();
 
   try {
-    const updatedImage = await cachedPrisma.image.update({
+    const updatedImage = await prisma.image.update({
       where: { id: imageId },
       data: {
         data,
@@ -50,7 +50,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const imageId = parseInt(params.id);
 
   try {
-    await cachedPrisma.image.delete({
+    await prisma.image.delete({
       where: { id: imageId },
     });
 

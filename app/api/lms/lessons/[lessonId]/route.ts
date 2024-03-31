@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { courseId: string; lessonId: string } }) {
   try {
-    const lesson = await cachedPrisma.lesson.findFirst({
+    const lesson = await prisma.lesson.findFirst({
       where: {
         id: params.lessonId,
         courseId: params.courseId,

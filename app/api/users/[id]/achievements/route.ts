@@ -1,10 +1,10 @@
 // app/api/users/[userId]/achievements/route.ts
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { userId: string } }) {
   try {
-    const userAchievements = await cachedPrisma.userAchievement.findMany({
+    const userAchievements = await prisma.userAchievement.findMany({
       where: { userId: params.userId },
       include: { achievement: true },
     });

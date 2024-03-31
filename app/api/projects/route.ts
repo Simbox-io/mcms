@@ -1,8 +1,7 @@
 // app/api/projects/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
-import { User } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -10,14 +9,23 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalProjects = await cachedPrisma.project.count();
+    const totalProjects = await prisma.project.count();
     const totalPages = Math.ceil(totalProjects / perPage);
 
-    const projects = await cachedPrisma.project.findMany({
+    const projects = await prisma.project.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       include: {
-        owner: true,
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            createdAt: true,
+          },
+        },
         collaborators: true,
         files: true,
         tags: true,
@@ -45,21 +53,21 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session) {
+  if (!session.sessionId) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const { name, description, collaborators, tags, settings } = await request.json();
 
   try {
-    const newProject = await cachedPrisma.project.create({
+    const newProject = await prisma.project.create({
       data: {
         name,
         description,
-        owner: { connect: { id: user.id } },
+        owner: { connect: { id: user?.id } },
         collaborators: {
           connect: collaborators?.map((collaboratorId: string) => ({ id: collaboratorId })),
         },

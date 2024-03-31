@@ -1,14 +1,14 @@
 // app/api/spaces/[id]/collaborators/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const spaceId = params.id;
 
   try {
-    const collaborators = await cachedPrisma.user.findMany({
+    const collaborators = await prisma.user.findMany({
       where: {
         collaboratedSpaces: {
           some: {
@@ -31,8 +31,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { collaboratorId } = await request.json();
 
   try {
-    const space = await cachedPrisma.space.findUnique({
+    const space = await prisma.space.findUnique({
       where: { id: spaceId },
       include: { owner: true },
     });
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await cachedPrisma.space.update({
+    await prisma.space.update({
       where: { id: spaceId },
       data: {
         collaborators: {
@@ -72,8 +73,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -83,7 +85,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const { collaboratorId } = await request.json();
 
   try {
-    const space = await cachedPrisma.space.findUnique({
+    const space = await prisma.space.findUnique({
       where: { id: spaceId },
       include: { owner: true },
     });
@@ -96,7 +98,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await cachedPrisma.space.update({
+    await prisma.space.update({
       where: { id: spaceId },
       data: {
         collaborators: {

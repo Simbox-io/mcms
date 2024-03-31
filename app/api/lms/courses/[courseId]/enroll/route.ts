@@ -1,23 +1,22 @@
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getServerSession } from 'next-auth/next';
-import authOptions from '@/app/api/auth/[...nextauth]/options';
+import prisma from '@/lib/prisma';
+import { auth } from '@clerk/nextjs';
 import { User } from '@/lib/prisma';
 
 export async function POST(request: Request, { params }: { params: { courseId: string } }) {
-  const session = await getServerSession(authOptions);
+  const session = auth();
 
-  if (!session) {
+  if (!session.sessionId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const { user } = session;
-    const userObj = user as User
+    const userObj = user as unknown as User;
     const courseId = params.courseId;
 
     // Check if the user is already enrolled in the course
-    const existingEnrollment = await cachedPrisma.enrollment.findFirst({
+    const existingEnrollment = await prisma.enrollment.findFirst({
       where: {
         studentId: userObj.id,
         courseId,
@@ -29,7 +28,7 @@ export async function POST(request: Request, { params }: { params: { courseId: s
     }
 
     // Create a new enrollment
-    const enrollment = await cachedPrisma.enrollment.create({
+    const enrollment = await prisma.enrollment.create({
       data: {
         student: { connect: { id: userObj.id } },
         course: { connect: { id: courseId } },

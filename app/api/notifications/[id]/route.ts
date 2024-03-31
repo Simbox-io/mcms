@@ -1,20 +1,21 @@
 // app/api/notifications/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const notificationId = params.id;
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const notification = await cachedPrisma.notification.findUnique({
+    const notification = await prisma.notification.findUnique({
       where: { id: notificationId },
       include: {
         settings: {
@@ -38,8 +39,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   const notificationId = params.id;
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -48,7 +50,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { isRead, isHidden, settings } = await request.json();
 
   try {
-    const notification = await cachedPrisma.notification.findUnique({
+    const notification = await prisma.notification.findUnique({
       where: { id: notificationId },
     });
 
@@ -56,7 +58,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Notification not found' }, { status: 404 });
     }
 
-    const updatedNotification = await cachedPrisma.notification.update({
+    const updatedNotification = await prisma.notification.update({
       where: { id: notificationId },
       data: {
         isRead,
@@ -98,15 +100,16 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   const notificationId = params.id;
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const notification = await cachedPrisma.notification.findUnique({
+    const notification = await prisma.notification.findUnique({
       where: { id: notificationId },
     });
 
@@ -114,7 +117,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Notification not found' }, { status: 404 });
     }
 
-    await cachedPrisma.notification.delete({
+    await prisma.notification.delete({
       where: { id: notificationId },
     });
 

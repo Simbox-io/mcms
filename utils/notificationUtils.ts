@@ -36,7 +36,6 @@ export async function sendNotification(userId: string, message: string, link: st
         from: config.emailFrom || '',
       });
   
-      console.log('Email set:', emailSet);
       // Send email notification using the existing sendEmail function
       await sendEmail({
         to: user.email,

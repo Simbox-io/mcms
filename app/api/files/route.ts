@@ -1,8 +1,8 @@
 // app/api/files/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
-import { User, AdminSettings } from '@/lib/prisma';
+import prisma, { File } from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import { AdminSettings } from '@/lib/prisma';
 import { getStorageProvider } from '@/lib/file-storage';
 
 export const maxDuration = 60;
@@ -12,9 +12,9 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1');
   const perPage = 10;
   try {
-    const totalFiles = await cachedPrisma.file.count();
+    const totalFiles = await prisma.file.count();
     const totalPages = Math.ceil(totalFiles / perPage);
-    const files = await cachedPrisma.file.findMany({
+    const files = await prisma.file.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       include: {
@@ -23,6 +23,9 @@ export async function GET(request: NextRequest) {
             id: true,
             username: true,
             avatar: true,
+            createdAt: true,
+            firstName: true,
+            lastName: true,
           },
         },
         project: true,
@@ -32,6 +35,8 @@ export async function GET(request: NextRequest) {
         children: true,
         reactions: true,
         bookmarks: true,
+        likedBy: true,
+        dislikedBy: true,
         settings: {
           include: {
             uploadLimits: true,
@@ -45,10 +50,10 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
-    });
-    const adminSettings = await cachedPrisma.adminSettings.findFirst();
+    }) as unknown as File[];
+    const adminSettings = await prisma.adminSettings.findFirst();
     const storageProvider = await getStorageProvider(adminSettings! as AdminSettings);
-    const filesWithUrls = files.map((file) => ({
+    const filesWithUrls = files.map((file: File) => ({
       ...file,
       url: storageProvider.getFileUrl(file.url),
     }));
@@ -60,18 +65,19 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const formData = await request.formData();
-  const files = formData.getAll('file') as File[];
+  const files = formData.getAll('file') as any;
   const { name, description, isPublic, projectId, parentId, tags, contentType } = Object.fromEntries(formData.entries());
 
   try {
-    const adminSettings = await cachedPrisma.adminSettings.findFirst();
+    const adminSettings = await prisma.adminSettings.findFirst();
     if (!adminSettings) {
       return NextResponse.json({ message: 'Admin settings not found' }, { status: 500 });
     }
@@ -82,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     for (const file of files) {
       const fileUrl = await storageProvider.uploadFile(file);
-      const newFile = await cachedPrisma.file.create({
+      const newFile = await prisma.file.create({
 
         data: {
           name: name as string,

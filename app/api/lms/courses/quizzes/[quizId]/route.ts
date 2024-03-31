@@ -1,23 +1,22 @@
 import { NextResponse } from 'next/server';
-import cachedPrisma, { User } from '@/lib/prisma';
-import { getServerSession } from 'next-auth/next';
-import authOptions from '@/app/api/auth/[...nextauth]/options';
+import prisma, { User } from '@/lib/prisma';
+import { auth } from '@clerk/nextjs';
 
 export async function POST(request: Request, { params }: { params: { quizId: string } }) {
-  const session = await getServerSession(authOptions);
+  const session = auth();
 
-  if (!session) {
+  if (!session.sessionId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const user = session.user as User;
+    const user = session.user as unknown as User;
 
     const quizId = params.quizId;
     const { answers } = await request.json();
 
     // Check if the user has already submitted answers for this quiz
-    const existingSubmission = await cachedPrisma.quizSubmission.findFirst({
+    const existingSubmission = await prisma.quizSubmission.findFirst({
       where: {
         userId: user.id,
         quizId,
@@ -29,7 +28,7 @@ export async function POST(request: Request, { params }: { params: { quizId: str
     }
 
     // Create a new quiz submission
-    const submission = await cachedPrisma.quizSubmission.create({
+    const submission = await prisma.quizSubmission.create({
       data: {
         user: { connect: { id: user.id } },
         quiz: { connect: { id: quizId } },

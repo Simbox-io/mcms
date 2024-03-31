@@ -97,7 +97,6 @@ export async function sendEmail(options: EmailOptions) {
     await sesClient.send(sendEmailCommand);
   }
 
-  console.log('Email sent successfully');
 }
 
 export async function sendEmailDigest(user: { id: string; email: string; notifications: { message: string; createdAt: string }[] }) {

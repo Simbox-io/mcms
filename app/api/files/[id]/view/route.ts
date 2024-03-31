@@ -1,6 +1,6 @@
 // app/api/files/[id]/view/route.ts
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function PUT(
   request: Request,
@@ -9,7 +9,7 @@ export async function PUT(
   const fileId = params.id;
 
   try {
-    const file = await cachedPrisma.file.update({
+    const file = await prisma.file.update({
       where: { id: fileId },
       data: {
         views: {

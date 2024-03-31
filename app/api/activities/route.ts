@@ -1,14 +1,12 @@
 // app/api/activities/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedcachedPrisma from '@/lib/prisma';
-import { User } from '@/lib/prisma';
-
+import prisma, { User }  from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs'
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = await auth();
+  const user = await currentUser();
 
-  if (!userObj) {
+  if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -17,13 +15,13 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalActivities = await cachedcachedPrisma.activity.count({
-      where: { userId: userObj.id },
+    const totalActivities = await prisma.activity.count({
+      where: { userId: user.id },
     });
     const totalPages = Math.ceil(totalActivities / perPage);
 
-    const activities = await cachedcachedPrisma.activity.findMany({
-      where: { userId: userObj.id },
+    const activities = await prisma.activity.findMany({
+      where: { userId: user.id },
       skip: (page - 1) * perPage,
       take: perPage,
       orderBy: { createdAt: 'desc' },
@@ -37,19 +35,19 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = await auth()
+  const user = await currentUser();
 
-  if (!userObj) {
+  if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const { activityType, entityId, entityType } = await request.json();
 
   try {
-    const newActivity = await cachedcachedPrisma.activity.create({
+    const newActivity = await prisma.activity.create({
       data: {
-        user: { connect: { id: userObj.id } },
+        user: { connect: { id: user.id } },
         activityType,
         entityId,
         entityType,

@@ -1,12 +1,13 @@
 // app/api/users/[id]/reactions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const commentReactions = await cachedPrisma.commentReaction.findMany({
+    const commentReactions = await prisma.commentReaction.findMany({
       where: { userId },
       include: {
         comment: {
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       },
     });
 
-    const fileReactions = await cachedPrisma.fileReaction.findMany({
+    const fileReactions = await prisma.fileReaction.findMany({
       where: { userId },
       include: {
         file: {

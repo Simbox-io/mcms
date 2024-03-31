@@ -1,8 +1,7 @@
 // app/api/posts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
-import { User } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 import { activityListener } from '@/listeners/activityListener';
 
 export async function GET(request: NextRequest) {
@@ -11,10 +10,10 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalPosts = await cachedPrisma.post.count();
+    const totalPosts = await prisma.post.count();
     const totalPages = Math.ceil(totalPosts / perPage);
 
-    const posts = await cachedPrisma.post.findMany({
+    const posts = await prisma.post.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       include: {
@@ -23,6 +22,9 @@ export async function GET(request: NextRequest) {
             id: true,
             username: true,
             avatar: true,
+            firstName: true,
+            lastName: true,
+            createdAt: true,
           },
         },
         tags: true,
@@ -43,12 +45,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  console.log(user)
-
-  if (!session) {
+  if (!session.sessionId) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const existingUser = await cachedPrisma.user.findUnique({
+  const existingUser = await prisma.user.findUnique({
     where: { id: user.id },
   });
 
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
   const { title, content, tags, settings } = await request.json();
 
   try {
-    const newPost = await cachedPrisma.post.create({
+    const newPost = await prisma.post.create({
       data: {
         title,
         content,
@@ -76,46 +76,46 @@ export async function POST(request: NextRequest) {
             id: user.id,
           },
         },
-        tags: {
-          connectOrCreate: tags.map((tag: string) => ({
-            where: { name: tag },
-            create: { name: tag },
-          })),
-        },
+        tags: tags
+          ? {
+            connectOrCreate: tags.map((tag: string) => ({
+              where: { name: tag },
+              create: { name: tag },
+            })),
+          } : undefined,
         settings: settings
           ? {
-              create: {
-                defaultVisibility: settings.defaultVisibility,
-                commentSettings: settings.commentSettings
-                  ? {
-                      create: {
-                        allowComments: settings.commentSettings.allowComments,
-                        moderateComments: settings.commentSettings.moderateComments,
-                      },
-                    }
-                  : undefined,
-                sharingSettings: settings.sharingSettings
-                  ? {
-                      create: {
-                        allowSharing: settings.sharingSettings.allowSharing,
-                        sharePlatforms: settings.sharingSettings.sharePlatforms,
-                      },
-                    }
-                  : undefined,
-                revisionHistorySettings: settings.revisionHistorySettings
-                  ? {
-                      create: {
-                        revisionsToKeep: settings.revisionHistorySettings.revisionsToKeep,
-                      },
-                    }
-                  : undefined,
-              },
-            }
+            create: {
+              defaultVisibility: settings.defaultVisibility,
+              commentSettings: settings.commentSettings
+                ? {
+                  create: {
+                    allowComments: settings.commentSettings.allowComments,
+                    moderateComments: settings.commentSettings.moderateComments,
+                  },
+                }
+                : undefined,
+              sharingSettings: settings.sharingSettings
+                ? {
+                  create: {
+                    allowSharing: settings.sharingSettings.allowSharing,
+                    sharePlatforms: settings.sharingSettings.sharePlatforms,
+                  },
+                }
+                : undefined,
+              revisionHistorySettings: settings.revisionHistorySettings
+                ? {
+                  create: {
+                    revisionsToKeep: settings.revisionHistorySettings.revisionsToKeep,
+                  },
+                }
+                : undefined,
+            },
+          }
           : undefined,
       },
     });
 
-    console.log(newPost);
     await activityListener('POST_CREATED', newPost.id, 'POST', newPost.authorId);
     return NextResponse.json(newPost, { status: 201 });
   } catch (error) {

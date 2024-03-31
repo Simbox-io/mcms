@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function PUT(request: NextRequest, { params }: { params: { pluginId: string } }) {
   const { pluginId } = params;
 
   try {
-    const updatedPlugin = await cachedPrisma.plugin.update({
+    const updatedPlugin = await prisma.plugin.update({
       where: { id: pluginId },
       data: { active: false },
     });

@@ -1,7 +1,7 @@
 // app/api/files/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 import { User, AdminSettings, File } from '@/lib/prisma';
 import { getStorageProvider } from '@/lib/file-storage';
 
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const fileId = params.id;
   try {
     const [file, adminSettings] = await Promise.all([
-      cachedPrisma.file.findUnique({
+      prisma.file.findUnique({
         where: {
           id: fileId,
         },
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           },
         },
       }),
-      cachedPrisma.adminSettings.findFirst(),
+      prisma.adminSettings.findFirst(),
     ]);
     if (!file) {
       return NextResponse.json({ message: 'File not found' }, { status: 404 });
@@ -57,8 +57,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   const fileId = params.id;
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -66,11 +67,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
   try {
     const [file, adminSettings] = await Promise.all([
-      cachedPrisma.file.findUnique({
+      prisma.file.findUnique({
         where: { id: fileId },
         include: { uploadedBy: true, settings: true },
       }),
-      cachedPrisma.adminSettings.findFirst(),
+      prisma.adminSettings.findFirst(),
     ]);
 
     if (!file) {
@@ -86,44 +87,44 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     // Delete associated records in the appropriate order
     if (file.settings) {
-      await cachedPrisma.uploadLimits.deleteMany({
+      await prisma.uploadLimits.deleteMany({
         where: { fileSettingsId: file.settings.id },
       });
 
-      await cachedPrisma.downloadSettings.deleteMany({
+      await prisma.downloadSettings.deleteMany({
         where: { fileSettingsId: file.settings.id },
       });
 
-      await cachedPrisma.expirationSettings.deleteMany({
+      await prisma.expirationSettings.deleteMany({
         where: { fileSettingsId: file.settings.id },
       });
 
-      await cachedPrisma.versioningSettings.deleteMany({
+      await prisma.versioningSettings.deleteMany({
         where: { fileSettingsId: file.settings.id },
       });
 
-      await cachedPrisma.metadataSettings.deleteMany({
+      await prisma.metadataSettings.deleteMany({
         where: { fileSettingsId: file.settings.id },
       });
 
-      await cachedPrisma.fileSettings.delete({
+      await prisma.fileSettings.delete({
         where: { id: file.settings.id },
       });
     }
 
-    await cachedPrisma.comment.deleteMany({
+    await prisma.comment.deleteMany({
       where: { fileId: fileId },
     });
 
-    await cachedPrisma.fileReaction.deleteMany({
+    await prisma.fileReaction.deleteMany({
       where: { fileId: fileId },
     });
 
-    await cachedPrisma.bookmark.deleteMany({
+    await prisma.bookmark.deleteMany({
       where: { fileId: fileId },
     });
 
-    await cachedPrisma.activity.deleteMany({
+    await prisma.activity.deleteMany({
       where: {
         entityId: fileId,
         entityType: 'FILE',
@@ -131,7 +132,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     });
 
     // Delete the file
-    await cachedPrisma.file.delete({
+    await prisma.file.delete({
       where: { id: fileId },
     });
 

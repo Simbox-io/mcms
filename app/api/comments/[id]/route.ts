@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -15,7 +16,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { content, settings } = await request.json();
 
   try {
-    const comment = await cachedPrisma.comment.findUnique({
+    const comment = await prisma.comment.findUnique({
       where: { id: commentId },
       include: { author: true },
     });
@@ -28,7 +29,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedComment = await cachedPrisma.comment.update({
+    const updatedComment = await prisma.comment.update({
       where: { id: commentId },
       data: {
         content,
@@ -60,8 +61,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -70,7 +72,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const commentId = params.id;
 
   try {
-    const comment = await cachedPrisma.comment.findUnique({
+    const comment = await prisma.comment.findUnique({
       where: { id: commentId },
       include: { author: true },
     });
@@ -83,7 +85,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await cachedPrisma.comment.delete({
+    await prisma.comment.delete({
       where: { id: commentId },
     });
 

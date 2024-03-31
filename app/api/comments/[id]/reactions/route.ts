@@ -1,14 +1,14 @@
 // app/api/comments/[id]/reactions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const commentId = params.id;
 
   try {
-    const reactions = await cachedPrisma.commentReaction.findMany({
+    const reactions = await prisma.commentReaction.findMany({
       where: { commentId },
       include: {
         user: {
@@ -29,8 +29,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { type } = await request.json();
 
   try {
-    const existingReaction = await cachedPrisma.commentReaction.findUnique({
+    const existingReaction = await prisma.commentReaction.findUnique({
       where: {
         userId_commentId: {
           commentId,
@@ -50,14 +51,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     });
 
     if (existingReaction) {
-      await cachedPrisma.commentReaction.delete({
+      await prisma.commentReaction.delete({
         where: {
           id: existingReaction.id,
         },
       });
       return NextResponse.json({ message: 'Reaction removed successfully' });
     } else {
-      const newReaction = await cachedPrisma.commentReaction.create({
+      const newReaction = await prisma.commentReaction.create({
         data: {
           type,
           comment: { connect: { id: commentId } },

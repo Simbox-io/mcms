@@ -1,14 +1,14 @@
 // app/api/prerequisites/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const prerequisiteId = params.id;
 
   try {
-    const prerequisite = await cachedPrisma.prerequisite.findUnique({
+    const prerequisite = await prisma.prerequisite.findUnique({
       where: { id: prerequisiteId },
       include: {
         requiredTutorial: true,
@@ -27,8 +27,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -38,7 +39,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { requiredKnowledge, requiredTutorialId } = await request.json();
 
   try {
-    const prerequisite = await cachedPrisma.prerequisite.findUnique({
+    const prerequisite = await prisma.prerequisite.findUnique({
       where: { id: prerequisiteId },
       include: {
         tutorialSettings: {
@@ -61,7 +62,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedPrerequisite = await cachedPrisma.prerequisite.update({
+    const updatedPrerequisite = await prisma.prerequisite.update({
       where: { id: prerequisiteId },
       data: {
         requiredKnowledge,
@@ -82,8 +83,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -92,7 +94,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const prerequisiteId = params.id;
 
   try {
-    const prerequisite = await cachedPrisma.prerequisite.findUnique({
+    const prerequisite = await prisma.prerequisite.findUnique({
       where: { id: prerequisiteId },
       include: {
         tutorialSettings: {
@@ -115,7 +117,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await cachedPrisma.prerequisite.delete({
+    await prisma.prerequisite.delete({
       where: { id: prerequisiteId },
     });
 

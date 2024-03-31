@@ -1,29 +1,25 @@
 // app/api/notifications/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
-
-  if (!userObj) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
+  const session = auth();
+  const userObj = await currentUser();
 
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');
   const perPage = 10;
 
   try {
-    const totalNotifications = await cachedPrisma.notification.count({
-      where: { userId: userObj.id },
+    const totalNotifications = await prisma.notification.count({
+      where: { userId: userObj?.id },
     });
     const totalPages = Math.ceil(totalNotifications / perPage);
 
-    const notifications = await cachedPrisma.notification.findMany({
-      where: { userId: userObj.id },
+    const notifications = await prisma.notification.findMany({
+      where: { userId: userObj?.id },
       skip: (page - 1) * perPage,
       take: perPage,
       orderBy: { createdAt: 'desc' },
@@ -44,8 +40,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -54,7 +51,7 @@ export async function POST(request: NextRequest) {
   const { message, link, settings } = await request.json();
 
   try {
-    const newNotification = await cachedPrisma.notification.create({
+    const newNotification = await prisma.notification.create({
       data: {
         user: { connect: { id: userObj.id } },
         message,

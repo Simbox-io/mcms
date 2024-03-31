@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import { Inter, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/base/Header";
-import Footer from "@/components/base/Footer";
-import Providers from "./providers";
-import { Analytics } from "@vercel/analytics/react"
-import Script from "next/script";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
 import { ThemeProvider } from "./providers";
+import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { getServerSession } from "next-auth";
-import authOptions from './api/auth/[...nextauth]/options';
-import { headers } from 'next/headers';
-import { User } from '@/lib/prisma'
-import StopImpersonationButton from "@/components/base/StopImpersonationButton";
+import { ClerkProvider, auth } from '@clerk/nextjs'
+import { dark } from '@clerk/themes'
 
 const inter = Inter({ subsets: ["latin"] });
 const ibmPlexSans = IBM_Plex_Sans({ weight: ['300', '400', '600'], subsets: ["latin"] });
@@ -29,21 +24,20 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const session = await getServerSession(authOptions);
-  const user = session?.user as User
-  const isImpersonated = ((headers().get('X-Impersonated-User') === 'true') || (user?.isImpersonated === true)) || false;
-
   return (
-    <html lang="en" className={ibmPlexSans.className} suppressHydrationWarning >
+    <ClerkProvider appearance={{baseTheme: dark}}>
+    <html lang="en" className={ibmPlexSans.className}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <Script src="https://simbox-mcms.statuspage.io/embed/script.js" />
-      <body className='flex flex-col justify-between h-screen text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-900'>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem enableColorScheme >
-          <Providers>
+        <body className='flex flex-col justify-between h-screen text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-900'>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             <Header />
-            {isImpersonated && <div className="bg-red-500 text-white p-2 flex justify-between">Impersonating User {user.username} <StopImpersonationButton /></div>}
             <main className="flex-grow overflow-auto">
               {children}
               <div id='portal-root' />
@@ -51,9 +45,9 @@ export default async function RootLayout({
               <SpeedInsights />
             </main>
             <Footer />
-          </Providers>
-        </ThemeProvider>
-      </body>
+          </ThemeProvider>
+        </body>
     </html>
+    </ClerkProvider>
   );
 }

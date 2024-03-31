@@ -1,25 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 import { User } from '@/lib/prisma';
 import { setEmailConfig } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
-  if (!session || user.role !== 'ADMIN') {
+  const session = auth();
+  const user = await currentUser();
+
+  if(!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
-  const adminSettings = await cachedPrisma.adminSettings.findFirst();
+
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: user.id
+    }
+  }) as unknown as User;
+
+  if (!session.sessionId || userObj?.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const adminSettings = await prisma.adminSettings.findFirst();
   return NextResponse.json(adminSettings);
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
-  if (!session || user.role !== 'ADMIN') {
+  const session = auth();
+  
+  const user = await currentUser();
+
+  if(!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
+
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: user.id
+    }
+  }) as unknown as User;
+
+  if (!session.sessionId || userObj?.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+  
   const {
     siteTitle,
     siteDescription,
@@ -57,7 +82,7 @@ export async function PUT(request: NextRequest) {
     databaseUrl,
   } = await request.json();
   try {
-    const updatedSettings = await cachedPrisma.adminSettings.upsert({
+    const updatedSettings = await prisma.adminSettings.upsert({
       where: { id: 1 },
       update: {
         siteTitle,
@@ -141,13 +166,26 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
-  if (!session || user.role !== 'ADMIN') {
+  const session = auth();
+ 
+  const user = await currentUser();
+
+  if(!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
+
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: user.id
+    }
+  }) as unknown as User;
+
+  if (!session.sessionId || userObj?.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    await cachedPrisma.adminSettings.delete({
+    await prisma.adminSettings.delete({
       where: { id: 1 },
     });
     return NextResponse.json({ message: 'Admin settings deleted successfully' });

@@ -1,10 +1,10 @@
 // app/api/users/[userId]/upcomingQuizzes/route.ts
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { userId: string } }) {
   try {
-    const upcomingQuizzes = await cachedPrisma.quiz.findMany({
+    const upcomingQuizzes = await prisma.quiz.findMany({
       where: {
         lesson: {
           course: {

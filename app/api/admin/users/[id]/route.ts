@@ -1,21 +1,31 @@
 // app/api/admin/users/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session || user.role !== 'ADMIN') {
+  if(!user) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: user.id
+    }
+  }) as unknown as User;
+
+  if (!session.sessionId || userObj?.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const userId = params.id;
 
   try {
-    const userDetails = await cachedPrisma.user.findUnique({
+    const userDetails = await prisma.user.findUnique({
       where: { id: userId },
       include: {
         profile: true,
@@ -51,10 +61,20 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session || user.role !== 'ADMIN') {
+  if(!user) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: user.id
+    }
+  }) as unknown as User;
+
+  if (!session.sessionId || userObj?.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -62,7 +82,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { username, firstName, lastName, email, bio, avatar, role } = await request.json();
 
   try {
-    const updatedUser = await cachedPrisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         username,
@@ -99,17 +119,27 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session || user.role !== 'ADMIN') {
+  if(!user) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: user.id
+    }
+  }) as unknown as User;
+
+  if (!session.sessionId || userObj?.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const userId = params.id;
 
   try {
-    await cachedPrisma.user.delete({
+    await prisma.user.delete({
       where: { id: userId },
     });
 

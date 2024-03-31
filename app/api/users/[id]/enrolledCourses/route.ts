@@ -1,10 +1,10 @@
 // app/api/users/[userId]/enrolledCourses/route.ts
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
-    const enrolledCourses = await cachedPrisma.enrollment.findMany({
+    const enrolledCourses = await prisma.enrollment.findMany({
       where: { studentId: params.id },
       include: { course: true },
     });

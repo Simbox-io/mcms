@@ -1,453 +1,129 @@
-'use client';
-import React, { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import Card from '@/components/base/Card';
-import Button from '@/components/Button';
-import Skeleton from '@/components/Skeleton';
-import { User } from '@/lib/prisma';
-import { useSession } from "next-auth/react";
+import ItemCard from "@/components/explore/item-card";
+import React from 'react';
+import { currentUser } from '@clerk/nextjs';
 import { File, Post, Project, Space } from '@/lib/prisma';
-import { motion } from 'framer-motion';
-import ShareButton from '@/components/ShareButton';
-import BookmarkButton from '@/components/BookmarkButton';
-import SubscribeButton from '@/components/SubscribeButton';
-import BadgeIcon from '@/components/icons/BadgeIcon';
-import LeaderboardIcon from '@/components/icons/LeaderboardIcon';
-import MasonryGrid from '@/components/MasonryGrid';
-import Tabs from '@/components/Tabs';
-import Avatar from '@/components/base/Avatar';
-import CommentsIcon from '@/components/icons/CommentsIcon';
-import ThumbUpIcon from '@/components/icons/ThumbUpIcon';
-import { PencilIcon } from '@heroicons/react/solid';
-import instance from '@/utils/api';
+import { getProjects, getFiles, getSpaces, getPosts } from "@/lib/utils";
 
-const HomePage: React.FC = () => {
-  const [featuredItems, setFeaturedItems] = useState<(Post | Project | File | Space)[]>([]);
-  const [trendingItems, setTrendingItems] = useState<(Post | Project | File | Space)[]>([]);
-  const [recommendedItems, setRecommendedItems] = useState<(Post | Project | File | Space)[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
-  const { data: session } = useSession();
-  const user = session?.user as User;
-  const router = useRouter();
-  const loaderRef = useRef<HTMLDivElement>(null);
+const Explore: React.FC = async () => {
+    const user = await currentUser();
 
-  useEffect(() => {
-    const handleObserver = (entries: IntersectionObserverEntry[]) => {
-      const target = entries[0];
-      if (target.isIntersecting && hasMore) {
-        setPage((prevPage) => prevPage + 1);
-      }
-    };
+    let featuredItems: (Post | Project | File | Space)[] = [];
 
-    const observer = new IntersectionObserver(handleObserver, {
-      root: null,
-      rootMargin: '20px',
-      threshold: 1.0,
-    });
-
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-
-    return () => {
-      if (loaderRef.current) {
-        observer.unobserve(loaderRef.current);
-      }
-    };
-  }, [hasMore]);
-
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const [postsResponse, projectsResponse, filesResponse, spacesResponse] = await Promise.all([
-          instance.get('/api/posts?page=1&featured=true'),
-          instance.get('/api/projects?page=1&featured=true'),
-          instance.get('/api/files?page=1&featured=true'),
-          instance.get('/api/spaces?page=1&featured=true'),
-        ]);
-
+    try {
         const [postsData, projectsData, filesData, spacesData] = await Promise.all([
-          postsResponse.data,
-          projectsResponse.data,
-          filesResponse.data,
-          spacesResponse.data,
+            await getPosts() as unknown as Post[],
+            await getProjects() as unknown as Project[],
+            await getFiles() as unknown as File[],
+            await getSpaces() as unknown as Space[]
         ]);
 
-        const featuredPosts = postsData.posts.map((post: Post) => ({ ...post, type: 'post' }));
-        const featuredProjects = projectsData.projects.map((project: Project) => ({ ...project, type: 'project' }));
-        const featuredFiles = filesData.files.map((file: File) => ({ ...file, type: 'file' }));
-        const featuredSpaces = spacesData.spaces.map((space: Space) => ({ ...space, type: 'space' }));
+        const featuredPosts = postsData?.map((post: Post) => ({ ...post, type: 'post' }));
+        const featuredProjects = projectsData?.map((project: Project) => ({ ...project, type: 'project' }));
+        const featuredFiles = filesData?.map((file: File) => ({ ...file, type: 'file' }));
+        const featuredSpaces = spacesData?.map((space: Space) => ({ ...space, type: 'space' as const }));
 
-        const allFeaturedItems = [...featuredPosts, ...featuredProjects, ...featuredFiles, ...featuredSpaces];
-        setFeaturedItems(allFeaturedItems);
-      } catch (error) {
+        featuredItems = [...featuredPosts, ...featuredProjects, ...featuredFiles, ...featuredSpaces] as (Post | Project | File | Space)[];
+    } catch (error) {
         console.error('Error fetching featured items:', error);
-      }
+    }
+    const handleBookmark = async (itemId: string, itemType: string) => {
+        try {
+            await fetch(`/api/bookmarks`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId: user?.id, itemId, itemType }),
+            });
+            // Update the UI to reflect the bookmarked state
+        } catch (error) {
+            console.error('Error bookmarking item:', error);
+        }
     };
 
-    fetchItems();
-  }, []);
+    const handleSubscribe = async (itemId: string, itemType: string) => {
+        try {
+            await fetch(`/api/subscriptions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId: user?.id, itemId, itemType }),
+            });
+            // Update the UI to reflect the subscribed state
+        } catch (error) {
+            console.error('Error subscribing to item:', error);
+        }
+    };
 
-  const handleBookmark = async (itemId: string, itemType: string) => {
-    try {
-      await fetch(`/api/bookmarks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: user?.id, itemId, itemType }),
-      });
-      // Update the UI to reflect the bookmarked state
-    } catch (error) {
-      console.error('Error bookmarking item:', error);
+    const renderItem = (item: Post | Project | File | Space) => {
+        switch (item?.type) {
+            case 'post':
+                return (
+                    <ItemCard
+                        key={item.id}
+                        title={item.title}
+                        type={item.type}
+                        description={item.content || ''}
+                        creationDate={new Date(item.createdAt).toLocaleDateString() || ''}
+                        author={item.author}
+                        initialIsBookmarked={false}
+                    />
+                );
+            case 'project':
+                return (
+                    <ItemCard
+                        key={item.id}
+                        title={item.name}
+                        type={item.type}
+                        description={item.description || ''}
+                        creationDate={new Date(item.createdAt).toLocaleDateString() || ''}
+                        author={item.owner}
+                        initialIsBookmarked={false}
+                    />
+                );
+            case 'file':
+                return (
+                    <ItemCard
+                        key={item.id}
+                        title={item.name}
+                        type={item.type}
+                        description={item.description || ''}
+                        creationDate={new Date(item.createdAt).toLocaleDateString() || ''}
+                        author={item.uploadedBy}
+                        initialIsBookmarked={false}
+                    />
+                );
+            case 'space':
+                return (
+                    <ItemCard
+                        key={item.id}
+                        title={item.name}
+                        type={item.type}
+                        description={item.description || ''}
+                        creationDate={new Date(item.createdAt).toLocaleDateString() || ''}
+                        author={item.owner}
+                        initialIsBookmarked={false}
+                    />
+                );
+            default:
+                return null;
+        }
     }
-  };
 
-  const handleSubscribe = async (itemId: string, itemType: string) => {
-    try {
-      await fetch(`/api/subscriptions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: user?.id, itemId, itemType }),
-      });
-      // Update the UI to reflect the subscribed state
-    } catch (error) {
-      console.error('Error subscribing to item:', error);
-    }
-  };
-
-  const renderItem = (item: Post | Project | File | Space) => {
-    switch (item.type) {
-      case 'post':
-        return (
-          <Card
-            headerClassName='border-hidden'
-            header={
-              <div className="flex flex-col justify-between items-left h-8">
-                <div className='flex content-center items-center h-12'>
-                  <Avatar src={item.author.avatar || ''} size='small' />
-                  <span className='ml-4'>{item.author.username}</span>
-                  <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">{new Date(item.createdAt).toLocaleDateString()}</span>
-                </div>
-                <h2 className="mt-4 text-xl font-bold text-gray-800 dark:text-gray-200">{item.title}</h2>
-              </div>
-            }
-            onClick={() => router.push(`/explore/posts/${item.id}`)}
-            footer={
-              <div className='flex flex-col items-end'>
-                <div className="flex flex-grow items-end h-auto space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <ThumbUpIcon className="w-4 h-4" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {item.likes} likes
-                    </span>
-                    <CommentsIcon className="w-5 h-5" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {item.comments.length} comments
-                    </span>
-                    <LeaderboardIcon className="w-4 h-4" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{item.views} views</span>
-                  </div>
-                  <div className='flex flex-row content-end space-x-4'>
-                    <ShareButton
-                      itemId={item.id}
-                      itemType="post"
-                    />
-                    <BookmarkButton
-                      itemId={item.id}
-                      itemType="post"
-                      onBookmark={() => handleBookmark(item.id, 'post')}
-                    />
-                    <SubscribeButton
-                      itemId={item.id}
-                      itemType="post"
-                      onSubscribe={() => handleSubscribe(item.id, 'post')}
-                    />
-                  </div>
-                </div>
-              </div>
-            }
-          >
-            <div className="flex flex-row justify-between items-center mt-8 mb-4">
-              <div>
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: (item.content.slice(0, 300) + (item.content.length > 300 ? '...' : ''))
-                  }} />
-              </div>
+    return (
+        <div className="container px-12 lg:px-auto px-8 py-12 h-full">
+            <div className="flex items-center justify-between mb-12">
+                <h1 className="text-4xl font-bold text-zinc-800 dark:text-zinc-200">Explore</h1>
             </div>
-          </Card>);
-      case 'project':
-        return (
-          <Card
-            headerClassName='border-hidden'
-            header={
-              <div className="flex flex-col justify-between items-left h-8">
-                <div className='flex content-center items-center h-12'>
-                  <Avatar src={item.owner.avatar || ''} size='small' />
-                  <span className='ml-4'>{item.owner.username}</span>
-                  <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">{new Date(item.createdAt).toLocaleDateString()}</span>
-                </div>
-                <h2 className="mt-4 text-xl font-bold text-gray-800 dark:text-gray-200">{item.name}</h2>
-              </div>
-            }
-            onClick={() => router.push(`/projects/${item.id}`)}
-            footer={
-              <div className='flex flex-col items-end'>
-                <div className="flex flex-grow items-end h-auto space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <ThumbUpIcon className="w-4 h-4" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {item.likes} likes
-                    </span>
-                    <CommentsIcon className="w-5 h-5" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {item.comments.length} comments
-                    </span>
-                    <LeaderboardIcon className="w-4 h-4" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{item.views} views</span>
-                  </div>
-                  <div className='flex flex-row content-end space-x-4'>
-                    <ShareButton
-                      itemId={item.id}
-                      itemType="project"
-                    />
-                    <BookmarkButton
-                      itemId={item.id}
-                      itemType="project"
-                      onBookmark={() => handleBookmark(item.id, 'project')}
-                    />
-                    <SubscribeButton
-                      itemId={item.id}
-                      itemType="project"
-                      onSubscribe={() => handleSubscribe(item.id, 'project')}
-                    />
-                  </div>
-                </div>
-              </div>
-            }>
-            <div className="flex mt-8 mb-4">
-              <div>
-                <span dangerouslySetInnerHTML={{ __html: (item.description.slice(0, 300) + (item.description.length > 300 && '...' || '')) }} />
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {featuredItems.map((item) => (
+                    renderItem(item)
+                ))}
             </div>
-          </Card >
-        );
-      case 'file':
-        return (
-          <Card
-            headerClassName='border-hidden'
-            header={
-              <div className="flex flex-col justify-between items-left h-8">
-                <div className='flex content-center items-center h-12'>
-                  <Avatar src={item.uploadedBy.avatar || ''} size='small' />
-                  <span className='ml-4'>{item.uploadedBy.username}</span>
-                  <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">{new Date(item.createdAt).toLocaleDateString()}</span>
-                </div>
-                <h2 className="mt-4 text-xl font-bold text-gray-800 dark:text-gray-200">{item.name}</h2>
-              </div>
-            }
-            onClick={() => router.push(`/files/${item.id}`)}
-            footer={
-              <div className='flex flex-col items-end'>
-                <div className="flex flex-grow items-end h-auto space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <ThumbUpIcon className="w-4 h-4" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {item.likes} likes
-                    </span>
-                    <CommentsIcon className="w-5 h-5" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {item.comments.length} comments
-                    </span>
-                    <LeaderboardIcon className="w-4 h-4" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{item.views} views</span>
-                  </div>
-                  <div className='flex flex-row content-end space-x-4'>
-                    <ShareButton
-                      itemId={item.id}
-                      itemType="file"
-                    />
-                    <BookmarkButton
-                      itemId={item.id}
-                      itemType="file"
-                      onBookmark={() => handleBookmark(item.id, 'file')}
-                    />
-                    <SubscribeButton
-                      itemId={item.id}
-                      itemType="file"
-                      onSubscribe={() => handleSubscribe(item.id, 'file')}
-                    />
-                  </div>
-                </div>
-              </div>
-            }
-          >
-            <div className="flex mt-8 mb-4">
-              <div>
-                <span dangerouslySetInnerHTML={{ __html: (item.description?.slice(0, 300) || '' + (item.description?.length || 0 > 300 && '...' || '')) }} />
-              </div>
-
-            </div>
-          </Card>
-        );
-      case 'space':
-        return (
-          <Card
-            headerClassName='border-hidden'
-            header={
-              <div className="flex flex-col justify-between items-left h-8">
-                <div className='flex content-center items-center h-12'>
-                  <Avatar src={item.owner.avatar || ''} size='small' />
-                  <span className='ml-4'>{item.owner.username}</span>
-                  <span className="ml-2 text-sm font-medium text-gray-600 dark:text-gray-300">{new Date(item.createdAt).toLocaleDateString()}</span>
-                </div>
-                <h2 className="mt-4 text-xl font-bold text-gray-800 dark:text-gray-200">{item.name}</h2>
-              </div>
-            }
-            onClick={() => router.push(`/spaces/${item.id}`)}
-            footer={
-              <div className='flex flex-col items-end'>
-                <div className="flex flex-grow items-end h-auto space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <ThumbUpIcon className="w-4 h-4" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {item.likes} likes
-                    </span>
-                    <PencilIcon className="w-5 h-5" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                      {item.pages.length} pages
-                    </span>
-                    <LeaderboardIcon className="w-4 h-4" />
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{item.views.length} views</span>
-                  </div>
-                  <div className='flex flex-row content-end space-x-4'>
-                    <ShareButton
-                      itemId={item.id}
-                      itemType="space"
-                    />
-                    <BookmarkButton
-                      itemId={item.id}
-                      itemType="space"
-                      onBookmark={() => handleBookmark(item.id, 'space')}
-                    />
-                    <SubscribeButton
-                      itemId={item.id}
-                      itemType="space"
-                      onSubscribe={() => handleSubscribe(item.id, 'space')}
-                    />
-                  </div>
-                </div>
-              </div>
-            }
-          >
-            <div className="flex mt-8 mb-4">
-              <div>
-                <span dangerouslySetInnerHTML={{ __html: (item.description?.slice(0, 300) || '' + (item.description?.length || 0 > 300 && '...' || '')) }} />
-              </div>
-            </div>
-          </Card>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div
-      className="container mx-auto px-4 py-12 h-full"
-    >
-      <div className="flex items-center justify-between mb-12">
-        <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200">Explore</h1>
-        <div className="flex">
-          {user?.role === "ADMIN" && (
-            <Button variant="primary" className="w-36 mr-4" onClick={() => router.push('/explore/create')}>
-              Create Post
-            </Button>
-          )}
         </div>
-      </div>
-      <Tabs
-        tabs={[
-          {
-            id: 'featured',
-            label: 'Featured',
-            content: (
-              <MasonryGrid
-                items={featuredItems.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -50 }}
-                    transition={{ duration: 0.2 }}
-                    className='w-full mb-4 px-6'
-                  >
-                    {renderItem(item)}
-                  </motion.div>
-                ))}
-                columnWidth={300}
-                gap={20}
-              />
-            ),
-          },
-          {
-            id: 'trending',
-            label: 'Trending',
-            content: (
-              <MasonryGrid
-                items={trendingItems.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -50 }}
-                    transition={{ duration: 0.3 }}
-                    className='w-full mb-4 px-6'
-                  >
-                    {renderItem(item)}
-                  </motion.div>
-                ))}
-                columnWidth={300}
-                gap={20}
-              />
-            ),
-          },
-          {
-            id: 'recommended',
-            label: 'Recommended',
-            content: (
-              <MasonryGrid
-                items={recommendedItems.map((item) => (
-                  <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -50 }}
-                  transition={{ duration: 0.3 }}
-                  className='w-full mb-4 px-6'
-                >
-                    {renderItem(item)}
-                  </motion.div>
-                ))}
-                columnWidth={300}
-                gap={20}
-              />
-            ),
-          },
-        ]}
-      />
-      {hasMore && (
-        <div ref={loaderRef} className="flex justify-center mt-8">
-          <Skeleton count={3} />
-        </div>
-      )}
-    </div>
-  );
+    )
 }
 
-export default HomePage;
+export default Explore;
+

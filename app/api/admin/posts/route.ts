@@ -1,19 +1,29 @@
 // app/api/admin/posts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session || user.role !== 'ADMIN') {
+  if(!user) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: user.id
+    }
+  }) as unknown as User;
+
+  if (!session.sessionId || userObj?.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const posts = await cachedPrisma.post.findMany({
+    const posts = await prisma.post.findMany({
       take: 5,
       orderBy: {
         createdAt: 'desc',
@@ -46,17 +56,27 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session || user.role !== 'ADMIN') {
+  if(!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: user.id
+    }
+  }) as unknown as User;
+
+  if (!session.sessionId || userObj?.role !== 'ADMIN') {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+  
   const { title, content, authorId, tags, settings } = await request.json();
 
   try {
-    const newPost = await cachedPrisma.post.create({
+    const newPost = await prisma.post.create({
       data: {
         title,
         content,

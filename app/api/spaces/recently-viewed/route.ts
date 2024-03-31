@@ -1,19 +1,19 @@
 // app/api/spaces/recently-viewed/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session) {
+  if (!session.sessionId || !user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const recentlyViewedSpaces = await cachedPrisma.spaceView.findMany({
+    const recentlyViewedSpaces = await prisma.spaceView.findMany({
       where: {
         userId: user.id,
       },
@@ -41,17 +41,17 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session) {
+  if (!session.sessionId || !user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const { spaceId } = await request.json();
 
   try {
-    const existingView = await cachedPrisma.spaceView.findUnique({
+    const existingView = await prisma.spaceView.findUnique({
       where: {
         spaceId_userId: {
           userId: user.id,
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingView) {
-      await cachedPrisma.spaceView.update({
+      await prisma.spaceView.update({
         where: {
           id: existingView.id,
         },
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         },
       });
     } else {
-      await cachedPrisma.spaceView.create({
+      await prisma.spaceView.create({
         data: {
           user: { connect: { id: user.id } },
           space: { connect: { id: spaceId } },

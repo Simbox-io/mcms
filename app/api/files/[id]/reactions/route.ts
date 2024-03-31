@@ -1,14 +1,14 @@
 // app/api/files/[id]/reactions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const fileId = params.id;
 
   try {
-    const reactions = await cachedPrisma.fileReaction.findMany({
+    const reactions = await prisma.fileReaction.findMany({
       where: { fileId },
       include: {
         user: {
@@ -29,8 +29,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { type } = await request.json();
 
   try {
-    const existingReaction = await cachedPrisma.fileReaction.findUnique({
+    const existingReaction = await prisma.fileReaction.findUnique({
       where: {
         userId_fileId: {
           fileId,
@@ -50,14 +51,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     });
 
     if (existingReaction) {
-      await cachedPrisma.fileReaction.delete({
+      await prisma.fileReaction.delete({
         where: {
           id: existingReaction.id,
         },
       });
       return NextResponse.json({ message: 'Reaction removed successfully' });
     } else {
-      const newReaction = await cachedPrisma.fileReaction.create({
+      const newReaction = await prisma.fileReaction.create({
         data: {
           type,
           file: { connect: { id: fileId } },

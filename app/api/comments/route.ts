@@ -1,24 +1,25 @@
 // app/api/comments/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
+import { getUser } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
-
-  if (!userObj) {
+  const user = await currentUser() as User | null;
+  
+  if (!user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
+  const userAccount = await getUser(user.username);
 
   const { content, postId, fileId, projectId, pageId, parentId, tutorialId } = await request.json();
 
   try {
-    const newComment = await cachedPrisma.comment.create({
+    const newComment = await prisma.comment.create({
       data: {
         content,
-        author: { connect: { id: userObj.id } },
+        author: { connect: { id: userAccount?.id } },
         post: postId ? { connect: { id: postId } } : undefined,
         file: fileId ? { connect: { id: fileId } } : undefined,
         project: projectId ? { connect: { id: projectId } } : undefined,

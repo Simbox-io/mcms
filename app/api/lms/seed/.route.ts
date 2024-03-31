@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { CourseCategory, CourseTag, Course, Lesson, Enrollment, Quiz, QuizQuestion, Assignment, Announcement } from '@/lib/prisma';
 import { faker } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,15 +10,15 @@ export async function GET(request: Request) {
         const sampleData = await generateSampleData();
 
         // Insert the sample data into the database
-        await cachedPrisma.courseCategory.createMany({ data: sampleData.categories as CourseCategory[] });
-        await cachedPrisma.tag.createMany({ data: sampleData.tags as CourseTag[] });
-        await cachedPrisma.course.createMany({ data: sampleData.courses as Course[] });
-        await cachedPrisma.lesson.createMany({ data: sampleData.lessons as Lesson[] });
-        await cachedPrisma.enrollment.createMany({ data: sampleData.enrollments as Enrollment[] });
-        await cachedPrisma.quiz.createMany({ data: sampleData.quizzes as Quiz[] });
-        await cachedPrisma.quizQuestion.createMany({ data: sampleData.quizQuestions as QuizQuestion[] });
-        await cachedPrisma.assignment.createMany({ data: sampleData.assignments as Assignment[] });
-        await cachedPrisma.announcement.createMany({ data: sampleData.announcements as Announcement[] });
+        await prisma.courseCategory.createMany({ data: sampleData.categories as CourseCategory[] });
+        await prisma.tag.createMany({ data: sampleData.tags as CourseTag[] });
+        await prisma.course.createMany({ data: sampleData.courses as Course[] });
+        await prisma.lesson.createMany({ data: sampleData.lessons as Lesson[] });
+        await prisma.enrollment.createMany({ data: sampleData.enrollments as Enrollment[] });
+        await prisma.quiz.createMany({ data: sampleData.quizzes as Quiz[] });
+        await prisma.quizQuestion.createMany({ data: sampleData.quizQuestions as QuizQuestion[] });
+        await prisma.assignment.createMany({ data: sampleData.assignments as Assignment[] });
+        await prisma.announcement.createMany({ data: sampleData.announcements as Announcement[] });
 
         return NextResponse.json({ message: 'Sample data inserted successfully' });
     } catch (error) {
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 }
 
 async function generateSampleData() {
-    const users = await cachedPrisma.user.findMany();
+    const users = await prisma.user.findMany();
     const categories = [];
     const tags = [];
     const courses = [];

@@ -1,10 +1,10 @@
 // app/api/achievements/route.ts
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
-    const achievements = await cachedPrisma.achievement.findMany();
+    const achievements = await prisma.achievement.findMany();
     return NextResponse.json(achievements);
   } catch (error) {
     console.error('Failed to fetch achievements', error);

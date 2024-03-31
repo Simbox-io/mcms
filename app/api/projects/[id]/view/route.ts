@@ -1,6 +1,6 @@
 // app/api/projects/[id]/view/route.ts
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function PUT(
   request: Request,
@@ -9,7 +9,7 @@ export async function PUT(
   const projectId = params.id;
 
   try {
-    const project = await cachedPrisma.project.update({
+    const project = await prisma.project.update({
       where: { id: projectId },
       data: {
         views: {

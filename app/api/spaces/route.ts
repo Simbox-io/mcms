@@ -1,7 +1,7 @@
 // app/api/spaces/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get('search') || '';
 
   try {
-    const totalSpaces = await cachedPrisma.space.count({
+    const totalSpaces = await prisma.space.count({
       where: {
         OR: [
           { name: { contains: search } },
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     });
     const totalPages = Math.ceil(totalSpaces / perPage);
 
-    const spaces = await cachedPrisma.space.findMany({
+    const spaces = await prisma.space.findMany({
       where: {
         OR: [
           { name: { contains: search } },
@@ -31,7 +31,16 @@ export async function GET(request: NextRequest) {
       skip: (page - 1) * perPage,
       take: perPage,
       include: {
-        owner: true,
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            createdAt: true,
+          },
+        },
         collaborators: true,
         pages: true,
         project: true,
@@ -58,21 +67,21 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!session) {
+  if (!session.sessionId) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const { name, description, projectId, collaborators, settings } = await request.json();
 
   try {
-    const newSpace = await cachedPrisma.space.create({
+    const newSpace = await prisma.space.create({
       data: {
         name,
         description,
-        owner: { connect: { id: user.id } },
+        owner: { connect: { id: user?.id } },
         project: projectId ? { connect: { id: projectId } } : undefined,
         collaborators: {
           connect: collaborators.map((collaboratorId: string) => ({ id: collaboratorId })),

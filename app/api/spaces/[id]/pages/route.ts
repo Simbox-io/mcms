@@ -1,14 +1,14 @@
 // app/api/spaces/[id]/pages/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const spaceId = params.id;
 
   try {
-    const pages = await cachedPrisma.page.findMany({
+    const pages = await prisma.page.findMany({
       where: { spaceId },
       include: {
         comments: true,
@@ -31,8 +31,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { title, content, settings } = await request.json();
 
   try {
-    const space = await cachedPrisma.space.findUnique({
+    const space = await prisma.space.findUnique({
       where: { id: spaceId },
       include: { collaborators: true },
     });
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const newPage = await cachedPrisma.page.create({
+    const newPage = await prisma.page.create({
       data: {
         title,
         content,

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
+import { auth, currentUser } from '@clerk/nextjs';
 import cachedPrisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string, collaboratorId: string } }) {
-    const session = await getSession(request);
-    const userObj = session?.user as User;
+    const session = await auth();
+    const userObj = session?.user as unknown as User;
   
     if (!userObj) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });

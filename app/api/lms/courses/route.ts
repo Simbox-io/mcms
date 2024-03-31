@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const search = searchParams.get('search');
 
   try {
-    const totalCount = await cachedPrisma.course.count({
+    const totalCount = await prisma.course.count({
       where: {
         title: { contains: search || '' },
         categories: category ? { some: { id: category } } : undefined,
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       },
     });
 
-    const courses = await cachedPrisma.course.findMany({
+    const courses = await prisma.course.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       where: {

@@ -1,21 +1,19 @@
 // app/api/impersonate/[userId]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import authOptions from '@/app/api/auth/[...nextauth]/options';
-import { encode } from 'next-auth/jwt';
-import cachedPrisma, { User } from '@/lib/prisma';
+import { auth } from '@clerk/nextjs';
+import prisma, { User } from '@/lib/prisma';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
-  const userObj = session?.user as User;
+  const session = auth();
+  const userObj = session?.user as unknown as User;
 
-  if (!session || userObj.role !== 'ADMIN') {
+  if (!session.sessionId || userObj.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { id } = params;
 
-  const user = await cachedPrisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: id },
   });
 
@@ -33,21 +31,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     },
   };
 
-  // Create a new JWT token with the impersonated session
-  const token = await encode({
-    secret: process.env.NEXTAUTH_SECRET || '',
-    token: impersonatedSession,
-  });
-
-
-  // Set the JWT token as a cookie
-  const response = NextResponse.json({ message: 'Impersonation successful' });
-  response.cookies.set('next-auth.session-token', token as string, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    path: '/',
-  });
-
-  return response;
+  return NextResponse.json({ message: 'Impersonation successful' });
 }
+

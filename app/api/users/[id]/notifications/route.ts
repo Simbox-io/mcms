@@ -1,12 +1,13 @@
 // app/api/users/[id]/notifications/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const userId = params.id;
 
   try {
-    const notifications = await cachedPrisma.notification.findMany({
+    const notifications = await prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
@@ -28,8 +29,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -39,7 +41,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { notificationIds, isRead } = await request.json();
 
   try {
-    const updatedNotifications = await cachedPrisma.notification.updateMany({
+    const updatedNotifications = await prisma.notification.updateMany({
       where: {
         id: { in: notificationIds },
         userId,

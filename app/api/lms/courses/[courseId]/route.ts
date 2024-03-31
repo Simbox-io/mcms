@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { courseId: string } }) {
   try {
-    const course = await cachedPrisma.course.findUnique({
+    const course = await prisma.course.findUnique({
       where: { id: params.courseId },
       include: {
         instructor: {

@@ -1,10 +1,10 @@
 // app/api/users/[userId]/courseRecommendations/route.ts
 import { NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request, { params }: { params: { userId: string } }) {
   try {
-    const courseRecommendations = await cachedPrisma.courseRecommendation.findMany({
+    const courseRecommendations = await prisma.courseRecommendation.findMany({
       where: { userId: params.userId },
       include: { course: true },
       orderBy: { score: 'desc' },

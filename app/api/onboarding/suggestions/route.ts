@@ -1,19 +1,20 @@
 // app/api/onboarding/suggestions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const suggestedSpaces = await cachedPrisma.space.findMany({
+    const suggestedSpaces = await prisma.space.findMany({
       take: 5,
       select: {
         id: true,
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const suggestedUsers = await cachedPrisma.user.findMany({
+    const suggestedUsers = await prisma.user.findMany({
       take: 5,
       select: {
         id: true,

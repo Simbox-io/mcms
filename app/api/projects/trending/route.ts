@@ -1,6 +1,6 @@
 // app/api/projects/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import cachedPrisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -8,10 +8,10 @@ export async function GET(request: NextRequest) {
   const perPage = 10;
 
   try {
-    const totalProjects = await cachedPrisma.project.count();
+    const totalProjects = await prisma.project.count();
     const totalPages = Math.ceil(totalProjects / perPage);
 
-    const projects = await cachedPrisma.project.findMany({
+    const projects = await prisma.project.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       include: {

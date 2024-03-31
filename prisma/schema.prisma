@@ -14,7 +14,6 @@ model User {
   id                    String                 @id @default(uuid())
   username              String                 @unique
   email                 String                 @unique
-  passwordHash          String
   firstName             String?
   lastName              String?
   avatar                String?
@@ -28,6 +27,12 @@ model User {
   followedBy            User[]                 @relation("UserFollows")
   following             User[]                 @relation("UserFollows")
   bookmarks             Bookmark[]
+  likedPosts            Post[]                 @relation("LikedPosts")
+  likedFiles            File[]                 @relation("LikedFiles")
+  dislikedPosts         Post[]                 @relation("DislikedPosts")
+  dislikedFiles         File[]                 @relation("DislikedFiles")
+  likedComments         Comment[]              @relation("LikedComments")
+  dislikedComments      Comment[]              @relation("DislikedComments")
   commentReactions      CommentReaction[]
   fileReactions         FileReaction[]
   notifications         Notification[]
@@ -47,7 +52,6 @@ model User {
   viewedSpaces          SpaceView[]
   tutorials             Tutorial[]
   collaboratedTutorials Tutorial[]             @relation("CollaboratedTutorials")
-  quillPosts            QuillPost[]
   Progress              Progress[]
   AssignmentSubmission  AssignmentSubmission[]
   QuizSubmission        QuizSubmission[]
@@ -148,7 +152,10 @@ model Post {
   authorId    String
   tags        Tag[]
   comments    Comment[]
+  likedBy     User[]        @relation("LikedPosts")
   likes       Int           @default(0)
+  dislikes    Int           @default(0)
+  dislikedBy  User[]        @relation("DislikedPosts")
   views       Int           @default(0)
   isFeatured  Boolean       @default(false)
   isPinned    Boolean       @default(false)
@@ -178,16 +185,6 @@ model PostSettings {
   commentSettings         CommentSettings?
   sharingSettings         SharingSettings?
   revisionHistorySettings RevisionHistorySettings?
-}
-
-model QuillPost {
-  id        String   @id @default(uuid())
-  title     String
-  content   String
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Plugin {
@@ -251,6 +248,8 @@ model Comment {
   parentId   String?
   children   Comment[]         @relation("CommentParent")
   reactions  CommentReaction[]
+  dislikedBy User[]            @relation("DislikedComments")
+  likedBy    User[]            @relation("LikedComments")
   upvotes    Int               @default(0)
   downvotes  Int               @default(0)
   createdAt  DateTime          @default(now())
@@ -308,8 +307,11 @@ model File {
   projectId    String?
   uploadedBy   User           @relation(fields: [uploadedById], references: [id])
   uploadedById String
+  likedBy      User[]         @relation("LikedFiles")
   tags         Tag[]
   comments     Comment[]
+  dislikes     Int            @default(0)
+  dislikedBy   User[]         @relation("DislikedFiles")
   parent       File?          @relation("FileParent", fields: [parentId], references: [id])
   parentId     String?
   children     File[]         @relation("FileParent")
@@ -318,6 +320,7 @@ model File {
   updatedAt    DateTime       @updatedAt
   bookmarks    Bookmark[]
   settings     FileSettings?
+  userId       String?
 }
 
 model FileSettings {

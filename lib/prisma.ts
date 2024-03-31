@@ -1,7 +1,6 @@
 // lib/prisma.ts
 
 import { PrismaClient } from '@prisma/client';
-import cacheService from './cacheService';
 
 declare global {
   var prisma: PrismaClient | undefined;
@@ -18,13 +17,10 @@ if (process.env.NODE_ENV === 'production') {
   prisma = global.prisma;
 }
 
-const cachedPrisma = cacheService.wrapPrisma(prisma);
-
 export type User = {
   id: string;
   username: string;
   email: string;
-  passwordHash: string;
   firstName: string;
   lastName: string;
   avatar?: string | null;
@@ -38,6 +34,12 @@ export type User = {
   followedBy: User[];
   following: User[];
   bookmarks: Bookmark[];
+  dislikedPosts: Post[];
+  dislikedComments: Comment[];
+  dislikedFiles: File[];
+  likedPosts: Post[];
+  likedComments: Comment[];
+  likedFiles: File[];
   commentReactions: CommentReaction[];
   fileReactions: FileReaction[];
   notifications: Notification[];
@@ -141,6 +143,9 @@ export type Post = {
   tags: Tag[];
   comments: Comment[];
   likes: number;
+  dislikes: number;
+  likedBy: User[];
+  dislikedBy: User[];
   views: number;
   isFeatured: boolean;
   isPinned: boolean;
@@ -209,6 +214,8 @@ export type Comment = {
   tutorial?: Tutorial | null;
   upvotes: number;
   downvotes: number;
+  likedBy: User[];
+  dislikedBy: User[];
   children: Comment[];
   reactions: CommentReaction[];
   createdAt: Date;
@@ -281,6 +288,9 @@ export type File = {
   uploadedById: string;
   tags: Tag[];
   comments: Comment[];
+  dislikes: number;
+  dislikedBy: User[];
+  likedBy: User[];
   parent?: File | null;
   parentId?: string | null;
   children: File[];
@@ -354,8 +364,8 @@ export type FileReaction = {
 
 export type Project = {
   id: string;
-  name: string;
   type: "project";
+  name: string;
   description: string;
   owner: User;
   ownerId: string;
@@ -369,7 +379,7 @@ export type Project = {
   createdAt: Date;
   updatedAt: Date;
   bookmarks: Bookmark[];
-  settings?: ProjectSettings | null;
+  settings: ProjectSettings | null;
 };
 
 export type ProjectSettings = {
@@ -1039,4 +1049,4 @@ export enum NotificationFrequency {
   WEEKLY_DIGEST = 'WEEKLY_DIGEST',
 }
 
-export default cachedPrisma;
+export default prisma;

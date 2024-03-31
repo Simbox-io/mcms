@@ -1,14 +1,14 @@
 // app/api/pages/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs';
+import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const pageId = params.id;
 
   try {
-    const page = await cachedPrisma.page.findUnique({
+    const page = await prisma.page.findUnique({
       where: { id: pageId },
       include: {
         space: true,
@@ -36,8 +36,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+    const session = auth();
+    const userObj = await currentUser();
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -47,7 +47,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const { title, content, settings } = await request.json();
 
   try {
-    const page = await cachedPrisma.page.findUnique({
+    const page = await prisma.page.findUnique({
       where: { id: pageId },
       include: { space: true },
     });
@@ -60,7 +60,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    const updatedPage = await cachedPrisma.page.update({
+    const updatedPage = await prisma.page.update({
       where: { id: pageId },
       data: {
         title,
@@ -119,8 +119,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+    const userObj = await currentUser();
+
 
   if (!userObj) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -129,7 +130,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const pageId = params.id;
 
   try {
-    const page = await cachedPrisma.page.findUnique({
+    const page = await prisma.page.findUnique({
       where: { id: pageId },
       include: { space: true },
     });
@@ -142,7 +143,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    await cachedPrisma.page.delete({
+    await prisma.page.delete({
       where: { id: pageId },
     });
 

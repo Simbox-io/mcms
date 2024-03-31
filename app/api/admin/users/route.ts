@@ -1,22 +1,31 @@
 // app/api/users/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import cachedPrisma from '@/lib/prisma';
-import { User } from '@/lib/prisma';
+import { auth } from '@clerk/nextjs';
+import prisma, { User } from '@/lib/prisma';
+import { currentUser } from '@clerk/nextjs';
 
-const secret = process.env.NEXTAUTH_SECRET;
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const userObj = session?.user as User;
+  const session = auth();
+  const user = await currentUser();
 
-  if (!userObj || !(userObj.role === 'ADMIN')) {
+  if(!user) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  const userObj = await prisma.user.findUnique({
+    where: {
+      id: user.id
+    }
+  }) as unknown as User;
+
+  if (!session.sessionId || userObj?.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const user = await cachedPrisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email: userObj.email },
       select: {
         id: true,
