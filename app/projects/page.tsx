@@ -139,7 +139,7 @@ export default function ProjectPage() {
                                     <h3 className="text-lg font-medium mb-2">Collaborators</h3>
                                     <AvatarGroup>
                                         {project.collaborators.map((collaborator) => (
-                                            <HoverCard>
+                                            <HoverCard key={collaborator.id}>
                                                 <HoverCardTrigger>
                                                     <Avatar key={collaborator.id}>
                                                         <AvatarImage src={collaborator.avatar} alt={collaborator.username} />
