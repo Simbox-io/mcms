@@ -25,7 +25,7 @@ export default async function RootLayout({
 }>) {
 
   return (
-    <ClerkProvider appearance={{baseTheme: dark}}>
+    <ClerkProvider  publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY} appearance={{baseTheme: dark}}>
     <html lang="en" className={ibmPlexSans.className}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
