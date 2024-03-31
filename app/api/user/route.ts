@@ -1,18 +1,16 @@
 // app/api/user/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs';
-import prisma, { User } from '@/lib/prisma';
-import { uploadImage } from '@/lib/uploadImage';
+import prisma from '@/lib/prisma';
+import { UserJSON } from '@clerk/nextjs/server';
+import { Webhook } from 'svix';
 
 
 export async function GET(request: NextRequest) {
   const session = auth();
-    const userObj = await currentUser();
+  const userObj = await currentUser();
 
-
-  if (!session.sessionId) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
+  console.log(request);
 
   try {
     const user = await prisma.user.findUnique({
@@ -43,21 +41,36 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const session = auth();
+  const wh = new Webhook(process.env.USER_WEBHOOK_KEY!);
+  const svix_id = request.headers.get("svix-id") ?? "";
+  const svix_timestamp = request.headers.get("svix-timestamp") ?? "";
+  const svix_signature = request.headers.get("svix-signature") ?? "";
+  const rawBody = await request.text();
+  const payload = wh.verify(rawBody, {
+    "svix-id": svix_id,
+    "svix-timestamp": svix_timestamp,
+    "svix-signature": svix_signature,
+  }) as UserJSON;
 
-  if (!session.sessionId) {
+  if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const data = await request.json();
-  console.log(data)
-  const id = data.id as string;
-  const username = data.username as string;
-  const firstName = data.first_name as string || '';
-  const lastName = data.last_name as string || '';
-  const email = data.emailAddresses[0].emailAddress as string;
-  const avatarUrl = data.profile_image_url as string || '';
+  console.log(payload)
+  const id = payload.id as string;
+  const username = payload.username as string;
+  const firstName = payload.first_name as string || '';
+  const lastName = payload.last_name as string || '';
+  const email = payload.email_addresses[0].email_address as string;
+  const avatarUrl = payload.image_url as string || '';
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+    if (user) {
+      return NextResponse.json({ message: 'User already exists' }, { status: 400 });
+    }
     const newUser = await prisma.user.create({
       data: {
         id,
@@ -77,10 +90,10 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   const session = auth();
-    const userObj = await currentUser();
+  const userObj = await currentUser();
 
 
-  if (!session.sessionId) {
+  if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
   const data = await request.formData();
