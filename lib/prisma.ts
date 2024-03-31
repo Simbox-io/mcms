@@ -415,14 +415,14 @@ export type ProjectNotificationSettings = {
 };
 
 export type Tag = {
-  id: string;
+  id?: string;
   name: string;
-  posts: Post[];
-  files: File[];
-  projects: Project[];
-  tutorials: Tutorial[];
-  createdAt: Date;
-  updatedAt: Date;
+  posts?: Post[];
+  files?: File[];
+  projects?: Project[];
+  tutorials?: Tutorial[];
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 export type Badge = {

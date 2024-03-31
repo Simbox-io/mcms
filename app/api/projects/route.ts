@@ -1,6 +1,6 @@
 // app/api/projects/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import prisma, { User } from '@/lib/prisma';
 import { auth, currentUser } from '@clerk/nextjs';
 
 export async function GET(request: NextRequest) {
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         description,
         owner: { connect: { id: user?.id } },
         collaborators: {
-          connect: collaborators?.map((collaboratorId: string) => ({ id: collaboratorId })),
+          connect: collaborators?.map((collaborator: User) => ({ id: collaborator.id })),
         },
         tags: {
           connectOrCreate: tags?.map((tag: string) => ({
