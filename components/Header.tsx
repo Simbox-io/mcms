@@ -30,7 +30,6 @@ import { useRouter } from 'next/navigation';
 import { File, Project, Space, User, Course, Notification } from "@/lib/prisma"
 import useSWR from 'swr';
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
-import { ModeToggle } from "@/components/mode-toggle"
 
 export default function Header() {
     const [searchTerm, setSearchTerm] = useState('');
