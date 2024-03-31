@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  console.log(payload)
+  console.error(payload)
+  
   const id = payload.id as string;
   const username = payload.username as string;
   const firstName = payload.first_name as string || '';
