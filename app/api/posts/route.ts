@@ -45,12 +45,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = auth();
   const user = await currentUser();
-
-  if (!session.sessionId) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
 
   if (!user || !user.id) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });

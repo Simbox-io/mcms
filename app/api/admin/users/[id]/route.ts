@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
   }) as unknown as User;
 
-  if (!session.sessionId || userObj?.role !== 'ADMIN') {
+  if (!session || userObj?.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -74,7 +74,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
   }) as unknown as User;
 
-  if (!session.sessionId || userObj?.role !== 'ADMIN') {
+  if (!session || userObj?.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -132,7 +132,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
   }) as unknown as User;
 
-  if (!session.sessionId || userObj?.role !== 'ADMIN') {
+  if (!session || userObj?.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 

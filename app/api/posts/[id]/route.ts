@@ -54,7 +54,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const session = auth();
   const user = await currentUser();
 
-  if (!session.sessionId) {
+  if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -127,7 +127,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const session = auth();
   const user = await currentUser();
 
-  if (!session.sessionId) {
+  if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 

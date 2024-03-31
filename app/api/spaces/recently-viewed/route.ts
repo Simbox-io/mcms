@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const session = auth();
   const user = await currentUser();
 
-  if (!session.sessionId || !user) {
+  if (!session || !user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   const session = auth();
   const user = await currentUser();
 
-  if (!session.sessionId || !user) {
+  if (!session || !user) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 

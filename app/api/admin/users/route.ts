@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     }
   }) as unknown as User;
 
-  if (!session.sessionId || userObj?.role !== 'ADMIN') {
+  if (!session || userObj?.role !== 'ADMIN') {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 

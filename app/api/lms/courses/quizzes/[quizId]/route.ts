@@ -5,7 +5,7 @@ import { auth } from '@clerk/nextjs';
 export async function POST(request: Request, { params }: { params: { quizId: string } }) {
   const session = auth();
 
-  if (!session.sessionId) {
+  if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

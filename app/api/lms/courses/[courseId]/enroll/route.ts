@@ -6,7 +6,7 @@ import { User } from '@/lib/prisma';
 export async function POST(request: Request, { params }: { params: { courseId: string } }) {
   const session = auth();
 
-  if (!session.sessionId) {
+  if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -7,7 +7,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const session = auth();
   const userObj = session?.user as unknown as User;
 
-  if (!session.sessionId || userObj.role !== 'ADMIN') {
+  if (!session || userObj.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
