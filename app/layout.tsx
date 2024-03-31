@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ClerkProvider, auth } from '@clerk/nextjs'
 import { dark } from '@clerk/themes'
+import { clerkConfig } from '../clerk.config';
 
 const inter = Inter({ subsets: ["latin"] });
 const ibmPlexSans = IBM_Plex_Sans({ weight: ['300', '400', '600'], subsets: ["latin"] });
@@ -25,7 +26,7 @@ export default async function RootLayout({
 }>) {
 
   return (
-    <ClerkProvider appearance={{baseTheme: dark}}>
+    <ClerkProvider {...clerkConfig} appearance={{baseTheme: dark}}>
     <html lang="en" className={ibmPlexSans.className}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
