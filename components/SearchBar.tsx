@@ -6,7 +6,6 @@ import { debounce } from 'lodash';
 import { Skeleton } from '@/components/ui/skeleton';
 import SearchResults from '@/components/SearchResults';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 
 export interface SearchResult {
   id: string;
@@ -69,8 +68,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
     setIsLoading(true);
     try {
-      const response = await axios.get(`/api/search?q=${encodeURIComponent(query)}`);
-      setSearchResults(response.data.results);
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      setSearchResults(await response.json());
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
