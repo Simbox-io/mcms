@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = auth();
   const wh = new Webhook(process.env.USER_WEBHOOK_KEY!);
   const svix_id = request.headers.get("svix-id") ?? "";
   const svix_timestamp = request.headers.get("svix-timestamp") ?? "";
@@ -51,10 +50,6 @@ export async function POST(request: NextRequest) {
     "svix-timestamp": svix_timestamp,
     "svix-signature": svix_signature,
   }) as UserJSON;
-
-  if (!session) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
 
   console.error(payload)
   
