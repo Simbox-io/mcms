@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(newUser);
   } catch (error) {
     console.error('Error creating user:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ message: 'Internal server error' + error }, { status: 500 });
   }
 }
 
@@ -126,6 +126,6 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error('Error updating user:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ message: 'Internal server error' + error }, { status: 500 });
   }
 }
