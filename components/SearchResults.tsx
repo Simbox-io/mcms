@@ -33,8 +33,15 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
             className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
             onClick={() => onResultClick(result)}
           >
-            <div className="flex items-center">
-              {result.image && <Avatar src={result.image} size="small" className="mr-2" />}
+             <div className="flex items-center">
+              {result.image && (
+                <Avatar className="mr-2">
+                  <AvatarImage src={result.image} alt={result.title} />
+                  <AvatarFallback>
+                    {result.title.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              )}
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{result.title}</p>
                 {result.content && (
