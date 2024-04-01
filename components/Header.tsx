@@ -116,12 +116,11 @@ export default function Header() {
         }
     };
 
-    const handleSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (searchTerm.trim() !== '') {
-            router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
-        }
-    };
+    const handleSearch = async (query: string) => {
+    if (query.trim() !== '') {
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+  }
+};
 
     const handleToggle = (
         isOpen: boolean,
@@ -445,7 +444,7 @@ export default function Header() {
                                 </svg>
                             </button>
                             <div className="hidden flex-grow lg:block md:w-48 xl:w-80">
-                                <SearchBar onSearch={() => handleSearch} value={searchTerm} onChange={setSearchTerm} />
+                                <SearchBar onSearch={handleSearch} />
                             </div>
                             <SignedIn>
                                 <div className="relative flex justify-between items-center md:ml-4">
@@ -483,6 +482,7 @@ export default function Header() {
                                                     <div className="px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200">
                                                         No notifications
                                                     </div>
+                                            
                                                 )}
                                                 {notifications.length > 1 && (
                                                     <Button
@@ -546,12 +546,12 @@ export default function Header() {
                     </div>
                 </div>
             </div>
-            {isSearchOpen && (
-                <div ref={searchRef} className="px-4 py-2 md:hidden">
-                    <SearchBar onSearch={() => handleSearch} />
-                </div>
-            )}
+            
         </header>
+        {isSearchOpen && (
+    <div ref={searchRef} className="px-4 py-2 md:hidden">
+        <SearchBar onSearch={handleSearch} />
+    </div>
     )
 }
 
