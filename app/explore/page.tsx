@@ -1,7 +1,7 @@
 import ItemCard from "@/components/explore/item-card";
 import React from 'react';
 import { currentUser } from '@clerk/nextjs';
-import { File, Post, Project, Space } from '@/lib/prisma';
+import { File, Post, Project, Space, Bookmark } from '@/lib/prisma';
 import { getProjects, getFiles, getSpaces, getPosts } from "@/lib/utils";
 
 const Explore: React.FC = async () => {
@@ -62,48 +62,52 @@ const Explore: React.FC = async () => {
                 return (
                     <ItemCard
                         key={item.id}
+                        id={item.id}
                         title={item.title}
                         type={item.type}
                         description={item.content || ''}
                         creationDate={new Date(item.createdAt).toLocaleDateString() || ''}
                         author={item.author}
-                        initialIsBookmarked={false}
+                        initialIsBookmarked={item.bookmarks?.some((bookmark: Bookmark) => bookmark.userId === user?.id)}
                     />
                 );
             case 'project':
                 return (
                     <ItemCard
                         key={item.id}
+                        id={item.id}
                         title={item.name}
                         type={item.type}
                         description={item.description || ''}
                         creationDate={new Date(item.createdAt).toLocaleDateString() || ''}
                         author={item.owner}
-                        initialIsBookmarked={false}
+                        initialIsBookmarked={item.bookmarks?.some((bookmark: Bookmark) => bookmark.userId === user?.id)}
                     />
                 );
             case 'file':
                 return (
                     <ItemCard
+                        id={item.id}
                         key={item.id}
                         title={item.name}
                         type={item.type}
                         description={item.description || ''}
                         creationDate={new Date(item.createdAt).toLocaleDateString() || ''}
                         author={item.uploadedBy}
-                        initialIsBookmarked={false}
+                        initialIsBookmarked={item.bookmarks?.some((bookmark: Bookmark) => bookmark.userId === user?.id)}
                     />
                 );
             case 'space':
                 return (
                     <ItemCard
+                        id={item.id}
                         key={item.id}
                         title={item.name}
                         type={item.type}
                         description={item.description || ''}
                         creationDate={new Date(item.createdAt).toLocaleDateString() || ''}
                         author={item.owner}
-                        initialIsBookmarked={false}
+                        initialIsBookmarked={item.bookmarks?.some((bookmark: Bookmark) => bookmark.userId === user?.id)}
                     />
                 );
             default:

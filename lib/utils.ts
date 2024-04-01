@@ -30,6 +30,7 @@ export const getProjects = async () => {
   const projects = await prisma.project.findMany({
     include: {
       owner: true,
+      bookmarks: true,
     },
   });
   return projects;
@@ -76,6 +77,7 @@ export const getPosts = async () => {
     include: {
       author: true,
       comments: true,
+      bookmarks: true,
     },
   }) as unknown as Post[];
   return posts;
@@ -107,6 +109,7 @@ export const getFiles = async () => {
   const files = await prisma.file.findMany({
     include: {
       uploadedBy: true,
+      bookmarks: true,
     },
   });
   return files;
@@ -125,6 +128,7 @@ export const getSpaces = async () => {
   const spaces = await prisma.space.findMany({
     include: {
       owner: true,
+      bookmarks: true,
     },
   });
   return spaces;

@@ -24,6 +24,7 @@ import { Toggle } from "../ui/toggle";
 import { Separator } from "../ui/separator";
 
 export default function ItemCard({
+    id,
     title,
     type,
     description,
@@ -31,6 +32,7 @@ export default function ItemCard({
     author,
     initialIsBookmarked
 }: {
+    id: string;
     title: string;
     type: string;
     description: string;
@@ -41,9 +43,15 @@ export default function ItemCard({
     const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked || false);
     const router = useRouter();
 
-    const handleBookmarkClick = () => {
+    async function handleBookmarkClick() {
         setIsBookmarked(!isBookmarked);
-        // Add your logic to handle bookmark action here
+        const response = await fetch(`/api/bookmarks`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id, type }),
+        });
     };
 
     return (
