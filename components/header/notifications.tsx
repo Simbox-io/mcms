@@ -88,7 +88,7 @@ export default function Notifications() {
                     </CardHeader>
                     <CardContent className="p-4">
                         {notifications?.map((notification: Notification) => (
-                            <div className="mb-2 grid grid-cols-[25px_1fr] items-start pb-2 last:mb-0 last:pb-0">
+                            <div key={notification.id} className="mb-2 grid grid-cols-[25px_1fr] items-start pb-2 last:mb-0 last:pb-0">
                                 {notification.isRead === false && <span className="flex h-2 w-2 translate-y-1.5 rounded-full bg-green-500" />}
                                 <div className="flex flex-row gap-4 justify-between">
                                     <div className="grid gap-1">
