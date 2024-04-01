@@ -548,11 +548,11 @@ export default function Header() {
             </div>
             
         </header>
-        {isSearchOpen && (
+    )
+    {isSearchOpen && (
     <div ref={searchRef} className="px-4 py-2 md:hidden">
         <SearchBar onSearch={handleSearch} />
     </div>
-    )
 }
 
 const ListItem = React.forwardRef<
