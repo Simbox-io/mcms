@@ -24,11 +24,7 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-interface Tab {
-  id: string;
-  label: string;
-  content: React.ReactNode;
-}
+
 
 const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
@@ -117,43 +113,6 @@ const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
     };
   }, []);
 
-  const tabs: Tab[] = [
-    {
-      id: 'all',
-      label: 'All',
-      content: <div>All results</div>,
-    },
-    {
-      id: 'posts',
-      label: 'Posts',
-      content: <div>Posts results</div>,
-    },
-    {
-      id: 'files',
-      label: 'Files',
-      content: <div>Files results</div>,
-    },
-    {
-      id: 'projects',
-      label: 'Projects',
-      content: <div>Projects results</div>,
-    },
-    {
-      id: 'spaces',
-      label: 'Spaces',
-      content: <div>Spaces results</div>,
-    },
-    {
-      id: 'tutorials',
-      label: 'Tutorials',
-      content: <div>Tutorials results</div>,
-    },
-    {
-      id: 'users',
-      label: 'Users',
-      content: <div>Users results</div>,
-    },
-  ];
 
   return (
     <div className="sticky top-0 z-10 bg-white dark:bg-gray-900">
@@ -183,7 +142,38 @@ const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
         </div>
       </form>
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <Tabs tabs={tabs} />
+        <Tabs defaultValue="all">
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="posts">Posts</TabsTrigger>
+            <TabsTrigger value="files">Files</TabsTrigger>
+            <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="spaces">Spaces</TabsTrigger>
+            <TabsTrigger value="tutorials">Tutorials</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+          </TabsList>
+          <TabsContent value="all">
+            <div>All results</div>
+          </TabsContent>
+          <TabsContent value="posts">
+            <div>Posts results</div>
+          </TabsContent>
+          <TabsContent value="files">
+            <div>Files results</div>
+          </TabsContent>
+          <TabsContent value="projects">
+            <div>Projects results</div>
+          </TabsContent>
+          <TabsContent value="spaces">
+            <div>Spaces results</div>
+          </TabsContent>
+          <TabsContent value="tutorials">
+            <div>Tutorials results</div>
+          </TabsContent>
+          <TabsContent value="users">
+            <div>Users results</div>
+          </TabsContent>
+        </Tabs>
       </div>
       <AnimatePresence>
         {isOpen && (
