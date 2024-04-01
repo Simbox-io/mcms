@@ -6,15 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { FiFile, FiFolder, FiUsers, FiBook, FiUser, FiFileText } from 'react-icons/fi';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 
-export interface SearchResult {
-  id: string;
-  type: 'post' | 'project' | 'file' | 'space' | 'profile';
-  title: string;
-  content: string;
-  value: string;
-  image?: string;
-  url: string;
-}
+
 
 interface SearchResultsProps {
   results: {
