@@ -81,7 +81,7 @@ export default function Notifications() {
                     </Badge>}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="p-0">
+            <PopoverContent className="p-0 mr-8">
                 <Card className="shadow-none border-0">
                     <CardHeader className="border-b p-3">
                         <CardTitle className="text-md">Notifications</CardTitle>
