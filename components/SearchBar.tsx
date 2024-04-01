@@ -24,8 +24,6 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-
-
 const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
   className = '',
@@ -36,33 +34,19 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const [searchResults, setSearchResults] = useState<{
-    posts: SearchResult[];
-    files: SearchResult[];
-    projects: SearchResult[];
-    spaces: SearchResult[];
-    tutorials: SearchResult[];
-    users: SearchResult[];
-  }>({
-    posts: [],
-    files: [],
-    projects: [],
-    spaces: [],
-    tutorials: [],
-    users: [],
-  });
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   const fetchSearchResults = async (query: string) => {
-  setIsLoading(true);
-  try {
-const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-    const data = await response.json();
-    setSearchResults(data.results);
-  } catch (error) {
-    console.error('Error fetching search results:', error);
-  }
-  setIsLoading(false);
-};
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      setSearchResults(data.results);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    }
+    setIsLoading(false);
+  };
 
   const debouncedFetchSearchResults = useRef(
     debounce((query) => fetchSearchResults(query), 300)
@@ -74,17 +58,10 @@ const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
       setIsOpen(true);
     } else {
       setIsOpen(false);
-      setSearchResults({
-        posts: [],
-        files: [],
-        projects: [],
-        spaces: [],
-        tutorials: [],
-        users: [],
-      });
+      setSearchResults([]);
     }
-  }, [searchQuery, debouncedFetchSearchResults])
-  
+  }, [searchQuery, debouncedFetchSearchResults]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(searchQuery);
@@ -113,9 +90,8 @@ const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
     };
   }, []);
 
-
   return (
-    <div className="sticky top-0 z-10 bg-white dark:bg-gray-900">
+    <div className="relative">
       <form onSubmit={handleSearch} className={`relative w-full ${className}`}>
         <input
           type="text"
@@ -141,64 +117,82 @@ const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
           </svg>
         </div>
       </form>
-      <div className="border-b border-gray-200 dark:border-gray-700">
-        <Tabs defaultValue="all">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="posts">Posts</TabsTrigger>
-            <TabsTrigger value="files">Files</TabsTrigger>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-            <TabsTrigger value="spaces">Spaces</TabsTrigger>
-            <TabsTrigger value="tutorials">Tutorials</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-          </TabsList>
-          <TabsContent value="all">
-            <div>All results</div>
-          </TabsContent>
-          <TabsContent value="posts">
-            <div>Posts results</div>
-          </TabsContent>
-          <TabsContent value="files">
-            <div>Files results</div>
-          </TabsContent>
-          <TabsContent value="projects">
-            <div>Projects results</div>
-          </TabsContent>
-          <TabsContent value="spaces">
-            <div>Spaces results</div>
-          </TabsContent>
-          <TabsContent value="tutorials">
-            <div>Tutorials results</div>
-          </TabsContent>
-          <TabsContent value="users">
-            <div>Users results</div>
-          </TabsContent>
-        </Tabs>
-      </div>
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
-  initial={{ opacity: 0, y: -10 }}
-  animate={{ opacity: 1, y: 0 }}
-  exit={{ opacity: 0, y: -10 }}
-  transition={{ duration: 0.3 }}
-  className="absolute top-14 left-0 right-0 mt-2 w-full rounded-md shadow-xl bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none"
->
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-12 left-0 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+          >
             {isLoading ? (
               <div className="px-4 py-2">
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-full mt-2" />
                 <Skeleton className="h-4 w-full mt-2" />
               </div>
-            ) : Object.values(searchResults).flat().length === 0 ? (
+            ) : searchResults.length === 0 ? (
               <div className="px-4 py-2">
                 <p className="text-sm text-gray-500 dark:text-gray-400">No results found.</p>
               </div>
             ) : (
-              <SearchResults
-                results={searchResults}
-                onResultClick={handleResultClick}
-              />
+              <>
+                <Tabs defaultValue="all">
+                  <TabsList>
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    <TabsTrigger value="posts">Posts</TabsTrigger>
+                    <TabsTrigger value="files">Files</TabsTrigger>
+                    <TabsTrigger value="projects">Projects</TabsTrigger>
+                    <TabsTrigger value="spaces">Spaces</TabsTrigger>
+                    <TabsTrigger value="tutorials">Tutorials</TabsTrigger>
+                    <TabsTrigger value="users">Users</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="all">
+                    <SearchResults
+                      results={searchResults}
+                      onResultClick={handleResultClick}
+                    />
+                  </TabsContent>
+                  <TabsContent value="posts">
+                    <SearchResults
+                      results={searchResults.filter(r => r.type === 'post')}
+                      onResultClick={handleResultClick}
+                    />
+                  </TabsContent>
+                  <TabsContent value="files">
+                    <SearchResults
+                      results={searchResults.filter(r => r.type === 'file')}
+                      onResultClick={handleResultClick}
+                    />
+                  </TabsContent>
+                  <TabsContent value="projects">
+                    <SearchResults
+                      results={searchResults.filter(r => r.type === 'project')}
+                      onResultClick={handleResultClick}
+                    />
+                  </TabsContent>
+                  <TabsContent value="spaces">
+                    <SearchResults
+                      results={searchResults.filter(r => r.type === 'space')}
+                      onResultClick={handleResultClick}
+                    />
+                  </TabsContent>
+                  <TabsContent value="tutorials">
+                    <SearchResults
+                      results={searchResults.filter(r => r.type === 'profile')}
+                      onResultClick={handleResultClick}
+                    />
+                  </TabsContent>
+                  <TabsContent value="users">
+                    <SearchResults
+                      results={searchResults.filter(r => r.type === 'profile')}
+                      onResultClick={handleResultClick}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </>
             )}
           </motion.div>
         )}
