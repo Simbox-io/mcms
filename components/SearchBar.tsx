@@ -8,7 +8,7 @@ import SearchResults from '@/components/SearchResults';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 
-interface SearchResult {
+export interface SearchResult {
   id: string;
   type: 'post' | 'project' | 'file' | 'space' | 'profile';
   title: string;
