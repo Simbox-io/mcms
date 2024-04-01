@@ -154,6 +154,15 @@ export const getCourse = async (courseId: string) => {
   return course;
 }
 
+export const getCourses = async () => {
+  const courses = await prisma.course.findMany({
+    include: {
+      instructor: true,
+    },
+  });
+  return courses;
+}
+
 export const getLesson = async (lessonId: string) => {
   const lesson = await prisma.lesson.findUnique({
     where: {

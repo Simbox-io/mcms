@@ -10,3 +10,5 @@ node_modules
 .sentryclirc
 components/combined_files.txt
 .DS_Store
+
+feature-list.md
