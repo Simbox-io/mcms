@@ -58,7 +58,7 @@ export default function CoursesPage({
     <div className="container mx-auto">
       <div className="w-full flex flex-col justify-between">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Courses</h1>
+          <h1 className="text-3xl font-semibold text-zinc-800 dark:text-white">Courses</h1>
           <div className="flex items-center space-x-4">
             <Button variant="default">
               <IoMdAdd />
@@ -71,7 +71,7 @@ export default function CoursesPage({
         <div className="mb-8">
           <div className="flex justify-between">
             <div className="flex-grow mr-4 ">
-              <span className="text-gray-500 dark:text-gray-400 mb-6">Filter courses...</span>
+              <span className="text-zinc-500 dark:text-zinc-400 mb-6">Filter courses...</span>
             </div>
           </div>
         </div>

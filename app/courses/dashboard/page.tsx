@@ -102,26 +102,26 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen">
+    <div className="bg-white dark:bg-zinc-900 min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-white">Student Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-8 text-zinc-800 dark:text-white">Student Dashboard</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Enrolled Courses</h2>
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4 text-zinc-800 dark:text-white">Enrolled Courses</h2>
             {enrolledCourses.map((course) => (
               <DashboardCourseCard key={course.id} course={course} />
             ))}
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Upcoming Deadlines</h2>
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4 text-zinc-800 dark:text-white">Upcoming Deadlines</h2>
             <UpcomingDeadlines assignments={upcomingAssignments} quizzes={upcomingQuizzes} />
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Achievements</h2>
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4 text-zinc-800 dark:text-white">Achievements</h2>
             <UserAchievements userAchievements={userAchievements} />
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Recommended Courses</h2>
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4 text-zinc-800 dark:text-white">Recommended Courses</h2>
             <RecommendedCourses courseRecommendations={courseRecommendations} />
           </div>
         </div>

@@ -7,10 +7,10 @@ type UserAchievementsProps = {
 
 export default function UserAchievements({ userAchievements }: UserAchievementsProps) {
   return (
-    <div className="bg-white dark:bg-gray-700 shadow-md rounded-md p-4 mb-4">
+    <div className="bg-white dark:bg-zinc-700 shadow-md rounded-md p-4 mb-4">
       <h2 className="text-xl font-semibold mb-4">Achievements</h2>
       {userAchievements.length === 0 ? (
-        <p className="text-gray-600 dark:text-gray-400">No achievements earned yet.</p>
+        <p className="text-zinc-600 dark:text-zinc-400">No achievements earned yet.</p>
       ) : (
         <ul className="grid grid-cols-2 gap-4">
           {userAchievements.map((userAchievement) => (
@@ -22,7 +22,7 @@ export default function UserAchievements({ userAchievements }: UserAchievementsP
               />
               <div>
                 <h3 className="font-semibold">{userAchievement.achievement.name}</h3>
-                <p className="text-gray-600 text-sm">{userAchievement.achievement.description}</p>
+                <p className="text-zinc-600 text-sm">{userAchievement.achievement.description}</p>
               </div>
             </li>
           ))}

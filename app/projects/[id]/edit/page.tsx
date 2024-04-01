@@ -131,14 +131,14 @@ export default function EditProjectPage() {
                   {selectedTags.map((tag) => (
                     <div
                       key={tag.id}
-                      className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-md px-2 py-1"
+                      className="flex items-center space-x-2 bg-zinc-100 dark:bg-zinc-800 rounded-md px-2 py-1"
                     >
                       <span>{tag.name}</span>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveTag(tag)}
-                        className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-500"
+                        className="text-zinc-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-500"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -160,7 +160,7 @@ export default function EditProjectPage() {
                   {project.collaborators.map((collaborator) => (
                     <div
                       key={collaborator.id}
-                      className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-4 py-2"
+                      className="flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 rounded-md px-4 py-2"
                     >
                       <div className="flex items-center space-x-2">
                         <Avatar>
@@ -175,7 +175,7 @@ export default function EditProjectPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveCollaborator(collaborator.id)}
-                        className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-500"
+                        className="text-zinc-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-500"
                       >
                         <X className="h-4 w-4" />
                       </Button>

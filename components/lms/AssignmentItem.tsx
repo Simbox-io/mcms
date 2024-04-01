@@ -30,11 +30,11 @@ export default function AssignmentItem({ assignment, lessonId }: AssignmentItemP
   };
 
   return (
-    <li className="bg-white dark:bg-gray-800 shadow p-4 rounded-md">
-      <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{assignment.title}</h3>
-      <p className="text-gray-600 dark:text-gray-400 mb-4">{assignment.description}</p>
+    <li className="bg-white dark:bg-zinc-800 shadow p-4 rounded-md">
+      <h3 className="text-xl font-semibold mb-2 text-zinc-800 dark:text-white">{assignment.title}</h3>
+      <p className="text-zinc-600 dark:text-zinc-400 mb-4">{assignment.description}</p>
       <textarea
-        className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
+        className="w-full px-3 py-2 text-zinc-700 border rounded-lg focus:outline-none"
         rows={4}
         value={solution}
         onChange={(e) => setSolution(e.target.value)}

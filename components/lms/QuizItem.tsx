@@ -30,9 +30,9 @@ export default function QuizItem({ quiz, lessonId }: QuizItemProps) {
   };
 
   return (
-    <li className="bg-white dark:bg-gray-800 shadow p-4 rounded-md">
-      <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{quiz.title}</h3>
-      <p className="text-gray-600 dark:text-gray-400 mb-4">{quiz.description}</p>
+    <li className="bg-white dark:bg-zinc-800 shadow p-4 rounded-md">
+      <h3 className="text-xl font-semibold mb-2 text-zinc-800 dark:text-white">{quiz.title}</h3>
+      <p className="text-zinc-600 dark:text-zinc-400 mb-4">{quiz.description}</p>
       {/* Render quiz questions and answer options */}
       <button
         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200"

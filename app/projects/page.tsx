@@ -112,10 +112,10 @@ export default function ProjectPage() {
                             <AvatarFallback>{project.owner.username.slice(0, 2).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                                 {project.owner.firstName} {project.owner.lastName}
                             </p>
-                            <p className="text-sm text-gray-500">@{project.owner.username}</p>
+                            <p className="text-sm text-zinc-500">@{project.owner.username}</p>
                         </div>
                     </div>
                     <CardDescription>{project.description}</CardDescription>

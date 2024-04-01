@@ -138,3 +138,40 @@ export const getSpacesByUser = async (userId: string) => {
   });
   return spaces;
 };
+
+export const getCourse = async (courseId: string) => {
+  const course = await prisma.course.findUnique({
+    where: {
+      id: courseId,
+    },
+    include: {
+      instructor: true,
+      categories: true,
+      tags: true,
+      lessons: true,
+    }
+  });
+  return course;
+}
+
+export const getLesson = async (lessonId: string) => {
+  const lesson = await prisma.lesson.findUnique({
+    where: {
+      id: lessonId,
+    },
+    include: {
+      quizzes: true,
+      assignments: true,
+    }
+  });
+  return lesson;
+}
+
+export const getLessonContent = async (lessonId: string) => {
+  const lesson = await prisma.lesson.findUnique({
+    where: { id: lessonId },
+    select: { content: true },
+  });
+  return lesson;
+}
+

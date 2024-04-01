@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Course, Lesson } from '@/lib/prisma';
 import LessonSidebar from '@/components/lms/LessonSidebar';
-import dynamic from 'next/dynamic';
 import EditorComponent from '@/components/editor';
 
 interface CourseLesson extends Lesson {
@@ -78,15 +77,15 @@ export default function EditLessonPage({ params }: { params: { lessonId: string 
     <div className="container mx-auto">
       <div className="w-full flex flex-col justify-between">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Edit Lesson</h1>
+          <h1 className="text-3xl font-semibold text-zinc-800 dark:text-white">Edit Lesson</h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
-            <div className="bg-white dark:bg-gray-800 shadow-md rounded-md p-6">
-              <h1 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">{lesson?.title}</h1>
+            <div className="bg-white dark:bg-zinc-800 shadow-md rounded-md p-6">
+              <h1 className="text-2xl font-semibold mb-4 text-zinc-800 dark:text-white">{lesson?.title}</h1>
               {error && <p className="text-red-500 mb-4">{error}</p>}
               <EditorComponent initialValue={lesson?.content || ''} onChange={handleSave} />
-              {isSaving && <p className="mt-4 text-gray-600 dark:text-gray-400">Saving...</p>}
+              {isSaving && <p className="mt-4 text-zinc-600 dark:text-zinc-400">Saving...</p>}
             </div>
           </div>
           <div className="md:col-span-1">

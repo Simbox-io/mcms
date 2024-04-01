@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { CourseCategory, CourseTag, Course, Lesson, Enrollment, Quiz, QuizQuestion, Assignment, Announcement } from '@/lib/prisma';
+import prisma, { CourseCategory, CourseTag, Course, Lesson, Enrollment, Quiz, QuizQuestion, Assignment, Announcement } from '@/lib/prisma';
 import { faker } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 
