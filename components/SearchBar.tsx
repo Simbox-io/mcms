@@ -146,8 +146,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                     <TabsTrigger value="files">Files</TabsTrigger>
                     <TabsTrigger value="projects">Projects</TabsTrigger>
                     <TabsTrigger value="spaces">Spaces</TabsTrigger>
-                    <TabsTrigger value="tutorials">Tutorials</TabsTrigger>
-                    <TabsTrigger value="users">Users</TabsTrigger>
+                    <TabsTrigger value="profiles">Profiles</TabsTrigger>
                   </TabsList>
                   <TabsContent value="all">
                     <SearchResults
@@ -179,13 +178,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                       onResultClick={handleResultClick}
                     />
                   </TabsContent>
-                  <TabsContent value="tutorials">
-                    <SearchResults
-                      results={searchResults.filter(r => r.type === 'profile')}
-                      onResultClick={handleResultClick}
-                    />
-                  </TabsContent>
-                  <TabsContent value="users">
+                  <TabsContent value="profiles">
                     <SearchResults
                       results={searchResults.filter(r => r.type === 'profile')}
                       onResultClick={handleResultClick}
