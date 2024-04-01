@@ -1,6 +1,6 @@
 // components/SearchBar.tsx
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { debounce } from 'lodash';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -90,6 +90,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
     };
   }, []);
 
+  const transformedResults = useMemo(() => {
+    return {
+      posts: searchResults.filter((result) => result.type === 'post'),
+      files: searchResults.filter((result) => result.type === 'file'),
+      projects: searchResults.filter((result) => result.type === 'project'),
+      spaces: searchResults.filter((result) => result.type === 'space'),
+      profiles: searchResults.filter((result) => result.type === 'profile'),
+    };
+  }, [searchResults]);
+
   return (
     <div className="relative">
       <form onSubmit={handleSearch} className={`relative w-full ${className}`}>
@@ -150,37 +160,37 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   </TabsList>
                   <TabsContent value="all">
                     <SearchResults
-                      results={searchResults}
+                      results={transformedResults}
                       onResultClick={handleResultClick}
                     />
                   </TabsContent>
                   <TabsContent value="posts">
                     <SearchResults
-                      results={searchResults.filter(r => r.type === 'post')}
+                      results={{ posts: transformedResults.posts }}
                       onResultClick={handleResultClick}
                     />
                   </TabsContent>
                   <TabsContent value="files">
                     <SearchResults
-                      results={searchResults.filter(r => r.type === 'file')}
+                      results={{ files: transformedResults.files }}
                       onResultClick={handleResultClick}
                     />
                   </TabsContent>
                   <TabsContent value="projects">
                     <SearchResults
-                      results={searchResults.filter(r => r.type === 'project')}
+                      results={{ projects: transformedResults.projects }}
                       onResultClick={handleResultClick}
                     />
                   </TabsContent>
                   <TabsContent value="spaces">
                     <SearchResults
-                      results={searchResults.filter(r => r.type === 'space')}
+                      results={{ spaces: transformedResults.spaces }}
                       onResultClick={handleResultClick}
                     />
                   </TabsContent>
                   <TabsContent value="profiles">
                     <SearchResults
-                      results={searchResults.filter(r => r.type === 'profile')}
+                      results={{ profiles: transformedResults.profiles }}
                       onResultClick={handleResultClick}
                     />
                   </TabsContent>
