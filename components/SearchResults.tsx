@@ -7,13 +7,13 @@ import { FiFile, FiFolder, FiUsers, FiUser, FiFileText } from 'react-icons/fi';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 
 interface SearchResultsProps {
-  results: {
+  results: Partial<{
     posts: SearchResult[];
     files: SearchResult[];
     projects: SearchResult[];
     spaces: SearchResult[];
     profiles: SearchResult[];
-  };
+  }>;
   onResultClick: (result: SearchResult) => void;
 }
 
@@ -43,35 +43,25 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
     ));
   };
 
+  const allResults = Object.values(results).flat();
+
   return (
     <div className="max-h-96 overflow-y-auto mt-14 w-full">
       <Tabs defaultValue="all">
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="files">Files</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="spaces">Spaces</TabsTrigger>
-          <TabsTrigger value="profiles">Profiles</TabsTrigger>
+          {results.posts && <TabsTrigger value="posts">Posts</TabsTrigger>}
+          {results.files && <TabsTrigger value="files">Files</TabsTrigger>}
+          {results.projects && <TabsTrigger value="projects">Projects</TabsTrigger>}
+          {results.spaces && <TabsTrigger value="spaces">Spaces</TabsTrigger>}
+          {results.profiles && <TabsTrigger value="profiles">Profiles</TabsTrigger>}
         </TabsList>
-        <TabsContent value="all">
-          {renderResults(Object.values(results).flat())}
-        </TabsContent>
-        <TabsContent value="posts">
-          {renderResults(results.posts)}
-        </TabsContent>
-        <TabsContent value="files">
-          {renderResults(results.files)}
-        </TabsContent>
-        <TabsContent value="projects">
-          {renderResults(results.projects)}
-        </TabsContent>
-        <TabsContent value="spaces">
-          {renderResults(results.spaces)}
-        </TabsContent>
-        <TabsContent value="profiles">
-          {renderResults(results.profiles)}
-        </TabsContent>
+        <TabsContent value="all">{renderResults(allResults)}</TabsContent>
+        {results.posts && <TabsContent value="posts">{renderResults(results.posts)}</TabsContent>}
+        {results.files && <TabsContent value="files">{renderResults(results.files)}</TabsContent>}
+        {results.projects && <TabsContent value="projects">{renderResults(results.projects)}</TabsContent>}
+        {results.spaces && <TabsContent value="spaces">{renderResults(results.spaces)}</TabsContent>}
+        {results.profiles && <TabsContent value="profiles">{renderResults(results.profiles)}</TabsContent>}
       </Tabs>
     </div>
   );
