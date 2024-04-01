@@ -24,6 +24,12 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
+interface Tab {
+  id: string;
+  label: string;
+  content: React.ReactNode;
+}
+
 const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
   className = '',
