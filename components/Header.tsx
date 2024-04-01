@@ -18,7 +18,7 @@ import {
     SheetContent,
     SheetTrigger
 } from "./ui/sheet"
-import { Menu } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
 import { Button } from "./ui/button"
 import { ScrollArea } from "./ui/scroll-area"
 import SearchBar from "./SearchBar"
@@ -283,8 +283,8 @@ export default async function Header() {
                     </div>
                     <div className="flex items-center align-middle">
                         <div className="flex items-center mr-6">
-                            <div className="hidden flex-grow lg:block md:w-48 xl:w-80">
-
+                            <div className="w-full">
+                                <SearchBar />
                             </div>
                             <SignedIn>
                                 <div className="relative flex justify-between items-center mx-4">

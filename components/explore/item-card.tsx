@@ -115,7 +115,7 @@ export default function ItemCard({
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger>
-                            <Toggle variant="outline" defaultPressed={isBookmarked} onPressedChange={handleBookmarkClick}>
+                            <Toggle variant="default" defaultPressed={isBookmarked} onPressedChange={handleBookmarkClick}>
                                 <BookmarkIcon className="h-4 w-4" />
                             </Toggle>
                         </TooltipTrigger>

@@ -74,7 +74,7 @@ export default function Notifications() {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button className="relative rounded-full" size="icon" variant="outline">
+                <Button className="relative rounded-full" size="icon" variant="ghost">
                     <BellIcon className="w-4 h-4" />
                     {notifications?.length > 0 && <Badge className="absolute -top-1 -right-1 text-xs h-4 w-4 bg-red-500 text-white rounded-full flex items-center justify-center">
                         {notifications.length}

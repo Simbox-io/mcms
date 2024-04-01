@@ -1,12 +1,13 @@
 // components/SearchBar.tsx
-'use client';
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+'use client'
+import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { debounce } from 'lodash';
 import { Skeleton } from '@/components/ui/skeleton';
 import SearchResults from '@/components/SearchResults';
 import { useRouter } from 'next/navigation';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
+import { DropdownMenu } from './ui/dropdown-menu';
+import { SearchIcon } from 'lucide-react';
 
 export interface SearchResult {
   id: string;
@@ -19,13 +20,13 @@ export interface SearchResult {
 }
 
 interface SearchBarProps {
-  onSearch: (query: string) => void;
   className?: string;
   placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
-  onSearch,
   className = '',
   placeholder = 'Search...',
 }) => {
@@ -34,9 +35,34 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<{
+    posts: SearchResult[];
+    files: SearchResult[];
+    projects: SearchResult[];
+    spaces: SearchResult[];
+    tutorials: SearchResult[];
+    users: SearchResult[];
+  }>({
+    posts: [],
+    files: [],
+    projects: [],
+    spaces: [],
+    tutorials: [],
+    users: [],
+  });
 
   const fetchSearchResults = async (query: string) => {
+    if (query.trim() === '') {
+      setSearchResults({
+        posts: [],
+        files: [],
+        projects: [],
+        spaces: [],
+        tutorials: [],
+        users: [],
+      });
+      return;
+    }
     setIsLoading(true);
     try {
       const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
@@ -48,27 +74,24 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setIsLoading(false);
   };
 
-  const debouncedFetchSearchResults = useRef(
-    debounce((query) => fetchSearchResults(query), 300)
-  ).current;
+  const debouncedFetchSearchResults = debounce(fetchSearchResults);
 
   useEffect(() => {
     if (searchQuery.trim() !== '') {
       debouncedFetchSearchResults(searchQuery);
-      setIsOpen(true);
     } else {
-      setIsOpen(false);
-      setSearchResults([]);
+      setSearchResults({posts: [], files: [], projects: [], spaces: [], tutorials: [], users: []})
     }
-  }, [searchQuery, debouncedFetchSearchResults]);
+  }, [searchQuery]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(searchQuery);
+    fetchSearchResults(searchQuery);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+    setIsOpen(true);
   };
 
   const handleResultClick = (result: SearchResult) => {
@@ -90,52 +113,39 @@ const SearchBar: React.FC<SearchBarProps> = ({
     };
   }, []);
 
-  const transformedResults = useMemo(() => {
-    return {
-      posts: searchResults.filter((result) => result.type === 'post'),
-      files: searchResults.filter((result) => result.type === 'file'),
-      projects: searchResults.filter((result) => result.type === 'project'),
-      spaces: searchResults.filter((result) => result.type === 'space'),
-      profiles: searchResults.filter((result) => result.type === 'profile'),
-    };
-  }, [searchResults]);
-
   return (
-    <div className="relative">
-      <form onSubmit={handleSearch} className={`relative w-full ${className}`}>
-        <input
-          type="text"
-          ref={inputRef}
-          className="w-full h-12 pl-10 pr-4 py-2 rounded-md border border-gray-300 bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:placeholder:text-gray-400 dark:text-gray-100 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder={placeholder}
-          value={searchQuery}
-          onChange={handleInputChange}
-        />
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg
-            className="h-5 w-5 text-gray-400"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-      </form>
-
+    <div ref={inputRef}>
+    <form onSubmit={handleSearch} className={`relative ${className}`}>
+      <input
+        type="text"
+        className="hidden md:block w-full h-8 pl-10 pr-4 py-1 rounded-md border border-zinc-300 bg-zinc-100 dark:bg-zinc-800 dark:border-zinc-700 dark:placeholder:text-zinc-300 dark:text-zinc-100 text-zinc-600 dark:bg-blend-darken focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder={placeholder}
+        value={searchQuery}
+        onChange={handleInputChange}
+      />
+      <div className="md:absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <svg
+          className="h-5 w-5 md:mr-0 text-zinc-400 dark:text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fillRule="evenodd"
+            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-12 left-0 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+            transition={{ duration: 0.3 }}
+            className="absolute z-10 mt-2 w-full md:w-96 rounded-md shadow-xl bg-white dark:bg-zinc-700 ring-1 ring-black ring-opacity-5 focus:outline-none"
           >
             {isLoading ? (
               <div className="px-4 py-2">
@@ -143,63 +153,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 <Skeleton className="h-4 w-full mt-2" />
                 <Skeleton className="h-4 w-full mt-2" />
               </div>
-            ) : searchResults.length === 0 ? (
-              <div className="px-4 py-2">
-                <p className="text-sm text-gray-500 dark:text-gray-400">No results found.</p>
-              </div>
             ) : (
-              <>
-                <Tabs defaultValue="all">
-                  <TabsList>
-                    <TabsTrigger value="all">All</TabsTrigger>
-                    <TabsTrigger value="posts">Posts</TabsTrigger>
-                    <TabsTrigger value="files">Files</TabsTrigger>
-                    <TabsTrigger value="projects">Projects</TabsTrigger>
-                    <TabsTrigger value="spaces">Spaces</TabsTrigger>
-                    <TabsTrigger value="profiles">Profiles</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="all">
-                    <SearchResults
-                      results={transformedResults}
-                      onResultClick={handleResultClick}
-                    />
-                  </TabsContent>
-                  <TabsContent value="posts">
-                    <SearchResults
-                      results={{ posts: transformedResults.posts }}
-                      onResultClick={handleResultClick}
-                    />
-                  </TabsContent>
-                  <TabsContent value="files">
-                    <SearchResults
-                      results={{ files: transformedResults.files }}
-                      onResultClick={handleResultClick}
-                    />
-                  </TabsContent>
-                  <TabsContent value="projects">
-                    <SearchResults
-                      results={{ projects: transformedResults.projects }}
-                      onResultClick={handleResultClick}
-                    />
-                  </TabsContent>
-                  <TabsContent value="spaces">
-                    <SearchResults
-                      results={{ spaces: transformedResults.spaces }}
-                      onResultClick={handleResultClick}
-                    />
-                  </TabsContent>
-                  <TabsContent value="profiles">
-                    <SearchResults
-                      results={{ profiles: transformedResults.profiles }}
-                      onResultClick={handleResultClick}
-                    />
-                  </TabsContent>
-                </Tabs>
-              </>
+              <SearchResults results={searchResults} onResultClick={handleResultClick} />
             )}
           </motion.div>
         )}
       </AnimatePresence>
+    </form>
     </div>
   );
 };
