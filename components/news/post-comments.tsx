@@ -77,7 +77,7 @@ export const PostComments: React.FC<PostCommentsProps> = ({ post }) => {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 w-full">
       {post?.comments.length === 0 ? (
         <div className="text-sm flex items-start gap-4">
           <div className="font-semibold">No comments yet</div>
@@ -109,7 +109,7 @@ export const PostComments: React.FC<PostCommentsProps> = ({ post }) => {
       <Separator className="my-4" />
       <div className="grid w-full gap-2">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="comment"

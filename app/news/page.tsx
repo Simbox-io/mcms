@@ -9,7 +9,7 @@ export default async function Posts() {
   const posts = await getPosts();
 
   return (  
-    <div className="flex flex-col justify-between h-full text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-900">
+    <div className="container flex flex-col justify-between h-full text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-900">
     <div className="grid lg:grid-cols-1 gap-6 px-4 py-2 md:px-6 lg:py-10 md:py-10">
       <h1 className="text-4xl font-bold">News</h1>
       <div className="space-y-6">

@@ -60,7 +60,7 @@ export default function CreatePost() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto my-8 px-6 py-8 bg-white shadow-md rounded-lg dark:bg-zinc-800">
+    <div className="container max-w-2xl mx-auto my-8 px-6 py-8 bg-white shadow-md rounded-lg dark:bg-zinc-800">
       <div className="space-y-6">
         <h2 className="text-3xl font-bold text-center text-zinc-800 dark:text-zinc-100">New Blog Post</h2>
         <div className="space-y-4">

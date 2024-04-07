@@ -178,6 +178,21 @@ export const getFilesByUser = async (userId: string) => {
   return files;
 };
 
+export const bookmarkFile = async (fileId: string, userId: string) => {
+  await prisma.file.update({
+    where: {
+      id: fileId,
+    },
+    data: {
+      bookmarks: {
+        connect: {
+          id: userId,
+        }
+      }
+    }
+  });
+}
+
 export const getSpaces = async () => {
   const spaces = await prisma.space.findMany({
     include: {

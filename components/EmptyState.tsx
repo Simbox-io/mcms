@@ -1,4 +1,6 @@
 // components/EmptyState.tsx
+'use client'
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 interface EmptyStateProps {
@@ -7,6 +9,7 @@ interface EmptyStateProps {
   icon?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
+  buttonHref?: string;
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
@@ -15,14 +18,29 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   icon,
   action,
   className = '',
+  buttonHref,
 }) => {
+  const router = useRouter();
+  const redirect = () => {
+    if (buttonHref) {
+      router.push(buttonHref);
+    }
+  }
   return (
-    <div className={`flex flex-col items-center justify-center pt-12 pb-4 ${className}`}>
-      {icon && <div className="text-4xl mb-4">{icon}</div>}
-      <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-2">{title}</h2>
-      <p className="text-gray-600 dark:text-gray-400 text-center mb-6">{description}</p>
-      {action && <div>{action}</div>}
+    <div
+    className="flex flex-1 w-full items-center justify-center rounded-lg border border-dashed shadow-sm p-16"
+  >
+    <div className={`flex flex-col items-center gap-1 text-center ${className}`}>
+    {icon && <div className="text-4xl mb-4">{icon}</div>}
+      <h3 className="text-2xl font-bold tracking-tight">
+      {title}
+      </h3>
+      <p className="text-sm text-muted-foreground">
+      {description}
+      </p>
+      {action && <div onClick={redirect}>{action}</div>}
     </div>
+  </div>
   );
 };
 

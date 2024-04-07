@@ -55,7 +55,7 @@ export default function ItemCard({
     };
 
     return (
-        <Card className="w-full">
+        <Card className="w-full" onClick={() => router.push(`/${type}s/${id}`)}>
             <CardHeader>
                 <CardTitle className="flex flex-row justify-between items-start">
                     {title}

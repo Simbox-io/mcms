@@ -175,14 +175,14 @@ export default async function Header() {
                                     <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
                                     <NavigationMenuContent>
                                         <div className={'w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] grid grid-cols-2'}>
-                                            <ul className="grid gap-2">
+                                            <ul className="flex flex-col gap-2 align-top">
                                                 <ListItem title="All projects" href="/projects" />
                                                 <ListItem title="My projects" href={`/projects/${userId}`} />
                                                 <ListItem title="Create project" href="/projects/create" />
                                             </ul>
                                             {projects?.length > 0 ? (
-                                                <ul className="">
-                                                    <ScrollArea className="h-72 w-48">
+                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                    <ScrollArea className="h-auto">
                                                         {projects?.map((project: Project) => (
                                                             <ListItem className="ml-4" key={project.name} href={`/projects/${project.id}`} title={project.name}>
                                                                 {project.description}
@@ -253,13 +253,14 @@ export default async function Header() {
                                     </NavigationMenuContent>
                                 </NavigationMenuItem>
                                 <NavigationMenuItem>
-                                    <NavigationMenuTrigger>Courses</NavigationMenuTrigger>
+                                    <NavigationMenuTrigger>Learn</NavigationMenuTrigger>
                                     <NavigationMenuContent>
                                         <div className={'w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] grid grid-cols-2'}>
                                             <ul className="grid gap-2">
-                                                <ListItem title="All courses" href="/courses" />
+                                                <ListItem title="Courses" href="/learn" />
                                                 <ListItem title="My courses" href={`/courses/${userId}`} />
-                                                <ListItem title="Create course" href="/courses/create" />
+                                                <ListItem title="Tutorials" href="/tutorials" />
+                                                <ListItem title="My tutorials" href="/tutorials"/>
                                             </ul>
                                             {courses?.length > 0 ? (
                                                 <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
