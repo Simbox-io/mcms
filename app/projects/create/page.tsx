@@ -100,7 +100,7 @@ export default function CreateProject() {
             onRemoveTag={(tag) => setTags(tags.filter((t) => t !== tag))}
           />
         </div>
-        <div className="mb-4">
+        <div className="mb-4 space-x-4">
           <Label htmlFor="visibility">Visibility</Label>
           <Switch
             id="visibility"

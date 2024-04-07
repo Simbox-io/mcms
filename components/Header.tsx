@@ -21,8 +21,9 @@ import {
 import { Menu, Search } from 'lucide-react'
 import { Button } from "./ui/button"
 import { ScrollArea } from "./ui/scroll-area"
-import SearchBar from "./SearchBar"
-import { cn, getProjects, getSpaces, getCourses, getFiles } from "@/lib/utils"
+import SearchBar from "./header/SearchBar"
+import { cn } from "@/lib/utils"
+import { getProjects, getSpaces, getCourses, getFiles } from "@/app/actions/actions"
 import Link from "next/link"
 import { File, Project, Space, User, Course, Notification } from "@/lib/prisma"
 import useSWR from 'swr';
@@ -180,8 +181,8 @@ export default async function Header() {
                                                 <ListItem title="Create project" href="/projects/create" />
                                             </ul>
                                             {projects?.length > 0 ? (
-                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
-                                                    <ScrollArea className="h-72 w-48 rounded-md border">
+                                                <ul className="">
+                                                    <ScrollArea className="h-72 w-48">
                                                         {projects?.map((project: Project) => (
                                                             <ListItem className="ml-4" key={project.name} href={`/projects/${project.id}`} title={project.name}>
                                                                 {project.description}
@@ -190,7 +191,7 @@ export default async function Header() {
                                                     </ScrollArea>
                                                 </ul>
                                             ) : (
-                                                <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
+                                                <ul className="">
                                                     <ListItem className="ml-4" title="No projects saved" />
                                                 </ul>
                                             )}

@@ -4,7 +4,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs';
 import { User, Space, Course, File, Activity, Project, Notification } from '@/lib/prisma';
-import { getProjects, getNotifications, getActivitiesByUser, getUser } from "@/lib/utils";
+import { getProjects, getNotifications, getActivitiesByUser, getUser } from "@/app/actions/actions";
 
 export default async function UserDashboard() {
     const user = await currentUser();
@@ -14,10 +14,10 @@ export default async function UserDashboard() {
     }
 
     const [projectsResponse, notificationsResponse, activitiesResponse, userData] = await Promise.all([
-        await getProjects(),
-        await getNotifications(user.id),
-        await getActivitiesByUser(user.id),
-        await getUser(user.username || "")
+        getProjects(),
+        getNotifications(user.id),
+        getActivitiesByUser(user.id),
+        getUser(user.username || "")
     ]);
 
     (projectsResponse);

@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
@@ -57,6 +57,7 @@ model User {
   AssignmentSubmission  AssignmentSubmission[]
   QuizSubmission        QuizSubmission[]
   CourseRecommendation  CourseRecommendation[]
+  Task                  Task[]
 }
 
 model UserSettings {
@@ -404,6 +405,42 @@ model Project {
   updatedAt     DateTime         @updatedAt
   bookmarks     Bookmark[]
   settings      ProjectSettings?
+  Task          Task[]
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  project     Project    @relation(fields: [projectId], references: [id])
+  projectId   String
+  status      TaskStatus @default(OPEN)
+  assignee    User?      @relation(fields: [assigneeId], references: [id])
+  assigneeId  String?
+  dueDate     DateTime?
+  label       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @updatedAt
+  TaskLabel   TaskLabel? @relation(fields: [taskLabelId], references: [id])
+  taskLabelId String?
+}
+
+model TaskLabel {
+  id    String @id @default(uuid())
+  name  String @unique
+  tasks Task[]
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
 }
 
 model ProjectSettings {

@@ -1,18 +1,20 @@
 import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import PostCard from "@/components/news/post-card"
-import { getPosts } from "@/lib/utils"
+import { getPosts } from "@/app/actions/actions"
 import { Post } from "@/lib/prisma"
 import { CreateButton } from "@/components/news/create-button"
 
 export default async function Posts() {
   const posts = await getPosts();
 
-  return (
-    <div className="grid lg:grid-cols-1 gap-6 px-4 py-6 md:px-6 lg:py-16 md:py-12">
+  return (  
+    <div className="flex flex-col justify-between h-full text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-900">
+    <div className="grid lg:grid-cols-1 gap-6 px-4 py-2 md:px-6 lg:py-10 md:py-10">
+      <h1 className="text-4xl font-bold">News</h1>
       <div className="space-y-6">
         <div className="flex items-center space-x-4 mb-6">
-          <Input className="flex-grow" placeholder="Search..." type="search" />
+          <Input className="flex-grow" placeholder="Filter..." type="search" />
           <Select>
             <SelectTrigger className="w-64">
               <SelectValue placeholder="Categories" />
@@ -33,6 +35,7 @@ export default async function Posts() {
           ))}
         </div>
       </div>
+    </div>
     </div>
   )
 }

@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs'
 import { Enrollment, Notification, User, Course, Assignment, Quiz, Achievement, UserAchievement, CourseRecommendation, CourseCategory, Tag } from '@/lib/prisma';
-import DashboardCourseCard from '@/components/lms/DashboardCourseCard';
-import NotificationList from '@/components/lms/NotificationList';
-import UpcomingDeadlines from '@/components/lms/UpcomingDeadlines';
-import UserAchievements from '@/components/lms/UserAchievements';
-import RecommendedCourses from '@/components/lms/RecommendedCourses';
+import DashboardCourseCard from '@/components/learn/DashboardCourseCard';
+import NotificationList from '@/components/learn/NotificationList';
+import UpcomingDeadlines from '@/components/learn/UpcomingDeadlines';
+import UserAchievements from '@/components/learn/UserAchievements';
+import RecommendedCourses from '@/components/learn/RecommendedCourses';
 
 interface EnrolledCourse extends Enrollment {
   course: Course;

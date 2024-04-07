@@ -2,7 +2,7 @@ import ItemCard from "@/components/explore/item-card";
 import React from 'react';
 import { currentUser } from '@clerk/nextjs';
 import { File, Post, Project, Space, Bookmark } from '@/lib/prisma';
-import { getProjects, getFiles, getSpaces, getPosts } from "@/lib/utils";
+import { getProjects, getFiles, getSpaces, getPosts } from "@/app/actions/actions";
 
 const Explore: React.FC = async () => {
     const user = await currentUser();
@@ -26,35 +26,6 @@ const Explore: React.FC = async () => {
     } catch (error) {
         console.error('Error fetching featured items:', error);
     }
-    const handleBookmark = async (itemId: string, itemType: string) => {
-        try {
-            await fetch(`/api/bookmarks`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userId: user?.id, itemId, itemType }),
-            });
-            // Update the UI to reflect the bookmarked state
-        } catch (error) {
-            console.error('Error bookmarking item:', error);
-        }
-    };
-
-    const handleSubscribe = async (itemId: string, itemType: string) => {
-        try {
-            await fetch(`/api/subscriptions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userId: user?.id, itemId, itemType }),
-            });
-            // Update the UI to reflect the subscribed state
-        } catch (error) {
-            console.error('Error subscribing to item:', error);
-        }
-    };
 
     const renderItem = (item: Post | Project | File | Space) => {
         switch (item?.type) {
@@ -116,7 +87,7 @@ const Explore: React.FC = async () => {
     }
 
     return (
-        <div className="container px-12 lg:px-auto px-8 py-12 h-full">
+        <div className="container px-8 lg:px-auto py-10 h-full">
             <div className="flex items-center justify-between mb-12">
                 <h1 className="text-4xl font-bold text-zinc-800 dark:text-zinc-200">Explore</h1>
             </div>

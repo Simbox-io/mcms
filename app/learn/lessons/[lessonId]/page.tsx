@@ -1,7 +1,7 @@
-import LessonContent from '@/components/lms/LessonContent';
-import QuizList from '@/components/lms/QuizList';
-import AssignmentList from '@/components/lms/AssignmentList';
-import { getLesson, getLessonContent } from '@/lib/utils';
+import LessonContent from '@/components/learn/LessonContent';
+import QuizList from '@/components/learn/QuizList';
+import AssignmentList from '@/components/learn/AssignmentList';
+import { getLesson, getLessonContent } from '@/app/actions/actions';
 import { Quiz } from '@/lib/prisma';
 
 export default async function LessonPage({ params }: { params: { courseId: string; lessonId: string } }) {

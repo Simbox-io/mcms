@@ -1,6 +1,6 @@
-import EnrollButton from '@/components/lms/EnrollButton';
-import LessonList from '@/components/lms/LessonList';
-import { getCourse } from '@/lib/utils';
+import EnrollButton from '@/components/learn/EnrollButton';
+import LessonList from '@/components/learn/LessonList';
+import { getCourse } from '@/app/actions/actions';
 
 export default async function CourseDetailsPage({ params }: { params: { courseId: string } }) {
   const course = await getCourse(params.courseId);

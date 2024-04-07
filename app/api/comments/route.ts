@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs';
 import prisma from '@/lib/prisma';
 import { User } from '@/lib/prisma';
-import { getUser } from '@/lib/utils';
+import { getUser } from '@/app/actions/actions';
 
 export async function POST(request: NextRequest) {
   const user = await currentUser() as User | null;

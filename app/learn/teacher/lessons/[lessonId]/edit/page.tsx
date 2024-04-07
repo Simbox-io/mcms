@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Course, Lesson } from '@/lib/prisma';
-import LessonSidebar from '@/components/lms/LessonSidebar';
+import LessonSidebar from '@/components/learn/LessonSidebar';
 import EditorComponent from '@/components/editor';
 
 interface CourseLesson extends Lesson {

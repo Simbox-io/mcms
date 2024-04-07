@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { ThemeProvider } from "./providers";
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { ClerkProvider, auth } from '@clerk/nextjs'
+import { ClerkProvider } from '@clerk/nextjs'
 import { dark } from '@clerk/themes'
 
 

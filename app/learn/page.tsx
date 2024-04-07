@@ -4,7 +4,7 @@ import { Course, CourseCategory, Tag, User } from '@/lib/prisma';
 import { FiGrid, FiList } from 'react-icons/fi';
 import { IoMdAdd } from 'react-icons/io';
 import { Button } from '@/components/ui/button';
-import CourseCard from '@/components/lms/CourseCard';
+import CourseCard from '@/components/learn/CourseCard';
 
 interface CourseWithDetails extends Course {
   instructor: User;

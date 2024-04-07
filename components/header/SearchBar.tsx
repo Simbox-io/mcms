@@ -4,10 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { debounce } from 'lodash';
 import { Skeleton } from '@/components/ui/skeleton';
-import SearchResults from '@/components/SearchResults';
+import SearchResults from '@/components/header/SearchResults';
 import { useRouter } from 'next/navigation';
-import { DropdownMenu } from './ui/dropdown-menu';
-import { SearchIcon } from 'lucide-react';
 
 export interface SearchResult {
   id: string;
