@@ -1,6 +1,3 @@
-'use client'
-
-import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Project } from '@/lib/prisma';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +11,6 @@ import { bookmarkProject } from '@/app/actions/actions';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card';
 
 export function ProjectCard({ project }: { project: Project }) {
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const router = useRouter();
   const session = useUser();
   const user = session?.user;
