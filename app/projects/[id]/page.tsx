@@ -82,10 +82,10 @@ const ProjectPage = async ({ params }: { params: { id: string } }) => {
             </div>
           </CardHeader>
           <CardContent className="px-6 py-2 mb-6">
-            <p className="text-sm text-gray-500 dark:text-gray-400">{project?.description}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{project?.description}</p>
           </CardContent>
           <CardFooter>
-            {project?.collaborators.length === 0 && (<p className="text-sm text-gray-500 dark:text-gray-400">No collaborators</p>)}
+            {project?.collaborators.length === 0 && (<p className="text-sm text-zinc-500 dark:text-zinc-400">No collaborators</p>)}
             {project?.collaborators.map((collaborator) => (
               <CollaboratorAvatar key={collaborator.id} collaborator={collaborator} />
             ))}
@@ -108,7 +108,7 @@ const ProjectPage = async ({ params }: { params: { id: string } }) => {
             </DropdownMenu>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="flex flex-wrap text-sm text-gray-500 dark:text-gray-400 items-center space-x-2">
+            <div className="flex flex-wrap text-sm text-zinc-500 dark:text-zinc-400 items-center space-x-2">
               {project?.tags.length === 0 && (<p>No tags</p>)}
               {project?.tags.map((tag: Tag) => (
                 <span key={tag.id} className="inline-block bg-blue-100 text-blue-500 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
@@ -116,16 +116,16 @@ const ProjectPage = async ({ params }: { params: { id: string } }) => {
                 </span>
               ))}
             </div>
-            <div className="flex text-sm items-center space-x-1 text-gray-500 dark:text-gray-400">
+            <div className="flex text-sm items-center space-x-1 text-zinc-500 dark:text-zinc-400">
               <span>Created: {new Date(project?.createdAt || '').toLocaleDateString()}</span>
             </div>
-            <span className="text-sm text-gray-500 dark:text-gray-400 mt-3">Last updated: {project?.updatedAt ? new Date(project?.updatedAt).toLocaleDateString() : 'No updates'}</span>
+            <span className="text-sm text-zinc-500 dark:text-zinc-400 mt-3">Last updated: {project?.updatedAt ? new Date(project?.updatedAt).toLocaleDateString() : 'No updates'}</span>
             <div className="flex flex-row items-center space-x-4 mt-4">
-              <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-400">
+              <div className="flex items-center space-x-1 text-zinc-500 dark:text-zinc-400">
                 <HeartIcon className="w-4 h-4" />
                 <span>{project?.likes || 0}</span>
               </div>
-              <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-400">
+              <div className="flex items-center space-x-1 text-zinc-500 dark:text-zinc-400">
                 <EyeIcon className="w-4 h-4" />
                 <span>{project?.views || 0}</span>
               </div>

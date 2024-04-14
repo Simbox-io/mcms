@@ -1,7 +1,6 @@
 'use client'
-import { useState } from "react";
 import { PostComments } from "@/components/news/post-comments"
-import { Comment, Post } from "@/lib/prisma"
+import { Post } from "@/lib/prisma"
 import {
     Breadcrumb,
     BreadcrumbItem,

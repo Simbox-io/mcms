@@ -109,7 +109,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div
       className={`relative border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center space-y-4 ${
-        isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-400'
+        isDragActive ? 'border-blue-500 bg-blue-50' : 'border-zinc-400'
       } ${className}`}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
@@ -134,17 +134,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
         {uploadedFiles.length > 0 ? (
           <>
             <FaCheckCircle className="w-12 h-12 text-green-500" />
-            <p className="text-lg font-medium text-gray-800 dark:text-gray-200">{fileActiveLabel}</p>
+            <p className="text-lg font-medium text-zinc-800 dark:text-zinc-200">{fileActiveLabel}</p>
           </>
         ) : isDragActive ? (
           <>
             <FaUpload className="w-12 h-12 text-blue-500" />
-            <p className="text-lg font-medium text-gray-800 dark:text-gray-200">{dragActiveLabel}</p>
+            <p className="text-lg font-medium text-zinc-800 dark:text-zinc-200">{dragActiveLabel}</p>
           </>
         ) : (
           <>
-            <FaUpload className="w-12 h-12 text-gray-500" />
-            <p className="text-lg font-medium text-gray-800 dark:text-gray-200">{label}</p>
+            <FaUpload className="w-12 h-12 text-zinc-500" />
+            <p className="text-lg font-medium text-zinc-800 dark:text-zinc-200">{label}</p>
             <button
               type="button"
               onClick={handleClick}
@@ -152,7 +152,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             >
               {buttonLabel}
             </button>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{sublabel}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{sublabel}</p>
           </>
         )}
       </motion.div>
@@ -163,25 +163,25 @@ const FileUpload: React.FC<FileUploadProps> = ({
           transition={{ delay: 0.5, duration: 0.5 }}
           className="w-full"
         >
-          <ul className="divide-y divide-gray-200">
+          <ul className="divide-y divide-zinc-200">
             {uploadedFiles.map((file, index) => (
               <li key={file.name} className="py-3 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <span className="text-gray-900 dark:text-gray-100">{file.name}</span>
-                  <span className="text-gray-500 dark:text-gray-400 text-sm">{formatFileSize(file.size)}</span>
+                  <span className="text-zinc-900 dark:text-zinc-100">{file.name}</span>
+                  <span className="text-zinc-500 dark:text-zinc-400 text-sm">{formatFileSize(file.size)}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
                     type="button"
                     onClick={() => handleEditFile(index)}
-                    className="text-gray-500 dark:text-gray-200 hover:text-gray-700 dark:hover:text-gray-500 focus:outline-none"
+                    className="text-zinc-500 dark:text-zinc-200 hover:text-zinc-700 dark:hover:text-zinc-500 focus:outline-none"
                   >
                     <FaPencilAlt className="w-5 h-5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => handleRemoveFile(index)}
-                    className="text-gray-500 dark:text-gray-200 hover:text-gray-700 dark:hover:text-gray-500 focus:outline-none"
+                    className="text-zinc-500 dark:text-zinc-200 hover:text-zinc-700 dark:hover:text-zinc-500 focus:outline-none"
                   >
                     <FaTrash className="w-5 h-5" />
                   </button>
@@ -193,7 +193,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             <button
               type="button"
               onClick={handleClearAll}
-              className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+              className="px-4 py-2 text-sm font-medium text-zinc-600 bg-zinc-200 rounded-md hover:bg-zinc-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-400"
             >
               Clear All
             </button>

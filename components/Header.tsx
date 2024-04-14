@@ -28,6 +28,7 @@ import Link from "next/link"
 import { File, Project, Space, User, Course, Notification } from "@/lib/prisma"
 import useSWR from 'swr';
 import { SignInButton, SignedIn, SignedOut, UserButton, auth } from '@clerk/nextjs';
+import { LiaCogSolid } from "react-icons/lia";
 import Notifications from "./header/notifications";
 
 async function getData() {
@@ -260,7 +261,7 @@ export default async function Header() {
                                                 <ListItem title="Courses" href="/learn" />
                                                 <ListItem title="My courses" href={`/courses/${userId}`} />
                                                 <ListItem title="Tutorials" href="/tutorials" />
-                                                <ListItem title="My tutorials" href="/tutorials"/>
+                                                <ListItem title="My tutorials" href="/tutorials" />
                                             </ul>
                                             {courses?.length > 0 ? (
                                                 <ul className="grid gap-2 border-l border-zinc-300 dark:border-zinc-700">
@@ -289,9 +290,14 @@ export default async function Header() {
                                 <SearchBar />
                             </div>
                             <SignedIn>
-                                <div className="relative flex justify-between items-center mx-4">
+                                <div className="relative flex justify-between items-center mx-2">
                                     <Notifications />
                                 </div>
+                                <Button className="relative rounded-full mr-4 p-3" size="icon" variant="ghost">
+                                    <Link href={`/admin`}>
+                                        <LiaCogSolid className="h-5 w-5 hover:text-zinc-500" />
+                                    </Link>
+                                </Button>
                             </SignedIn>
                             <UserButton />
                         </div>

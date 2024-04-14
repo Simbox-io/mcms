@@ -93,7 +93,7 @@ export default function Notifications() {
                                 <div className="flex flex-row gap-4 justify-between">
                                     <div className="grid gap-1">
                                         <p className="text-sm font-medium">{notification.content}</p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(notification.createdAt).toLocaleString()}</p>
+                                        <p className="text-sm text-zinc-500 dark:text-zinc-400">{new Date(notification.createdAt).toLocaleString()}</p>
                                     </div>
                                     <Button variant='ghost' className="px-4 py-0" onClick={() => markNotificationAsRead(notification.id)}>
                                         <FaTrash className="w-3 h-3" />
@@ -101,14 +101,14 @@ export default function Notifications() {
                                 </div>
                             </div>
                         ))}
-                        {notifications?.length === 0 && <p className="text-sm text-gray-500 dark:text-gray-400">No notifications</p>}
+                        {notifications?.length === 0 && <p className="text-sm text-zinc-500 dark:text-zinc-400">No notifications</p>}
                     </CardContent>
                     {notifications?.length > 0 && <CardFooter className="border-t py-1">
                         <Button variant="ghost" className="py-0" onClick={() => handleClearNotifications()}>
                             Clear all
                         </Button>
                         {/*}Link
-              className="w-full flex justify-center py-2 text-sm font-medium text-gray-900 dark:text-gray-50"
+              className="w-full flex justify-center py-2 text-sm font-medium text-zinc-900 dark:text-zinc-50"
               href="#"
             >
               View All

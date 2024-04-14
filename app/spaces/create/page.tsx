@@ -9,7 +9,7 @@ export default function Component() {
     <div className="container mt-4 mx-auto max-w-[800px] space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">Create New Space</h1>
-        <p className="text-gray-500 dark:text-gray-400">Enter the details for your new space</p>
+        <p className="text-zinc-500 dark:text-zinc-400">Enter the details for your new space</p>
       </div>
       <div className="space-y-4">
         <div className="space-y-2">

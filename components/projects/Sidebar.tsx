@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 
 export function Sidebar() {
   return (
-    <aside className="w-64 bg-gray-100 dark:bg-gray-800 p-4">
+    <aside className="w-64 bg-zinc-100 dark:bg-zinc-800 p-4">
       {/* Sidebar content */}
       <nav>
         {/* Navigation items */}
