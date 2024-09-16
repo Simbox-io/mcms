@@ -22,7 +22,7 @@ Join the MCMS community today and experience the future of content management fo
 
 ## Features
 
-- **User Authentication**: Secure user registration and login functionality using Next Auth.
+- **User Authentication**: Secure user registration and login functionality using Clerk.
 - **User Roles and Permissions**: Granular access control based on user roles and permissions.
 - **Post Management**: Create, edit, and delete posts with rich text editing capabilities.
 - **File Management**: Upload, organize, and manage files with support for multiple file storage providers.
@@ -40,7 +40,6 @@ Join the MCMS community today and experience the future of content management fo
 ## Technologies Used
 
 - **Next.js**: A React framework for building server-side rendered and statically generated applications.
-- **Next Auth**: Authentication library for Next.js applications.
 - **Prisma**: Modern database toolkit for TypeScript and Node.js.
 - **PostgreSQL**: Powerful open-source relational database.
 - **Tailwind CSS**: Utility-first CSS framework for rapidly building custom user interfaces.
