@@ -111,6 +111,5 @@ This project is licensed under the [GNU GPL v2 License](LICENSE).
 - [Next.js](https://nextjs.org/)
 - [Prisma](https://www.prisma.io/)
 - [Tailwind CSS](https://tailwindcss.com/)
-- [Next Auth](https://next-auth.js.org/)
 - [AWS S3](https://aws.amazon.com/s3/)
 - [Nodemailer](https://nodemailer.com/)
