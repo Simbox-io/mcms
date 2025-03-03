@@ -18,16 +18,17 @@ async function seedUser() {
         create: {
           email: 'admin@example.com',
           username: 'admin',
-          password_hash: hashedPassword,
-          first_name: 'Admin',
-          last_name: 'User',
-          email_verified: true,
+          passwordHash: hashedPassword,
+          firstName: 'Admin',
+          lastName: 'User',
           role: 'ADMIN',
+          studentRole: 'ADMIN',
+          points: 0,
         },
       });
       console.log('Test user created successfully:', testUser.email);
     } catch (err) {
-      console.log('Error creating user:', err.message);
+      console.error('Error creating user:', err);
       // Continue with seeding other data even if user creation fails
     }
 
@@ -39,47 +40,76 @@ async function seedUser() {
         name: 'Pages',
         slug: 'pages',
         description: 'Create and manage site pages',
-        is_enabled: true,
+        isEnabled: true,
         icon: '📄',
-        admin_route: '/admin/pages',
-        display_order: 1,
+        adminRoute: '/admin/pages',
+        displayOrder: 1,
         settings: {},
       },
       {
         name: 'Media',
         slug: 'media',
         description: 'Manage media files and uploads',
-        is_enabled: true,
+        isEnabled: true,
         icon: '🖼️',
-        admin_route: '/admin/media',
-        display_order: 2,
+        adminRoute: '/admin/media',
+        displayOrder: 2,
         settings: {},
       },
       {
         name: 'Users',
         slug: 'users',
         description: 'User management and permissions',
-        is_enabled: true,
+        isEnabled: true,
         icon: '👥',
-        admin_route: '/admin/users',
-        display_order: 3,
+        adminRoute: '/admin/users',
+        displayOrder: 3,
         settings: {},
       },
     ];
     
     for (const module of defaultModules) {
       try {
-        await prisma.module.upsert({
+        await prisma.moduleConfig.upsert({
           where: { slug: module.slug },
           update: module,
           create: module,
         });
       } catch (err) {
-        console.log('Error creating module:', err.message);
+        console.error('Error creating module:', err);
       }
     }
     
     console.log(`Created ${defaultModules.length} default modules`);
+
+    // Add default site settings
+    try {
+      const defaultSettings = {
+        siteTitle: 'MCMS',
+        siteDescription: 'Modern Content Management System',
+        enableUserRegistration: true,
+        requireEmailVerification: false,
+        requireAccountApproval: false,
+        fileStorageProvider: 'local',
+        maxFileSize: 10,
+        allowedFileTypes: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'docx', 'xlsx'],
+        emailProvider: 'smtp',
+        footerText: ' 2025 MCMS',
+        copyrightText: 'All rights reserved',
+      };
+
+      await prisma.siteSettings.upsert({
+        where: { id: '0' },
+        update: defaultSettings,
+        create: {
+          ...defaultSettings,
+          id: '0',
+        },
+      });
+      console.log('Default site settings created successfully');
+    } catch (err) {
+      console.error('Error creating site settings:', err);
+    }
   } catch (error) {
     console.error('Error in seeding process:', error);
   }

@@ -18,34 +18,54 @@ const DEFAULT_SETTINGS = {
 };
 
 export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
-  if (!session || user.role !== 'ADMIN') {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  try {
+    const session = await getSession(request);
+    const user = session?.user as User;
+    if (!session || user.role !== 'ADMIN') {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Check if we have settings in the database
+    const siteSettings = await cachedPrisma.siteSettings.findFirst();
+    
+    if (siteSettings) {
+      return NextResponse.json(siteSettings);
+    }
+    
+    // If no settings exist, return default settings
+    return NextResponse.json(DEFAULT_SETTINGS);
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    return NextResponse.json({ message: 'Error fetching settings' }, { status: 500 });
   }
-  
-  // Since we don't have an actual adminSettings model yet, we'll return default settings
-  return NextResponse.json(DEFAULT_SETTINGS);
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
-  if (!session || user.role !== 'ADMIN') {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
-  
   try {
+    const session = await getSession(request);
+    const user = session?.user as User;
+    if (!session || user.role !== 'ADMIN') {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+    
     // Get settings from request
     const settings = await request.json();
     
-    // In a real implementation, we would save these settings to the database
-    // For now, just return the settings that were sent
-    return NextResponse.json({
-      ...DEFAULT_SETTINGS,
-      ...settings,
-      updated: true
+    // Update or create settings in the database
+    const updatedSettings = await cachedPrisma.siteSettings.upsert({
+      where: { id: settings.id || '0' },
+      update: {
+        ...settings,
+        updatedAt: new Date()
+      },
+      create: {
+        ...settings,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
     });
+    
+    return NextResponse.json(updatedSettings);
   } catch (error) {
     console.error('Error updating settings:', error);
     return NextResponse.json({ message: 'Error updating settings' }, { status: 500 });
@@ -53,11 +73,19 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
-  if (!session || user.role !== 'ADMIN') {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  try {
+    const session = await getSession(request);
+    const user = session?.user as User;
+    if (!session || user.role !== 'ADMIN') {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Delete all settings and reset to defaults
+    await cachedPrisma.siteSettings.deleteMany({});
+    
+    return NextResponse.json({ message: 'Settings reset to defaults', settings: DEFAULT_SETTINGS });
+  } catch (error) {
+    console.error('Error deleting settings:', error);
+    return NextResponse.json({ message: 'Error resetting settings' }, { status: 500 });
   }
-  
-  return NextResponse.json({ message: 'Settings reset to defaults' });
 }

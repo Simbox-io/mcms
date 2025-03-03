@@ -11,7 +11,9 @@
     "postinstall": "npx prisma generate",
     "seed": "ts-node prisma/seed.ts",
     "seed:cms": "ts-node prisma/seed-functions/seedCms.ts",
-    "seed:user": "ts-node prisma/seed-functions/seedUser.ts"
+    "seed:user": "ts-node prisma/seed-functions/seedUser.ts",
+    "migrate:docker": "prisma migrate deploy",
+    "seed:docker": "node scripts/seed.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.18.0",

@@ -24,8 +24,19 @@ npx prisma generate
 # Run seed if specified
 if [ "$SEED_DATABASE" = "true" ]; then
   echo "🌱 Seeding database..."
-  node scripts/seed.cjs
+  node /app/scripts/seed.cjs
+  echo "✅ Database seeded!"
 fi
+
+# Create health check endpoint
+mkdir -p /app/app/api/health
+cat > /app/app/api/health/route.ts << EOL
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  return NextResponse.json({ status: 'ok', timestamp: new Date().toISOString() });
+}
+EOL
 
 echo "🚀 Starting application..."
 npm run dev

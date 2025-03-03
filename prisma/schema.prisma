@@ -8,6 +8,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 // Forum models
@@ -109,6 +110,50 @@ model AccountDeletionSettings {
   userSettings   UserSettings @relation(fields: [userSettingsId], references: [id])
   userSettingsId String       @unique
   // Add fields related to account deletion settings
+}
+
+// CMS ModuleConfig model
+model ModuleConfig {
+  id           String  @id @default(uuid())
+  name         String
+  slug         String  @unique
+  description  String?
+  isEnabled    Boolean @default(true)
+  icon         String?
+  adminRoute   String?
+  displayOrder Int     @default(0)
+  settings     Json?   @default("{}")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// CMS SiteSettings model
+model SiteSettings {
+  id                     String   @id @default(uuid())
+  siteTitle              String   @default("MCMS")
+  siteDescription        String   @default("Modern Content Management System")
+  logo                   String?
+  accentColor            String?
+  enableUserRegistration Boolean  @default(true)
+  requireEmailVerification Boolean @default(false)
+  requireAccountApproval Boolean  @default(false)
+  fileStorageProvider    String   @default("local")
+  maxFileSize            Int      @default(10)
+  allowedFileTypes       String[] @default(["jpg", "jpeg", "png", "gif", "pdf", "docx", "xlsx"])
+  emailProvider          String?
+  smtpHost               String?
+  smtpPort               Int?
+  smtpSecure             Boolean  @default(false)
+  smtpAuthUser           String?
+  smtpAuthPass           String?
+  sesRegion              String?
+  sesAccessKey           String?
+  sesSecretAccessKey     String?
+  emailFrom              String?
+  footerText             String?
+  copyrightText          String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 }
 
 // Forum models
@@ -961,6 +1006,7 @@ enum SchoolRole {
 
 enum Role {
   ADMIN
+  MODERATOR
   USER
 }
 
@@ -1149,22 +1195,6 @@ model NavigationItem {
   targetModule String? // Reference to ModuleConfig
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
-}
-
-model ModuleConfig {
-  id           String   @id @default(uuid())
-  name         String
-  slug         String   @unique
-  description  String?
-  isEnabled    Boolean  @default(true)
-  icon         String?
-  settings     Json?
-  permissions  Json? // Permissions configuration for this module
-  requiredRole String? // Minimum role needed to access
-  adminRoute   String? // Path to admin interface
-  displayOrder Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 }
 
 model UserRole {

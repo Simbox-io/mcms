@@ -12,6 +12,7 @@ import Select from '../../../components/next-gen/Select';
 import Toggle from '../../../components/Toggle';
 import { User } from '@/lib/prisma';
 import { instance } from '@/utils/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminSettings {
   siteTitle: string;
@@ -36,18 +37,18 @@ interface AdminSettings {
   autoDeleteFiles: boolean;
   fileExpirationPeriod: number;
   enableVersioning: boolean;
-  emailProvider: 'smtp',
-  smtpHost: '',
-  smtpPort: 587,
-  smtpSecure: false,
-  smtpAuthUser: '',
-  smtpAuthPass: '',
-  sesRegion: '',
-  sesAccessKey: '',
-  sesSecretAccessKey: '',
-  emailFrom: '',
-  footerText: '',
-  copyrightText: '',
+  emailProvider: string;
+  smtpHost: string;
+  smtpPort: number;
+  smtpSecure: boolean;
+  smtpAuthUser: string;
+  smtpAuthPass: string;
+  sesRegion: string;
+  sesAccessKey: string;
+  sesSecretAccessKey: string;
+  emailFrom: string;
+  footerText: string;
+  copyrightText: string;
 }
 
 const defaultSettings: AdminSettings = {
@@ -130,6 +131,7 @@ const AdminSettingsPage: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const user = session?.user as User;
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -194,18 +196,28 @@ const AdminSettingsPage: React.FC = () => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const response = await fetch('/api/admin/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(settings),
-      });
-      if (!response.ok) {
+      const response = await instance.put('/api/admin/settings', settings);
+      if (response.status !== 200) {
         console.error('Error updating admin settings:', response.statusText);
+        toast({
+          title: 'Error',
+          description: 'Failed to update settings',
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Success',
+          description: 'Settings updated successfully',
+          variant: 'success'
+        });
       }
     } catch (error) {
       console.error('Error updating admin settings:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update settings',
+        variant: 'destructive'
+      });
     }
     setIsSaving(false);
   };
