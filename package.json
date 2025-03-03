@@ -8,12 +8,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npx prisma generate",
-    "seed": "ts-node prisma/seed.ts",
-    "seed:cms": "ts-node prisma/seed-functions/seedCms.ts",
-    "seed:user": "ts-node prisma/seed-functions/seedUser.ts",
-    "migrate:docker": "prisma migrate deploy",
-    "seed:docker": "node scripts/seed.cjs"
+    "seed": "node ./scripts/seed.cjs",
+    "migrate": "prisma migrate deploy",
+    "migrate:dev": "prisma migrate dev",
+    "generate": "prisma generate",
+    "generate:ui": "npx shadcn-ui@latest add",
+    "reset": "prisma migrate reset --force",
+    "setup:db": "npm run migrate && npm run seed",
+    "fix:schema": "node ./scripts/fix-schema.js",
+    "setup:all": "npm run migrate && npm run fix:schema && npm run generate && npm run seed"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.18.0",

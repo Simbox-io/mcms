@@ -29,6 +29,34 @@ Join the MCMS community today and experience the future of content management fo
 
 ### Installation
 
+There are two ways to set up MCMS: using Docker (recommended) or manual installation.
+
+#### Using Docker (Recommended)
+
+1. Clone the repository
+```bash
+git clone https://github.com/Simbox-io/mcms.git
+cd mcms
+```
+
+2. Start with Docker Compose
+```bash
+docker-compose up
+```
+
+This will:
+- Start PostgreSQL database
+- Run migrations automatically
+- Seed the database with initial data
+- Start the Next.js development server
+- Open [http://localhost:3000](http://localhost:3000) in your browser
+
+**Default Admin Credentials:**
+- Email: admin@example.com
+- Password: password123
+
+#### Manual Installation
+
 1. Clone the repository
 ```bash
 git clone https://github.com/Simbox-io/mcms.git
@@ -40,62 +68,14 @@ cd mcms
 npm install
 ```
 
-3. Set up environment variables
-Create a `.env.local` file in the root directory with the following variables:
+3. Set up PostgreSQL database and update .env file with your database connection string
 ```
-# Database URL (Required for PostgreSQL connection)
-DATABASE_URL="postgresql://username:password@localhost:5432/mcms_db"
-
-# NextAuth Secret (Required for authentication)
-NEXTAUTH_SECRET="your-nextauth-secret"
-NEXTAUTH_URL="http://localhost:3000"
-
-# AWS S3 Configuration (For file storage)
-AWS_ACCESS_KEY_ID="your-aws-access-key"
-AWS_SECRET_ACCESS_KEY="your-aws-secret-access-key"
-AWS_REGION="your-aws-region"
-AWS_BUCKET_NAME="your-aws-bucket-name"
-
-# Email (For notifications)
-EMAIL_SERVER_HOST="smtp.example.com"
-EMAIL_SERVER_PORT=587
-EMAIL_SERVER_USER="your-email-username"
-EMAIL_SERVER_PASSWORD="your-email-password"
-EMAIL_FROM="noreply@example.com"
-
-# Anthropic AI API Key (For AI features)
-ANTHROPIC_API_KEY="your-anthropic-api-key"
+DATABASE_URL="postgresql://username:password@localhost:5432/mcms?schema=public"
 ```
 
-4. Set up the database
-
-You can use either Docker Compose or a local PostgreSQL installation:
-
-a) **Using Docker Compose** (Recommended):
+4. Run database migrations
 ```bash
-# Start PostgreSQL container
-docker-compose up -d postgres
-
-# The migrations will run automatically on first container startup
-```
-
-b) **Using local PostgreSQL**:
-```bash
-# Install PostgreSQL on your system
-# Create a database
-createdb mcms_db
-
-# Run the migrations
-./scripts/migrate-pg.sh
-```
-
-c) **Using Prisma Migrate**:
-```bash
-# This will create and apply migrations based on the Prisma schema
-npx prisma migrate dev
-
-# Generate Prisma client
-npx prisma generate
+npx prisma migrate deploy
 ```
 
 5. Generate Prisma client
@@ -103,28 +83,30 @@ npx prisma generate
 npx prisma generate
 ```
 
-6. Run the development server
+6. Seed the database
+```bash
+npm run seed
+```
+
+7. Run the development server
 ```bash
 npm run dev
 ```
 
-7. Open [http://localhost:3000](http://localhost:3000) in your browser.
+8. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Deployment
+### Troubleshooting Database Issues
 
-MCMS can be deployed to any platform that supports Next.js applications:
+If you encounter database errors about missing tables, you can run:
 
-- **Vercel**: The easiest way to deploy MCMS is using Vercel.
 ```bash
-npm install -g vercel
-vercel
+npm run fix:schema
 ```
 
-- **Docker**: You can also use the provided Dockerfile to deploy MCMS in a container.
-```bash
-docker build -t mcms .
-docker run -p 3000:3000 mcms
-```
+This will:
+1. Compare your Prisma schema with the actual database
+2. Create a new migration to add any missing tables
+3. Apply the migration and regenerate the Prisma client
 
 ## Features
 

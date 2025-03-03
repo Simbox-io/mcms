@@ -13,25 +13,27 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const quillPosts = await cachedPrisma.quillPost.findMany({
+    const posts = await cachedPrisma.quillPost.findMany({
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc"
       },
       include: {
         author: {
           select: {
             id: true,
-            name: true,
             username: true,
-          },
-        },
-      },
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          }
+        }
+      }
     });
-
-    return NextResponse.json(quillPosts);
+    
+    return NextResponse.json(posts);
   } catch (error) {
-    console.error('Error fetching quill posts:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    console.error("Error fetching quill posts:", error);
+    return NextResponse.json({ error: "Failed to fetch quill posts" }, { status: 500 });
   }
 }
 

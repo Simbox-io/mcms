@@ -19,8 +19,10 @@ services:
       - .:/app
       - /app/node_modules
       - ./.next:/app/.next
+      - prisma-engine:/app/node_modules/.prisma
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - mcms-network
     restart: unless-stopped
@@ -56,4 +58,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  prisma-engine:
     driver: local

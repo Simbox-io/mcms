@@ -1,42 +1,47 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-# Setup PostgreSQL and create extensions first
-echo "🛠️ Setting up PostgreSQL..."
-/bin/sh /app/scripts/setup-pg.sh
+# Wait for PostgreSQL to be ready
+echo "⏳ Waiting for PostgreSQL to be ready..."
+while ! nc -z postgres 5432; do
+  sleep 0.1
+done
+echo "✅ PostgreSQL is ready!"
 
-# Reset database if needed
-if [ "$RESET_DATABASE" = "true" ]; then
-  echo "🗑️ Resetting database..."
-  npx prisma migrate reset --force --skip-seed
-elif [ "$DIRECT_SQL" = "true" ]; then
-  echo "📝 Direct SQL mode enabled, skipping Prisma migrations..."
-else
-  # Run migrations normally
-  echo "🔄 Running database migrations..."
-  npx prisma migrate deploy
-fi
+# Install missing dependencies
+echo "📦 Installing missing dependencies..."
+npm install bcryptjs
+
+# Create PostgreSQL extensions and initialize schema
+echo "🔧 Creating PostgreSQL extensions..."
+psql -h postgres -U postgres -d mcms_db -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";" || {
+  # If database doesn't exist yet, create it first
+  psql -h postgres -U postgres -c "CREATE DATABASE mcms_db;" || true
+  psql -h postgres -U postgres -d mcms_db -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
+  psql -h postgres -U postgres -d mcms_db -c "CREATE EXTENSION IF NOT EXISTS \"citext\";"
+}
+echo "✅ PostgreSQL extensions created!"
+
+# Initialize schema with required enum types
+echo "🔧 Initializing schema types..."
+psql -h postgres -U postgres -d mcms_db -f ./scripts/schema-init.sql
+echo "✅ Schema types initialized!"
+
+# Run database migrations
+echo "🔄 Running database migrations..."
+npx prisma migrate deploy
 
 # Generate Prisma client
 echo "🔧 Generating Prisma client..."
 npx prisma generate
 
-# Run seed if specified
-if [ "$SEED_DATABASE" = "true" ]; then
-  echo "🌱 Seeding database..."
-  node /app/scripts/seed.cjs
-  echo "✅ Database seeded!"
-fi
+# Run schema fixes to ensure all tables exist with proper columns
+echo "🔧 Running schema fixes..."
+node ./scripts/fix-schema.js
 
-# Create health check endpoint
-mkdir -p /app/app/api/health
-cat > /app/app/api/health/route.ts << EOL
-import { NextResponse } from 'next/server';
-
-export async function GET() {
-  return NextResponse.json({ status: 'ok', timestamp: new Date().toISOString() });
-}
-EOL
+# Seed database with initial data
+echo "🌱 Seeding database..."
+node ./scripts/seed.cjs
 
 echo "🚀 Starting application..."
 npm run dev

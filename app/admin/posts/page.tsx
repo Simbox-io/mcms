@@ -13,6 +13,7 @@ import EmptyState from '@/components/EmptyState';
 import { formatDistanceToNow } from 'date-fns';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { User } from '@/lib/prisma';
+import { formatPostStatus, getPostStatusColor } from '@/lib/postStatusHelper.mjs';
 
 interface Post {
   id: string;
@@ -179,19 +180,6 @@ const PostsPage = () => {
     }
   }, [posts, toast]);
 
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case 'published':
-        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
-      case 'draft':
-        return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
-      case 'archived':
-        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
-      default:
-        return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200';
-    }
-  };
-
   const filteredPosts = posts
     .filter(post => 
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -259,8 +247,8 @@ const PostsPage = () => {
                           <FiStar className="mr-1" /> Featured
                         </span>
                       )}
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getStatusBadgeClass(post.status)}`}>
-                        {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getPostStatusColor(post.status)}`}>
+                        {formatPostStatus(post.status)}
                       </span>
                     </div>
                     <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -280,7 +268,7 @@ const PostsPage = () => {
                         <FiMessageSquare className="mr-1" />
                         {post.commentCount} comments
                       </span>
-                      {post.tags.length > 0 && (
+                      {post.tags && post.tags.length > 0 && (
                         <span className="inline-flex items-center">
                           <FiTag className="mr-1" />
                           {post.tags.map(t => t.tag.name).join(', ')}

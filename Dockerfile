@@ -42,12 +42,16 @@ WORKDIR /app
 # Copy node_modules and prisma from builder stage
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Copy the rest of the application
 COPY . .
 
-# Generate Prisma client in the final stage to ensure .prisma exists
-RUN npx prisma generate
+# Run initial setup scripts
+RUN chmod +x ./scripts/entrypoint.sh \
+    && chmod +x ./scripts/pre-seed.js \
+    && chmod +x ./scripts/fix-schema.js \
+    && npx prisma generate
 
 # Make entrypoint script executable
 COPY scripts/entrypoint.sh /entrypoint.sh
@@ -56,6 +60,5 @@ RUN chmod +x /entrypoint.sh
 # Set environment variables
 ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PRISMA_CLI_BINARY_TARGETS=linux-musl
 
 ENTRYPOINT ["/entrypoint.sh"]

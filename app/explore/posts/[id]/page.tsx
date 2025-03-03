@@ -114,7 +114,7 @@ const PostDetailPage: React.FC = () => {
         <div className="mt-8">
           <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Tags</h3>
           <div className="flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
+            {post.tags && post.tags.map((tag) => (
               <span
                 key={tag.id}
                 className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded-md text-sm"
@@ -122,7 +122,7 @@ const PostDetailPage: React.FC = () => {
                 {tag.name}
               </span>
             ))}
-            {post.tags.length === 0 && <span>No tags</span>}
+            {(!post.tags || post.tags.length === 0) && <span>No tags</span>}
           </div>
         </div>
         <div className='flex justify-between mt-8'>

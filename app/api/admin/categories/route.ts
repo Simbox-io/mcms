@@ -4,44 +4,23 @@ import cachedPrisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { User } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
-  const session = await getSession(request);
-  const user = session?.user as User;
-
-  if (!session || user.role !== 'ADMIN') {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  }
-
+export async function GET() {
   try {
+    // Check if category exists in the Prisma client
+    if (!cachedPrisma.category) {
+      return NextResponse.json({ message: "Category model not available in schema" }, { status: 404 });
+    }
+    
     const categories = await cachedPrisma.category.findMany({
       orderBy: {
-        name: 'asc',
-      },
-      include: {
-        post: {
-          select: {
-            id: true,
-          },
-        },
-      },
+        name: "asc"
+      }
     });
-
-    // Transform the data to include post count
-    const transformedCategories = categories.map(category => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-      description: category.description,
-      parentId: category.parent_id,
-      createdAt: category.created_at,
-      updatedAt: category.updated_at,
-      postCount: category.post.length,
-    }));
-
-    return NextResponse.json(transformedCategories);
+    
+    return NextResponse.json(categories);
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    console.error("Error fetching categories:", error);
+    return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
   }
 }
 
