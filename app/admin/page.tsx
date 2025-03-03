@@ -44,20 +44,27 @@ const AdminConfigurationPage: React.FC = () => {
     );
   }
 
+  const menuItems = [
+    { id: 'dashboard', label: 'Admin Dashboard' },
+    { id: 'content', label: 'Content', link: '/admin/content' },
+    { id: 'posts', label: 'Posts' },
+    { id: 'projects', label: 'Projects', link: '/admin/projects' },
+    { id: 'forums', label: 'Forums', link: '/admin/forums' },
+    { id: 'files', label: 'File Manager', link: '/admin/files' },
+    { id: 'users', label: 'User Management' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'modules', label: 'Modules', link: '/admin/modules' },
+    { id: 'plugins', label: 'Plugins' },
+    { id: 'themes', label: 'Themes', link: '/admin/themes' },
+    { id: 'navigation', label: 'Navigation', link: '/admin/navigation' },
+    { id: 'settings', label: 'Settings' },
+  ];
+
   return (
     <div className="flex flex-col lg:flex-row h-full">
       <div className="md:hidden">
         <Sidebar
-          items={[
-            { id: 'dashboard', label: 'Admin Dashboard' },
-            { id: 'posts', label: 'Posts' },
-            { id: 'analytics', label: 'Analytics' },
-            { id: 'modules', label: 'Modules Management', link: '/admin/modules' },
-            { id: 'navigation', label: 'Navigation Management', link: '/admin/navigation' },
-            { id: 'plugins', label: 'Plugin Management' },
-            { id: 'users', label: 'User Management' },
-            { id: 'settings', label: 'Global Settings' },
-          ]}
+          items={menuItems}
           activeItem={activeSubpage}
           onItemClick={handleSubpageChange}
         />
@@ -65,16 +72,7 @@ const AdminConfigurationPage: React.FC = () => {
       <div className="hidden md:block w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
         <div className="sticky top-0 h-full overflow-y-auto">
           <Sidebar
-            items={[
-              { id: 'dashboard', label: 'Admin Dashboard' },
-              { id: 'posts', label: 'Posts' },
-              { id: 'analytics', label: 'Analytics' },
-              { id: 'modules', label: 'Modules Management', link: '/admin/modules' },
-              { id: 'navigation', label: 'Navigation Management', link: '/admin/navigation' },
-              { id: 'plugins', label: 'Plugin Management' },
-              { id: 'users', label: 'User Management' },
-              { id: 'settings', label: 'Global Settings' },
-            ]}
+            items={menuItems}
             activeItem={activeSubpage}
             onItemClick={handleSubpageChange}
           />

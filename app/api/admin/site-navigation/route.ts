@@ -1,4 +1,4 @@
-// app/api/admin/navigation/route.ts
+// app/api/admin/site-navigation/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import cachedPrisma from '@/lib/prisma';
@@ -12,48 +12,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const location = searchParams.get('location');
-
   try {
-    const where = location ? { location } : {};
-
-    const menus = await cachedPrisma.navigationMenu.findMany({
-      where,
+    const menus = await cachedPrisma.menuNavigation.findMany({
       include: {
         items: {
-          where: {
-            parentId: null, // Get only root level items
-          },
-          include: {
-            children: {
-              include: {
-                children: {
-                  include: {
-                    children: true, // Support up to 3 levels of nesting
-                  },
-                  orderBy: {
-                    order: 'asc',
-                  },
-                },
-              },
-              orderBy: {
-                order: 'asc',
-              },
-            },
-          },
           orderBy: {
             order: 'asc',
           },
         },
       },
     });
-
+    
     return NextResponse.json(menus);
   } catch (error) {
-    console.error('Error fetching navigation menus:', error);
+    console.error('Error fetching site navigation menus:', error);
     return NextResponse.json(
-      { message: 'Error fetching navigation menus' },
+      { message: 'Error fetching site navigation menus' },
       { status: 500 }
     );
   }
@@ -68,7 +42,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { name, description, location, parentId } = await request.json();
+    const data = await request.json();
+    const { name, description, location } = data;
 
     if (!name || !location) {
       return NextResponse.json(
@@ -77,12 +52,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const menu = await cachedPrisma.navigationMenu.create({
+    const menu = await cachedPrisma.menuNavigation.create({
       data: {
         name,
         description,
         location,
-        parentId: parentId || null,
       },
     });
 

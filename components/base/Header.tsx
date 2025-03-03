@@ -11,6 +11,7 @@ import Skeleton from './Skeleton';
 import useSWR from 'swr';
 import instance from '@/utils/api';
 import Image from 'next/image';
+import MainNavigation from './MainNavigation';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -182,6 +183,11 @@ const Header: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center">
+            {/* Main Navigation (Hamburger Menu) - visible to all users */}
+            <div className="mr-2">
+              <MainNavigation />
+            </div>
+            
             <button
               className="lg:hidden text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 focus:outline-none"
               onClick={() => handleToggle(isSearchOpen, setIsSearchOpen)}

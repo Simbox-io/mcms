@@ -8,7 +8,7 @@ import Card from '@/components/next-gen/Card';
 import Button from '@/components/next-gen/Button';
 import Input from '@/components/next-gen/Input';
 import Spinner from '@/components/base/Spinner';
-import { Dialog } from '@/components/base/Dialog';
+import Dialog from '@/components/base/Dialog';
 import { useToast } from '@/hooks/use-toast';
 import EmptyState from '@/components/EmptyState';
 import { User } from '@/lib/prisma';
@@ -302,7 +302,7 @@ const ModulesPage = () => {
 
       <Dialog
         open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onClose={() => setIsModalOpen(false)}
         title={isEditing ? 'Edit Module' : 'Add New Module'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -314,7 +314,7 @@ const ModulesPage = () => {
               id="name"
               name="name"
               value={moduleForm.name}
-              onChange={handleInputChange}
+              onChange={(value) => setModuleForm({...moduleForm, name: value})}
               required
             />
           </div>
@@ -326,7 +326,7 @@ const ModulesPage = () => {
               id="slug"
               name="slug"
               value={moduleForm.slug}
-              onChange={handleInputChange}
+              onChange={(value) => setModuleForm({...moduleForm, slug: value})}
               required
               placeholder="unique-slug"
               pattern="^[a-z0-9-]+$"
@@ -344,7 +344,7 @@ const ModulesPage = () => {
               id="description"
               name="description"
               value={moduleForm.description}
-              onChange={handleInputChange}
+              onChange={(value) => setModuleForm({...moduleForm, description: value})}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -356,7 +356,7 @@ const ModulesPage = () => {
                 id="icon"
                 name="icon"
                 value={moduleForm.icon}
-                onChange={handleInputChange}
+                onChange={(value) => setModuleForm({...moduleForm, icon: value})}
                 placeholder="📦"
               />
             </div>
@@ -368,8 +368,8 @@ const ModulesPage = () => {
                 id="displayOrder"
                 name="displayOrder"
                 type="number"
-                value={moduleForm.displayOrder}
-                onChange={handleInputChange}
+                value={moduleForm.displayOrder.toString()}
+                onChange={(value) => setModuleForm({...moduleForm, displayOrder: parseInt(value, 10) || 0})}
               />
             </div>
           </div>
@@ -382,7 +382,7 @@ const ModulesPage = () => {
                 id="requiredRole"
                 name="requiredRole"
                 value={moduleForm.requiredRole}
-                onChange={handleInputChange}
+                onChange={(value) => setModuleForm({...moduleForm, requiredRole: value})}
                 placeholder="ADMIN"
               />
             </div>
@@ -394,7 +394,7 @@ const ModulesPage = () => {
                 id="adminRoute"
                 name="adminRoute"
                 value={moduleForm.adminRoute}
-                onChange={handleInputChange}
+                onChange={(value) => setModuleForm({...moduleForm, adminRoute: value})}
                 placeholder="/admin/module-name"
               />
             </div>

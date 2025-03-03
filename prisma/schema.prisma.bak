@@ -112,8 +112,10 @@ model ForumCategory {
   description String?
   slug        String       @unique
   topics      ForumTopic[]
-  order       Int          @default(0)
-  icon        String?
+  isPrivate   Boolean      @default(false)
+  parentId    String?
+  parent      ForumCategory?  @relation("SubCategories", fields: [parentId], references: [id])
+  children    ForumCategory[] @relation("SubCategories")
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
@@ -123,7 +125,7 @@ model ForumTopic {
   title        String
   content      String
   slug         String        @unique
-  author       User          @relation(fields: [authorId], references: [id])
+  author       User          @relation("ForumTopicAuthor", fields: [authorId], references: [id])
   authorId     String
   category     ForumCategory @relation(fields: [categoryId], references: [id])
   categoryId   String
@@ -142,7 +144,7 @@ model ForumTopic {
 model ForumPost {
   id        String      @id @default(uuid())
   content   String
-  author    User        @relation(fields: [authorId], references: [id])
+  author    User        @relation("ForumPostAuthor", fields: [authorId], references: [id])
   authorId  String
   topic     ForumTopic  @relation(fields: [topicId], references: [id])
   topicId   String
@@ -1166,151 +1168,5 @@ model UserRole {
   permissions Json? // Stored as JSON with module-specific permissions
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  users       User[] // Relation to users with this role
-}
-
-model UserRole {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  permissions Json? // Stored as JSON with module-specific permissions
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  users       User[]   @relation("UserRole")
-}
-
-model User {
-  id                    String                 @id @default(uuid())
-  username              String                 @unique
-  email                 String                 @unique
-  passwordHash          String
-  firstName             String?
-  lastName              String?
-  avatar                String?
-  bio                   String?
-  role                  Role                   @default(USER)
-  userRole              UserRole?              @relation("UserRole", fields: [userRoleId], references: [id])
-  userRoleId            String?
-  posts                 Post[]
-  comments              Comment[]
-  files                 File[]
-  ownedProjects         Project[]              @relation("OwnedProjects")
-  collaboratedProjects  Project[]              @relation("CollaboratedProjects")
-  followedBy            User[]                 @relation("UserFollows")
-  following             User[]                 @relation("UserFollows")
-  bookmarks             Bookmark[]
-  commentReactions      CommentReaction[]
-  fileReactions         FileReaction[]
-  notifications         Notification[]
-  activities            Activity[]
-  studentRole           SchoolRole             @default(STUDENT)
-  courses               Course[]
-  enrollments           Enrollment[]
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  profile               Profile?
-  settings              UserSettings?
-  badges                Badge[]
-  points                Int                    @default(0)
-  progress              Progress[]
-  assignmentSubmissions AssignmentSubmission[]
-  quizSubmissions       QuizSubmission[]
-  forumTopics           ForumTopic[]           @relation("ForumTopicAuthorRel", fields: [forumTopicAuthorId], references: [id])
-  forumPosts            ForumPost[]            @relation("ForumPostAuthorRel", fields: [forumPostAuthorId], references: [id])
-}
-
-model Project {
-  id            String           @id @default(uuid())
-  name          String
-  description   String
-  owner         User             @relation("OwnedProjects", fields: [ownerId], references: [id])
-  ownerId       String
-  likes         Int              @default(0)
-  views         Int              @default(0)
-  collaborators User[]           @relation("CollaboratedProjects")
-  files         File[]
-  tags          Tag[]
-  comments      Comment[]
-  spaces        Space[]
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  bookmarks     Bookmark[]
-  settings      ProjectSettings?
-}
-
-model Space {
-  id            String         @id @default(uuid())
-  name          String
-  description   String?
-  owner         User           @relation(fields: [ownerId], references: [id])
-  ownerId       String
-  likes         Int            @default(0)
-  collaborators User[]         @relation("CollaboratedSpaces")
-  pages         Page[]
-  project       Project?       @relation(fields: [projectId], references: [id])
-  projectId     String?
-  views         SpaceView[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  bookmarks     Bookmark[]
-  settings      SpaceSettings?
-}
-
-model ForumTopic {
-  id           String        @id @default(uuid())
-  title        String
-  content      String
-  slug         String        @unique
-  author       User          @relation("ForumTopicAuthorRel", fields: [authorId], references: [id])
-  authorId     String
-  category     ForumCategory @relation(fields: [categoryId], references: [id])
-  categoryId   String
-  posts        ForumPost[]
-  viewCount    Int           @default(0)
-  isPinned     Boolean       @default(false)
-  isLocked     Boolean       @default(false)
-  tags         String[]
-  lastPostId   String?
-  lastPostAt   DateTime?
-  lastPostUser String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-}
-
-model ForumPost {
-  id        String      @id @default(uuid())
-  content   String
-  author    User        @relation("ForumPostAuthorRel", fields: [authorId], references: [id])
-  authorId  String
-  topic     ForumTopic  @relation(fields: [topicId], references: [id])
-  topicId   String
-  parentId  String?
-  parent    ForumPost?  @relation("PostReplies", fields: [parentId], references: [id])
-  replies   ForumPost[] @relation("PostReplies")
-  isEdited  Boolean     @default(false)
-  reactions String[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-}
-
-model Tutorial {
-  id            String            @id @default(uuid())
-  title         String
-  content       String
-  author        User              @relation(fields: [authorId], references: [id])
-  authorId      String
-  collaborators User[]            @relation("CollaboratedTutorials")
-  tags          Tag[]
-  comments      Comment[]
-  likes         Int               @default(0)
-  views         Int               @default(0)
-  isFeatured    Boolean           @default(false)
-  isPinned      Boolean           @default(false)
-  isPublished   Boolean           @default(false)
-  publishedAt   DateTime?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  bookmarks     Bookmark[]
-  settings      TutorialSettings?
-  prerequisite  Prerequisite[]
+  users       User[]
 }

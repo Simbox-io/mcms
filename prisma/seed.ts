@@ -5,6 +5,7 @@ const bcryptjs = require('bcryptjs');
 // Import required seed functions
 const { seedTestUser } = require('./seed-functions/seedUser');
 const { seedCmsData } = require('./seed-functions/seedCms');
+const { seedNavigation } = require('./seed-functions/seedNavigation');
 
 const prisma = new PrismaClient();
 
@@ -19,6 +20,10 @@ async function main() {
     // Seed CMS data
     console.log('🧩 Seeding CMS modules...');
     await seedCmsData(prisma);
+    
+    // Seed navigation menus
+    console.log('🧭 Seeding navigation menus...');
+    await seedNavigation(prisma);
     
     console.log('✅ Seeding completed successfully!');
   } catch (error) {

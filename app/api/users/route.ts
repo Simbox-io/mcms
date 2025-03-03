@@ -20,19 +20,18 @@ export async function GET(request: NextRequest) {
         OR: [
           { username: { contains: search || '', mode: 'insensitive' } },
           { email: { contains: search || '', mode: 'insensitive' } },
-          { first_name: { contains: search || '', mode: 'insensitive' } },
-          { last_name: { contains: search || '', mode: 'insensitive' } },
+          { firstName: { contains: search || '', mode: 'insensitive' } },
+          { lastName: { contains: search || '', mode: 'insensitive' } },
         ],
       },
       select: {
         id: true,
         username: true,
         email: true,
-        first_name: true,
-        last_name: true,
+        firstName: true,
+        lastName: true,
         avatar: true,
         role: true,
-        profile: true,
       },
     });
     return NextResponse.json(users);

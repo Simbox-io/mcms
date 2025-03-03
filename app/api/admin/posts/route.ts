@@ -14,31 +14,66 @@ export async function GET(request: NextRequest) {
 
   try {
     const posts = await cachedPrisma.post.findMany({
-      take: 5,
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
-            username: true,
+            name: true,
+            email: true,
           },
         },
-        tags: true,
-        comments: true,
-        bookmarks: true,
-        settings: {
+        category: true,
+        post_tags: {
           include: {
-            commentSettings: true,
-            sharingSettings: true,
-            revisionHistorySettings: true,
-          },
+            tag: true,
+          }
         },
+        comment: true,
       },
     });
 
-    return NextResponse.json(posts);
+    // Transform the data to match the expected format in the frontend
+    const transformedPosts = posts.map(post => ({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      content: post.content,
+      excerpt: post.excerpt,
+      featuredImage: post.featured_image,
+      authorId: post.author_id,
+      categoryId: post.category_id,
+      status: post.status,
+      visibility: post.visibility,
+      publishedAt: post.published_at,
+      isFeatured: post.is_featured,
+      allowComments: post.allow_comments,
+      views: post.views,
+      likes: post.likes,
+      metaTitle: post.meta_title,
+      metaDescription: post.meta_description,
+      createdAt: post.created_at,
+      updatedAt: post.updated_at,
+      author: {
+        name: post.user.name,
+        email: post.user.email,
+      },
+      category: post.category ? {
+        name: post.category.name,
+        slug: post.category.slug,
+      } : null,
+      tags: post.post_tags.map(pt => ({
+        tag: {
+          name: pt.tag.name,
+          slug: pt.tag.slug,
+        }
+      })),
+      commentCount: post.comment.length,
+    }));
+
+    return NextResponse.json(transformedPosts);
   } catch (error) {
     console.error('Error fetching posts:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

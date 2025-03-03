@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Navbar from '@/components/base/Navbar';
-import { Sidebar } from '@/components/base/Sidebar';
+import { Sidebar as ForumSidebar } from '@/components/base/ForumSidebar';
 import { Footer } from '@/components/base/Footer';
 import { usePathname } from 'next/navigation';
 
@@ -17,7 +17,7 @@ export default function ForumLayout({
     <div className="flex flex-col min-h-screen">
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <div className="flex flex-1">
-        <Sidebar
+        <ForumSidebar
           open={sidebarOpen}
           setOpen={setSidebarOpen}
           defaultActive='forum'

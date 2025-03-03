@@ -117,6 +117,155 @@ exports.seedCmsData = async function(prisma) {
   });
 
   console.log('Created/updated default site settings');
+  
+  // Create default navigation menus
+  console.log('Creating default navigation menus...');
+  await createDefaultNavigationMenus(prisma);
+}
+
+async function createDefaultNavigationMenus(prisma) {
+  // Main header menu
+  const headerMenu = await prisma.navigationMenu.upsert({
+    where: { name_location: { name: 'Main Menu', location: 'header' } },
+    update: {},
+    create: {
+      name: 'Main Menu',
+      description: 'Primary navigation for the site header',
+      location: 'header',
+    }
+  });
+
+  console.log('Created header navigation menu');
+  
+  // Footer menu
+  const footerMenu = await prisma.navigationMenu.upsert({
+    where: { name_location: { name: 'Footer Menu', location: 'footer' } },
+    update: {},
+    create: {
+      name: 'Footer Menu',
+      description: 'Links for the site footer',
+      location: 'footer',
+    }
+  });
+  
+  console.log('Created footer navigation menu');
+  
+  // Create default menu items for header
+  const headerItems = [
+    {
+      title: 'Home',
+      url: '/',
+      order: 1,
+      openInNewTab: false,
+      requiresAuth: false,
+      isEnabled: true,
+    },
+    {
+      title: 'Blog',
+      url: '/blog',
+      order: 2,
+      openInNewTab: false,
+      requiresAuth: false,
+      isEnabled: true,
+    },
+    {
+      title: 'Forum',
+      url: '/forum',
+      order: 3,
+      openInNewTab: false,
+      requiresAuth: false,
+      isEnabled: true,
+    },
+    {
+      title: 'About',
+      url: '/about',
+      order: 4,
+      openInNewTab: false,
+      requiresAuth: false,
+      isEnabled: true,
+    },
+    {
+      title: 'Contact',
+      url: '/contact',
+      order: 5,
+      openInNewTab: false,
+      requiresAuth: false,
+      isEnabled: true,
+    },
+    {
+      title: 'Admin',
+      url: '/admin',
+      order: 6,
+      openInNewTab: false,
+      requiresAuth: true,
+      requiredRole: 'ADMIN',
+      isEnabled: true,
+    },
+  ];
+  
+  // Create default menu items for footer
+  const footerItems = [
+    {
+      title: 'Privacy Policy',
+      url: '/privacy',
+      order: 1,
+      openInNewTab: false,
+      requiresAuth: false,
+      isEnabled: true,
+    },
+    {
+      title: 'Terms of Service',
+      url: '/terms',
+      order: 2,
+      openInNewTab: false,
+      requiresAuth: false,
+      isEnabled: true,
+    },
+    {
+      title: 'Contact Us',
+      url: '/contact',
+      order: 3,
+      openInNewTab: false,
+      requiresAuth: false,
+      isEnabled: true,
+    },
+  ];
+  
+  // Add items to header menu
+  for (const item of headerItems) {
+    await prisma.navigationItem.upsert({
+      where: {
+        menuId_title: {
+          menuId: headerMenu.id,
+          title: item.title,
+        },
+      },
+      update: item,
+      create: {
+        ...item,
+        menuId: headerMenu.id,
+      },
+    });
+  }
+  
+  // Add items to footer menu
+  for (const item of footerItems) {
+    await prisma.navigationItem.upsert({
+      where: {
+        menuId_title: {
+          menuId: footerMenu.id,
+          title: item.title,
+        },
+      },
+      update: item,
+      create: {
+        ...item,
+        menuId: footerMenu.id,
+      },
+    });
+  }
+  
+  console.log(`Added ${headerItems.length} items to header menu and ${footerItems.length} items to footer menu`);
 }
 
 // Allow direct execution for testing
