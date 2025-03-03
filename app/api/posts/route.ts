@@ -28,7 +28,6 @@ export async function GET(request: NextRequest) {
         tags: true,
         comments: true,
         bookmarks: true,
-        settings: true,
       },
       orderBy: {
         createdAt: 'desc',

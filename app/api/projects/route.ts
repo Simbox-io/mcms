@@ -24,13 +24,6 @@ export async function GET(request: NextRequest) {
         comments: true,
         spaces: true,
         bookmarks: true,
-        settings: {
-          include: {
-            visibilitySettings: true,
-            collaborationSettings: true,
-            notificationSettings: true,
-          },
-        },
       },
       orderBy: {
         createdAt: 'desc',

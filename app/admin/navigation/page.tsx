@@ -9,7 +9,7 @@ import Card from '@/components/next-gen/Card';
 import Button from '@/components/next-gen/Button';
 import Input from '@/components/next-gen/Input';
 import Spinner from '@/components/base/Spinner';
-import { Dialog } from '@/components/base/Dialog';
+import Dialog from '@/components/base/Dialog';
 import { useToast } from '@/hooks/use-toast';
 import EmptyState from '@/components/EmptyState';
 import { User } from '@/lib/prisma';
@@ -177,7 +177,7 @@ const NavigationPage = () => {
         </div>
       )}
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen} title={`${isEditing ? 'Edit' : 'Create'} Menu`}>
+      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} title={`${isEditing ? 'Edit' : 'Create'} Menu`}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block mb-1 font-medium">Name</label>

@@ -27,13 +27,6 @@ export async function GET(request: NextRequest) {
       skip: (page - 1) * perPage,
       take: perPage,
       orderBy: { createdAt: 'desc' },
-      include: {
-        settings: {
-          include: {
-            commentSettings: true,
-          },
-        },
-      },
     });
 
     return NextResponse.json({ notifications, totalPages });
