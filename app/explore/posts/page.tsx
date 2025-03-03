@@ -27,7 +27,7 @@ const NewsFeed: React.FC = () => {
     const fetchPosts = useCallback(async () => {
         const nextPage = page + 1;
         try {
-            const response = await instance.get(`/api/posts?page=${nextPage}&tags=${selectedTags.join(',')}`);
+            const response = await instance.get(`/api/posts?page=${nextPage}&tags=${selectedTags.join(',')}&categories=${categories.join(',')}`);
             if(page===0) { setPosts(response.data.posts) } else {
                 setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
             }
@@ -37,7 +37,7 @@ const NewsFeed: React.FC = () => {
         } catch (error) {
             console.error('Error fetching posts:', error);
         }
-    }, [page, selectedTags]);
+    }, [page, selectedTags, categories]);
 
     useEffect(() => {
         fetchPosts();
@@ -86,7 +86,19 @@ const NewsFeed: React.FC = () => {
                     placeholder="Filter by tags..."
                     className="w-full"
                 />
-                {/* TODO: Add category selector */}
+                <CategoryFilter 
+                    categories={['All', 'Technology', 'Programming', 'Design', 'DevOps', 'Cloud', 'AI']}
+                    selectedCategory={categories.length > 0 ? categories[0] : 'All'}
+                    onChange={(category) => {
+                        setPage(0);
+                        if (category === 'All') {
+                            setCategories([]);
+                        } else {
+                            setCategories([category]);
+                        }
+                    }}
+                    className="w-64"
+                />
             </div>
 
             <AnimatePresence>

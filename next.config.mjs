@@ -7,6 +7,7 @@ const nextConfig = {
             allowedOrigins: ['https://vp1ldb7xwny0.statuspage.io', 'https://simbox-mcms.statuspage.io'],
         },
     },
+    output: 'standalone', // Enable standalone output for Docker deployment
 };
 
 export default withSentryConfig(nextConfig, {

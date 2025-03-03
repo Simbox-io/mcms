@@ -46,8 +46,9 @@ interface AdminSettings {
   sesAccessKey: '',
   sesSecretAccessKey: '',
   emailFrom: '',
+  footerText: '',
+  copyrightText: '',
 }
-
 
 const defaultSettings: AdminSettings = {
   siteTitle: 'My Site',
@@ -82,6 +83,8 @@ const defaultSettings: AdminSettings = {
   sesAccessKey: '',
   sesSecretAccessKey: '',
   emailFrom: '',
+  footerText: ' 2025 My Organization',
+  copyrightText: 'All rights reserved',
 };
 
 const AdminSettingsPage: React.FC = () => {
@@ -118,7 +121,10 @@ const AdminSettingsPage: React.FC = () => {
     sesAccessKey: '',
     sesSecretAccessKey: '',
     emailFrom: '',
+    footerText: '',
+    copyrightText: '',
   });
+  const [logoPreview, setLogoPreview] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
@@ -129,7 +135,14 @@ const AdminSettingsPage: React.FC = () => {
     const fetchSettings = async () => {
       try {
         const response = await instance.get('/api/admin/settings');
-          setSettings(response.data || defaultSettings);
+        if (response.data) {
+          setSettings(response.data);
+          if (response.data.logo) {
+            setLogoPreview(response.data.logo);
+          }
+        } else {
+          setSettings(defaultSettings);
+        }
       } catch (error) {
         console.error('Error fetching admin settings:', error);
         setSettings(defaultSettings);
@@ -157,12 +170,24 @@ const AdminSettingsPage: React.FC = () => {
     }));
   };
 
-
   const handleToggle = (name: keyof AdminSettings) => {
     setSettings((prevSettings) => ({
       ...prevSettings,
       [name]: !prevSettings[name],
     }));
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setSettings({ ...settings, logo: base64String });
+        setLogoPreview(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -231,15 +256,58 @@ const AdminSettingsPage: React.FC = () => {
                 onChange={handleChange}
                 required
               />
-              <Input
-                label="Logo URL"
-                type="text"
-                id="logo"
-                name="logo"
-                value={settings.logo}
-                onChange={handleChange}
-                required
-              />
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  Site Logo
+                </label>
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    {logoPreview ? (
+                      <div className="w-32 h-32 border rounded-md overflow-hidden">
+                        <img 
+                          src={logoPreview} 
+                          alt="Site Logo" 
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-32 h-32 border rounded-md flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                        <span className="text-gray-400">No logo</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-grow">
+                    <input
+                      type="file"
+                      id="logoUpload"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                    <Button
+                      variant="secondary"
+                      onClick={() => document.getElementById('logoUpload')?.click()}
+                    >
+                      Upload Logo
+                    </Button>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                      Recommended size: 200x50 pixels. PNG or SVG format preferred.
+                    </p>
+                    {logoPreview && (
+                      <Button
+                        variant="danger"
+                        className="mt-2"
+                        onClick={() => {
+                          setSettings({ ...settings, logo: '' });
+                          setLogoPreview('');
+                        }}
+                      >
+                        Remove Logo
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
               <Input
                 label="Accent Color"
                 type="color"
@@ -494,6 +562,30 @@ const AdminSettingsPage: React.FC = () => {
                 label="Enable Versioning"
                 checked={settings.enableVersioning}
                 onChange={() => handleToggle('enableVersioning')}
+              />
+            </div>
+          </Card>
+
+          <Card className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Footer Settings</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input
+                label="Footer Text"
+                type="text"
+                id="footerText"
+                name="footerText"
+                value={settings.footerText}
+                onChange={handleChange}
+                required
+              />
+              <Input
+                label="Copyright Text"
+                type="text"
+                id="copyrightText"
+                name="copyrightText"
+                value={settings.copyrightText}
+                onChange={handleChange}
+                required
               />
             </div>
           </Card>

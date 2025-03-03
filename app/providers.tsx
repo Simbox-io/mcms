@@ -3,6 +3,7 @@
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import type { ThemeProviderProps } from "next-themes/dist/types"
 import { SessionProvider } from 'next-auth/react'
+import { ToastProvider } from '@/components/providers/toast-provider'
 
 export default function Providers({
   children,
@@ -11,7 +12,9 @@ export default function Providers({
 }) {
   return (
     <SessionProvider>
+      <ToastProvider>
         {children}
+      </ToastProvider>
     </SessionProvider>
   );
 }

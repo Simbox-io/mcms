@@ -1,0 +1,1316 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Forum models
+model User {
+  id                    String                 @id @default(uuid())
+  username              String                 @unique
+  email                 String                 @unique
+  passwordHash          String
+  firstName             String?
+  lastName              String?
+  avatar                String?
+  bio                   String?
+  role                  Role                   @default(USER)
+  userRole              UserRole?              @relation(fields: [userRoleId], references: [id])
+  userRoleId            String?
+  posts                 Post[]
+  comments              Comment[]
+  files                 File[]
+  ownedProjects         Project[]              @relation("OwnedProjects")
+  collaboratedProjects  Project[]              @relation("CollaboratedProjects")
+  followedBy            User[]                 @relation("UserFollows")
+  following             User[]                 @relation("UserFollows")
+  bookmarks             Bookmark[]
+  commentReactions      CommentReaction[]
+  fileReactions         FileReaction[]
+  notifications         Notification[]
+  activities            Activity[]
+  studentRole           SchoolRole             @default(STUDENT)
+  courses               Course[]
+  enrollments           Enrollment[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  profile               Profile?
+  settings              UserSettings?
+  badges                Badge[]
+  points                Int                    @default(0)
+  progress              Progress[]
+  assignmentSubmissions AssignmentSubmission[]
+  quizSubmissions       QuizSubmission[]
+  forumTopics           ForumTopic[]           @relation("ForumTopicAuthor")
+  forumPosts            ForumPost[]            @relation("ForumPostAuthor")
+}
+
+model UserSettings {
+  id                      String                   @id @default(uuid())
+  user                    User                     @relation(fields: [userId], references: [id])
+  userId                  String                   @unique
+  notificationPreferences NotificationPreferences?
+  privacySettings         PrivacySettings?
+  languagePreference      String?
+  themePreference         ThemePreference?
+  emailVerified           Boolean                  @default(false)
+  passwordResetSettings   PasswordResetSettings?
+  accountDeletionSettings AccountDeletionSettings?
+}
+
+model NotificationPreferences {
+  id             String       @id @default(uuid())
+  userSettings   UserSettings @relation(fields: [userSettingsId], references: [id])
+  userSettingsId String       @unique
+  email          Boolean      @default(true)
+  push           Boolean      @default(true)
+  inApp          Boolean      @default(true)
+}
+
+model PrivacySettings {
+  id                 String       @id @default(uuid())
+  userSettings       UserSettings @relation(fields: [userSettingsId], references: [id])
+  userSettingsId     String       @unique
+  profileVisibility  Visibility   @default(PUBLIC)
+  activityVisibility Visibility   @default(PUBLIC)
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum ThemePreference {
+  LIGHT
+  DARK
+}
+
+model PasswordResetSettings {
+  id             String       @id @default(uuid())
+  userSettings   UserSettings @relation(fields: [userSettingsId], references: [id])
+  userSettingsId String       @unique
+  // Add fields related to password reset settings
+}
+
+model AccountDeletionSettings {
+  id             String       @id @default(uuid())
+  userSettings   UserSettings @relation(fields: [userSettingsId], references: [id])
+  userSettingsId String       @unique
+  // Add fields related to account deletion settings
+}
+
+// Forum models
+model ForumCategory {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  slug        String       @unique
+  topics      ForumTopic[]
+  order       Int          @default(0)
+  icon        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model ForumTopic {
+  id           String        @id @default(uuid())
+  title        String
+  content      String
+  slug         String        @unique
+  author       User          @relation(fields: [authorId], references: [id])
+  authorId     String
+  category     ForumCategory @relation(fields: [categoryId], references: [id])
+  categoryId   String
+  posts        ForumPost[]
+  viewCount    Int           @default(0)
+  isPinned     Boolean       @default(false)
+  isLocked     Boolean       @default(false)
+  tags         String[]
+  lastPostId   String?
+  lastPostAt   DateTime?
+  lastPostUser String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model ForumPost {
+  id        String      @id @default(uuid())
+  content   String
+  author    User        @relation(fields: [authorId], references: [id])
+  authorId  String
+  topic     ForumTopic  @relation(fields: [topicId], references: [id])
+  topicId   String
+  parentId  String?
+  parent    ForumPost?  @relation("PostReplies", fields: [parentId], references: [id])
+  replies   ForumPost[] @relation("PostReplies")
+  isEdited  Boolean     @default(false)
+  reactions String[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Profile {
+  id          String       @id @default(uuid())
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String       @unique
+  bio         String?
+  location    String?
+  website     String?
+  socialLinks SocialLink[]
+  skills      Skill[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model SocialLink {
+  id        String   @id @default(uuid())
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  profileId String
+  platform  String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Skill {
+  id        String   @id @default(uuid())
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  profileId String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id          String        @id @default(uuid())
+  title       String
+  content     String
+  author      User          @relation(fields: [authorId], references: [id])
+  authorId    String
+  tags        Tag[]
+  comments    Comment[]
+  likes       Int           @default(0)
+  views       Int           @default(0)
+  isFeatured  Boolean       @default(false)
+  isPinned    Boolean       @default(false)
+  isPublished Boolean       @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  bookmarks   Bookmark[]
+  settings    PostSettings?
+}
+
+model Image {
+  id          Int      @id @default(autoincrement())
+  fileName    String   @unique
+  url         String
+  contentType String
+  data        Bytes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PostSettings {
+  id                      String                   @id @default(uuid())
+  post                    Post                     @relation(fields: [postId], references: [id])
+  postId                  String                   @unique
+  defaultVisibility       Visibility               @default(PUBLIC)
+  commentSettings         CommentSettings?
+  sharingSettings         SharingSettings?
+  revisionHistorySettings RevisionHistorySettings?
+}
+
+model QuillPost {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plugin {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  active    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommentSettings {
+  id                   String                @id @default(uuid())
+  moderationSettings   ModerationSettings?
+  notificationSettings NotificationSettings?
+  threadingSettings    ThreadingSettings?
+  votingSettings       VotingSettings?
+  postSettings         PostSettings          @relation(fields: [postSettingsId], references: [id])
+  postSettingsId       String                @unique
+  allowComments        Boolean               @default(true)
+  moderateComments     Boolean               @default(false)
+  notifyAuthor         Boolean               @default(false)
+  notifyCommenters     Boolean               @default(false)
+}
+
+model SharingSettings {
+  id             String          @id @default(uuid())
+  postSettings   PostSettings    @relation(fields: [postSettingsId], references: [id])
+  postSettingsId String          @unique
+  allowSharing   Boolean         @default(true)
+  sharePlatforms SharePlatform[]
+}
+
+enum SharePlatform {
+  FACEBOOK
+  TWITTER
+  LINKEDIN
+  // Add more platforms as needed
+}
+
+model RevisionHistorySettings {
+  id              String       @id @default(uuid())
+  postSettings    PostSettings @relation(fields: [postSettingsId], references: [id])
+  postSettingsId  String       @unique
+  revisionsToKeep Int          @default(10)
+}
+
+model Comment {
+  id         String            @id @default(uuid())
+  content    String
+  author     User              @relation(fields: [authorId], references: [id])
+  authorId   String
+  post       Post?             @relation(fields: [postId], references: [id])
+  postId     String?
+  file       File?             @relation(fields: [fileId], references: [id])
+  fileId     String?
+  project    Project?          @relation(fields: [projectId], references: [id])
+  projectId  String?
+  page       Page?             @relation(fields: [pageId], references: [id])
+  pageId     String?
+  parent     Comment?          @relation("CommentParent", fields: [parentId], references: [id])
+  parentId   String?
+  children   Comment[]         @relation("CommentParent")
+  reactions  CommentReaction[]
+  upvotes    Int               @default(0)
+  downvotes  Int               @default(0)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  tutorial   Tutorial?         @relation(fields: [tutorialId], references: [id])
+  tutorialId String?
+}
+
+model ModerationSettings {
+  id                String          @id @default(uuid())
+  commentSettings   CommentSettings @relation(fields: [commentSettingsId], references: [id])
+  commentSettingsId String          @unique
+  preModeration     Boolean         @default(false)
+  postModeration    Boolean         @default(false)
+}
+
+model ThreadingSettings {
+  id                String          @id @default(uuid())
+  commentSettings   CommentSettings @relation(fields: [commentSettingsId], references: [id])
+  commentSettingsId String          @unique
+  allowNesting      Boolean         @default(true)
+  maxDepth          Int             @default(50)
+}
+
+model VotingSettings {
+  id                String          @id @default(uuid())
+  commentSettings   CommentSettings @relation(fields: [commentSettingsId], references: [id])
+  commentSettingsId String          @unique
+  allowVoting       Boolean         @default(true)
+  hideThreshold     Int             @default(-5)
+}
+
+model CommentReaction {
+  id        String       @id @default(uuid())
+  comment   Comment      @relation(fields: [commentId], references: [id])
+  commentId String
+  user      User         @relation(fields: [userId], references: [id])
+  userId    String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, commentId], name: "userId_commentId")
+}
+
+model File {
+  id           String         @id @default(uuid())
+  name         String
+  url          String
+  description  String?
+  contentType  String
+  likes        Int            @default(0)
+  views        Int            @default(0)
+  isPublic     Boolean        @default(false)
+  project      Project?       @relation(fields: [projectId], references: [id])
+  projectId    String?
+  uploadedBy   User           @relation(fields: [uploadedById], references: [id])
+  uploadedById String
+  tags         Tag[]
+  comments     Comment[]
+  parent       File?          @relation("FileParent", fields: [parentId], references: [id])
+  parentId     String?
+  children     File[]         @relation("FileParent")
+  reactions    FileReaction[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  bookmarks    Bookmark[]
+  settings     FileSettings?
+}
+
+model FileSettings {
+  id                 String              @id @default(uuid())
+  file               File                @relation(fields: [fileId], references: [id])
+  fileId             String              @unique
+  uploadLimits       UploadLimits?
+  downloadSettings   DownloadSettings?
+  expirationSettings ExpirationSettings?
+  versioningSettings VersioningSettings?
+  metadataSettings   MetadataSettings?
+}
+
+model UploadLimits {
+  id               String       @id @default(uuid())
+  fileSettings     FileSettings @relation(fields: [fileSettingsId], references: [id])
+  fileSettingsId   String       @unique
+  maxFileSize      Int          @default(10485760) // 10 MB
+  allowedFileTypes String[]
+}
+
+model DownloadSettings {
+  id                  String       @id @default(uuid())
+  fileSettings        FileSettings @relation(fields: [fileSettingsId], references: [id])
+  fileSettingsId      String       @unique
+  requireLogin        Boolean      @default(false)
+  allowPublicDownload Boolean      @default(true)
+}
+
+model ExpirationSettings {
+  id               String       @id @default(uuid())
+  fileSettings     FileSettings @relation(fields: [fileSettingsId], references: [id])
+  fileSettingsId   String       @unique
+  autoDelete       Boolean      @default(false)
+  expirationPeriod Int          @default(30) // 30 days
+}
+
+model VersioningSettings {
+  id             String       @id @default(uuid())
+  fileSettings   FileSettings @relation(fields: [fileSettingsId], references: [id])
+  fileSettingsId String       @unique
+  keepVersions   Boolean      @default(false)
+  // Add fields related to versioning settings
+}
+
+model MetadataSettings {
+  id                  String       @id @default(uuid())
+  fileSettings        FileSettings @relation(fields: [fileSettingsId], references: [id])
+  fileSettingsId      String       @unique
+  allowCustomMetadata Boolean      @default(false)
+  // Add fields related to metadata settings
+}
+
+model FileReaction {
+  id        String       @id @default(uuid())
+  file      File         @relation(fields: [fileId], references: [id])
+  fileId    String
+  user      User         @relation(fields: [userId], references: [id])
+  userId    String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, fileId], name: "userId_fileId")
+}
+
+model Project {
+  id            String           @id @default(uuid())
+  name          String
+  description   String
+  owner         User             @relation("OwnedProjects", fields: [ownerId], references: [id])
+  ownerId       String
+  likes         Int              @default(0)
+  views         Int              @default(0)
+  collaborators User[]           @relation("CollaboratedProjects")
+  files         File[]
+  tags          Tag[]
+  comments      Comment[]
+  spaces        Space[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  bookmarks     Bookmark[]
+  settings      ProjectSettings?
+}
+
+model ProjectSettings {
+  id                    String                       @id @default(uuid())
+  project               Project                      @relation(fields: [projectId], references: [id])
+  projectId             String                       @unique
+  visibilitySettings    VisibilitySettings?
+  collaborationSettings CollaborationSettings?
+  notificationSettings  ProjectNotificationSettings?
+}
+
+model VisibilitySettings {
+  id                String          @id @default(uuid())
+  projectSettings   ProjectSettings @relation(fields: [projectSettingsId], references: [id])
+  projectSettingsId String          @unique
+  visibility        Visibility      @default(PRIVATE)
+}
+
+model CollaborationSettings {
+  id                 String             @id @default(uuid())
+  projectSettings    ProjectSettings    @relation(fields: [projectSettingsId], references: [id])
+  projectSettingsId  String             @unique
+  allowCollaborators Boolean            @default(true)
+  collaboratorRoles  CollaboratorRole[]
+}
+
+enum CollaboratorRole {
+  VIEWER
+  EDITOR
+  ADMIN
+}
+
+model ProjectNotificationSettings {
+  id                String          @id @default(uuid())
+  projectSettings   ProjectSettings @relation(fields: [projectSettingsId], references: [id])
+  projectSettingsId String          @unique
+  notifyOnActivity  Boolean         @default(true)
+  notifyOnMentions  Boolean         @default(true)
+}
+
+model AdminSettings {
+  id                       Int      @id @unique @default(1)
+  siteTitle                String
+  siteDescription          String
+  logo                     String
+  accentColor              String
+  fileStorageProvider      String   @default("local")
+  s3AccessKey              String?
+  s3SecretKey              String?
+  s3BucketName             String?
+  s3Region                 String?
+  ftpHost                  String?
+  ftpUser                  String?
+  ftpPassword              String?
+  ftpDirectory             String?
+  emailDigestSubject       String?
+  emailSignature           String?
+  maxFileSize              Int
+  allowedFileTypes         String[]
+  requireEmailVerification Boolean  @default(false)
+  requireAccountApproval   Boolean  @default(false)
+  enableUserRegistration   Boolean  @default(true)
+  requireLoginToDownload   Boolean  @default(false)
+  autoDeleteFiles          Boolean  @default(false)
+  fileExpirationPeriod     Int      @default(30)
+  enableVersioning         Boolean  @default(false)
+  emailProvider            String
+  smtpHost                 String?
+  smtpPort                 Int?
+  smtpSecure               Boolean?
+  smtpAuthUser             String?
+  smtpAuthPass             String?
+  sesRegion                String?
+  sesAccessKey             String?
+  sesSecretAccessKey       String?
+  emailFrom                String?
+  footerText               String?
+  copyrightText            String?
+  databaseType             String
+  databaseUrl              String
+}
+
+model Tag {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  posts     Post[]
+  files     File[]
+  projects  Project[]
+  tutorials Tutorial[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  course    Course?    @relation(fields: [courseId], references: [id])
+  courseId  String?
+}
+
+model Badge {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  icon        String
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Space {
+  id            String         @id @default(uuid())
+  name          String
+  description   String?
+  owner         User           @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  likes         Int            @default(0)
+  collaborators User[]         @relation("CollaboratedSpaces")
+  pages         Page[]
+  project       Project?       @relation(fields: [projectId], references: [id])
+  projectId     String?
+  views         SpaceView[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bookmarks     Bookmark[]
+  settings      SpaceSettings?
+}
+
+model SpaceSettings {
+  id                     String                      @id @default(uuid())
+  space                  Space                       @relation(fields: [spaceId], references: [id])
+  spaceId                String                      @unique
+  accessControlSettings  AccessControlSettings?
+  collaborationSettings  SpaceCollaborationSettings?
+  versionControlSettings VersionControlSettings?
+  exportSettings         ExportSettings?
+  backupSettings         BackupSettings?
+}
+
+model AccessControlSettings {
+  id              String        @id @default(uuid())
+  spaceSettings   SpaceSettings @relation(fields: [spaceSettingsId], references: [id])
+  spaceSettingsId String        @unique
+  visibility      Visibility    @default(PRIVATE)
+  password        String?
+}
+
+model SpaceCollaborationSettings {
+  id                 String             @id @default(uuid())
+  spaceSettings      SpaceSettings      @relation(fields: [spaceSettingsId], references: [id])
+  spaceSettingsId    String             @unique
+  allowCollaborators Boolean            @default(true)
+  collaboratorRoles  CollaboratorRole[]
+}
+
+model VersionControlSettings {
+  id                      String        @id @default(uuid())
+  spaceSettings           SpaceSettings @relation(fields: [spaceSettingsId], references: [id])
+  spaceSettingsId         String        @unique
+  enableVersioning        Boolean       @default(false)
+  versionNamingConvention String        @default("v{major}.{minor}.{patch}")
+}
+
+model ExportSettings {
+  id              String         @id @default(uuid())
+  spaceSettings   SpaceSettings  @relation(fields: [spaceSettingsId], references: [id])
+  spaceSettingsId String         @unique
+  allowExport     Boolean        @default(true)
+  exportFormats   ExportFormat[]
+}
+
+enum ExportFormat {
+  PDF
+  MARKDOWN
+  HTML
+  // Add more export formats as needed
+}
+
+model BackupSettings {
+  id               String          @id @default(uuid())
+  spaceSettings    SpaceSettings   @relation(fields: [spaceSettingsId], references: [id])
+  spaceSettingsId  String          @unique
+  enableAutoBackup Boolean         @default(false)
+  backupFrequency  BackupFrequency @default(DAILY)
+}
+
+enum BackupFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+model Page {
+  id        String        @id @default(uuid())
+  title     String
+  content   String
+  space     Space         @relation(fields: [spaceId], references: [id])
+  spaceId   String
+  likes     Int           @default(0)
+  views     Int           @default(0)
+  comments  Comment[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  version   Int           @default(1)
+  bookmarks Bookmark[]
+  settings  PageSettings?
+}
+
+model PageSettings {
+  id                      String                       @id @default(uuid())
+  page                    Page                         @relation(fields: [pageId], references: [id])
+  pageId                  String                       @unique
+  seoSettings             SeoSettings?
+  revisionHistorySettings PageRevisionHistorySettings?
+  commentingSettings      PageCommentingSettings?
+}
+
+model SeoSettings {
+  id              String       @id @default(uuid())
+  pageSettings    PageSettings @relation(fields: [pageSettingsId], references: [id])
+  pageSettingsId  String       @unique
+  metaTitle       String?
+  metaDescription String?
+  openGraphTags   Json?
+}
+
+model PageRevisionHistorySettings {
+  id              String       @id @default(uuid())
+  pageSettings    PageSettings @relation(fields: [pageSettingsId], references: [id])
+  pageSettingsId  String       @unique
+  revisionsToKeep Int          @default(10)
+}
+
+model PageCommentingSettings {
+  id               String       @id @default(uuid())
+  pageSettings     PageSettings @relation(fields: [pageSettingsId], references: [id])
+  pageSettingsId   String       @unique
+  allowComments    Boolean      @default(true)
+  moderateComments Boolean      @default(false)
+}
+
+model SpaceView {
+  id        String   @id @default(uuid())
+  space     Space    @relation(fields: [spaceId], references: [id])
+  spaceId   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@unique([spaceId, userId])
+}
+
+model Tutorial {
+  id            String            @id @default(uuid())
+  title         String
+  content       String
+  author        User              @relation(fields: [authorId], references: [id])
+  authorId      String
+  collaborators User[]            @relation("CollaboratedTutorials")
+  tags          Tag[]
+  comments      Comment[]
+  likes         Int               @default(0)
+  views         Int               @default(0)
+  isFeatured    Boolean           @default(false)
+  isPinned      Boolean           @default(false)
+  isPublished   Boolean           @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  bookmarks     Bookmark[]
+  settings      TutorialSettings?
+  prerequisite  Prerequisite[]
+}
+
+model TutorialSettings {
+  id              String           @id @default(uuid())
+  tutorial        Tutorial         @relation(fields: [tutorialId], references: [id])
+  tutorialId      String           @unique
+  difficultyLevel DifficultyLevel?
+  prerequisites   Prerequisite[]
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model Prerequisite {
+  id                 String           @id @default(uuid())
+  tutorialSettings   TutorialSettings @relation(fields: [tutorialSettingsId], references: [id])
+  tutorialSettingsId String
+  requiredKnowledge  String
+  requiredTutorial   Tutorial?        @relation(fields: [requiredTutorialId], references: [id])
+  requiredTutorialId String?
+}
+
+model Notification {
+  id        String                @id @default(uuid())
+  user      User                  @relation(fields: [userId], references: [id])
+  userId    String
+  message   String
+  content   String?
+  link      String?
+  isRead    Boolean               @default(false)
+  isHidden  Boolean               @default(false)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  settings  NotificationSettings?
+}
+
+model NotificationSettings {
+  id                String                 @id @default(uuid())
+  notification      Notification           @relation(fields: [notificationId], references: [id])
+  notificationId    String                 @unique
+  channels          NotificationChannel[]  @default([EMAIL, PUSH, IN_APP])
+  frequency         NotificationFrequency? @default(REAL_TIME)
+  commentSettings   CommentSettings        @relation(fields: [commentSettingsId], references: [id])
+  commentSettingsId String                 @unique
+  notifyAuthor      Boolean                @default(true)
+  notifyCommenters  Boolean                @default(true)
+  preferences       Json?
+  templates         Json?
+}
+
+enum NotificationChannel {
+  EMAIL
+  PUSH
+  IN_APP
+}
+
+enum NotificationFrequency {
+  REAL_TIME
+  DAILY_DIGEST
+  WEEKLY_DIGEST
+}
+
+model Activity {
+  id           String       @id @default(uuid())
+  user         User         @relation(fields: [userId], references: [id])
+  userId       String
+  activityType ActivityType
+  entityId     String
+  entityType   EntityType
+  createdAt    DateTime     @default(now())
+}
+
+model Bookmark {
+  id         String    @id @default(uuid())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+  post       Post?     @relation(fields: [postId], references: [id])
+  postId     String?
+  file       File?     @relation(fields: [fileId], references: [id])
+  fileId     String?
+  project    Project?  @relation(fields: [projectId], references: [id])
+  projectId  String?
+  space      Space?    @relation(fields: [spaceId], references: [id])
+  spaceId    String?
+  page       Page?     @relation(fields: [pageId], references: [id])
+  pageId     String?
+  tutorial   Tutorial? @relation(fields: [tutorialId], references: [id])
+  tutorialId String?
+  createdAt  DateTime  @default(now())
+}
+
+model Course {
+  id            String           @id @default(uuid())
+  title         String
+  description   String
+  image         String
+  instructor    User             @relation(fields: [instructorId], references: [id])
+  instructorId  String
+  enrollments   Enrollment[]
+  lessons       Lesson[]
+  categories    CourseCategory[]
+  tags          Tag[]
+  announcements Announcement[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  courseTag     CourseTag?       @relation(fields: [courseTagId], references: [id])
+  courseTagId   String?
+}
+
+model Lesson {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  videoUrl    String
+  course      Course       @relation(fields: [courseId], references: [id])
+  courseId    String
+  content     String
+  duration    Int?
+  published   Boolean      @default(false)
+  quizzes     Quiz[]
+  assignments Assignment[]
+  progress    Progress[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime
+}
+
+model Enrollment {
+  id          String    @id @default(uuid())
+  student     User      @relation(fields: [studentId], references: [id])
+  studentId   String
+  course      Course    @relation(fields: [courseId], references: [id])
+  courseId    String
+  review      Review?
+  enrolledAt  DateTime  @default(now())
+  progress    Float     @default(0)
+  completedAt DateTime?
+}
+
+model Progress {
+  id          String    @id @default(uuid())
+  student     User      @relation(fields: [studentId], references: [id])
+  studentId   String
+  lesson      Lesson    @relation(fields: [lessonId], references: [id])
+  lessonId    String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+}
+
+model Quiz {
+  id             String           @id @default(uuid())
+  title          String
+  description    String
+  lesson         Lesson           @relation(fields: [lessonId], references: [id])
+  lessonId       String
+  dueDate        DateTime?
+  questions      QuizQuestion[]
+  quizSubmissions QuizSubmission[]
+}
+
+model QuizQuestion {
+  id            String   @id @default(uuid())
+  question      String
+  choices       String[]
+  correctAnswer String
+  quiz          Quiz     @relation(fields: [quizId], references: [id])
+  quizId        String
+}
+
+model Assignment {
+  id                   String                 @id @default(uuid())
+  title                String
+  description          String
+  dueDate              DateTime
+  lesson               Lesson                 @relation(fields: [lessonId], references: [id])
+  lessonId             String
+  assignmentSubmissions AssignmentSubmission[]
+}
+
+model CourseCategory {
+  id      String   @id @default(uuid())
+  name    String
+  courses Course[]
+}
+
+model CourseTag {
+  id      String   @id @default(uuid())
+  name    String
+  courses Course[]
+}
+
+model Review {
+  id           String     @id @default(uuid())
+  rating       Int
+  comment      String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
+  enrollmentId String     @unique
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  course    Course   @relation(fields: [courseId], references: [id])
+  courseId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AssignmentSubmission {
+  id           String     @id @default(uuid())
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  solution     String
+  submittedAt  DateTime   @default(now())
+}
+
+model QuizSubmission {
+  id          String   @id @default(uuid())
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  quizId      String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  answers     String[]
+  submittedAt DateTime @default(now())
+}
+
+enum SchoolRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum ReactionType {
+  LIKE
+  LOVE
+  HAHA
+  WOW
+  SAD
+  ANGRY
+}
+
+enum ActivityType {
+  POST_CREATED
+  POST_UPDATED
+  POST_DELETED
+  POST_PUBLISHED
+  POST_UNPUBLISHED
+  POST_FEATURED
+  POST_UNFEATURED
+  POST_PINNED
+  POST_UNPINNED
+  POST_LIKED
+  POST_UNLIKED
+  POST_VIEWED
+  POST_COMMENTED
+  POST_COMMENT_UPDATED
+  POST_COMMENT_DELETED
+  POST_TAGGED
+  POST_UNTAGGED
+  POST_BOOKMARKED
+  POST_UNBOOKMARKED
+  COMMENT_CREATED
+  COMMENT_UPDATED
+  COMMENT_DELETED
+  COMMENT_LIKED
+  COMMENT_UNLIKED
+  COMMENT_REACTED
+  COMMENT_REACTION_REMOVED
+  FILE_UPLOADED
+  FILE_UPDATED
+  FILE_DELETED
+  FILE_DOWNLOADED
+  FILE_LIKED
+  FILE_UNLIKED
+  FILE_REACTED
+  FILE_REACTION_REMOVED
+  FILE_COMMENTED
+  FILE_COMMENT_UPDATED
+  FILE_COMMENT_DELETED
+  FILE_TAGGED
+  FILE_UNTAGGED
+  FILE_BOOKMARKED
+  FILE_UNBOOKMARKED
+  PROJECT_CREATED
+  PROJECT_UPDATED
+  PROJECT_DELETED
+  PROJECT_TAGGED
+  PROJECT_UNTAGGED
+  PROJECT_BOOKMARKED
+  PROJECT_UNBOOKMARKED
+  PROJECT_COLLABORATOR_ADDED
+  PROJECT_COLLABORATOR_REMOVED
+  SPACE_CREATED
+  SPACE_UPDATED
+  SPACE_DELETED
+  SPACE_VIEWED
+  SPACE_BOOKMARKED
+  SPACE_UNBOOKMARKED
+  SPACE_COLLABORATOR_ADDED
+  SPACE_COLLABORATOR_REMOVED
+  PAGE_CREATED
+  PAGE_UPDATED
+  PAGE_DELETED
+  PAGE_VIEWED
+  PAGE_VERSIONED
+  PAGE_REVERTED
+  PAGE_BOOKMARKED
+  PAGE_UNBOOKMARKED
+  PAGE_COMMENTED
+  PAGE_COMMENT_UPDATED
+  PAGE_COMMENT_DELETED
+  TUTORIAL_CREATED
+  TUTORIAL_UPDATED
+  TUTORIAL_DELETED
+  TUTORIAL_PUBLISHED
+  TUTORIAL_UNPUBLISHED
+  TUTORIAL_FEATURED
+  TUTORIAL_UNFEATURED
+  TUTORIAL_PINNED
+  TUTORIAL_UNPINNED
+  TUTORIAL_LIKED
+  TUTORIAL_UNLIKED
+  TUTORIAL_VIEWED
+  TUTORIAL_BOOKMARKED
+  TUTORIAL_UNBOOKMARKED
+  TUTORIAL_COLLABORATOR_ADDED
+  TUTORIAL_COLLABORATOR_REMOVED
+  USER_REGISTERED
+  USER_UPDATED
+  USER_DELETED
+  USER_BLOCKED
+  USER_UNBLOCKED
+  USER_FOLLOWED
+  USER_UNFOLLOWED
+  USER_ROLE_CHANGED
+  ADMIN_USER_CREATED
+  ADMIN_USER_UPDATED
+  ADMIN_USER_DELETED
+  ADMIN_USER_BLOCKED
+  ADMIN_USER_UNBLOCKED
+  ADMIN_USER_ROLE_CHANGED
+  ADMIN_POST_CREATED
+  ADMIN_POST_UPDATED
+  ADMIN_POST_DELETED
+  ADMIN_POST_PUBLISHED
+  ADMIN_POST_UNPUBLISHED
+  ADMIN_POST_FEATURED
+  ADMIN_POST_UNFEATURED
+  ADMIN_POST_PINNED
+  ADMIN_POST_UNPINNED
+  ADMIN_COMMENT_CREATED
+  ADMIN_COMMENT_UPDATED
+  ADMIN_COMMENT_DELETED
+  ADMIN_FILE_UPLOADED
+  ADMIN_FILE_UPDATED
+  ADMIN_FILE_DELETED
+  ADMIN_PROJECT_CREATED
+  ADMIN_PROJECT_UPDATED
+  ADMIN_PROJECT_DELETED
+  ADMIN_SPACE_CREATED
+  ADMIN_SPACE_UPDATED
+  ADMIN_SPACE_DELETED
+  ADMIN_PAGE_CREATED
+  ADMIN_PAGE_UPDATED
+  ADMIN_PAGE_DELETED
+  ADMIN_TUTORIAL_CREATED
+  ADMIN_TUTORIAL_UPDATED
+  ADMIN_TUTORIAL_DELETED
+  ADMIN_TUTORIAL_PUBLISHED
+  ADMIN_TUTORIAL_UNPUBLISHED
+  ADMIN_TUTORIAL_FEATURED
+  ADMIN_TUTORIAL_UNFEATURED
+  ADMIN_TUTORIAL_PINNED
+  ADMIN_TUTORIAL_UNPINNED
+  ADMIN_SETTINGS_UPDATED
+}
+
+enum EntityType {
+  POST
+  COMMENT
+  FILE
+  PROJECT
+  SPACE
+  PAGE
+  TUTORIAL
+  // Add more entity types as needed
+}
+
+// CMS Management models
+model NavigationMenu {
+  id          String           @id @default(uuid())
+  name        String
+  description String?
+  location    String // header, footer, sidebar, etc.
+  items       NavigationItem[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model NavigationItem {
+  id           String           @id @default(uuid())
+  title        String
+  url          String? // External URL or internal path
+  icon         String?
+  order        Int              @default(0)
+  openInNewTab Boolean          @default(false)
+  menu         NavigationMenu   @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  menuId       String
+  parentId     String?
+  parent       NavigationItem?  @relation("SubItems", fields: [parentId], references: [id])
+  children     NavigationItem[] @relation("SubItems")
+  requiresAuth Boolean          @default(false)
+  requiredRole String? // ADMIN, EDITOR, etc.
+  isEnabled    Boolean          @default(true)
+  targetModule String? // Reference to ModuleConfig
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model ModuleConfig {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  isEnabled    Boolean  @default(true)
+  icon         String?
+  settings     Json?
+  permissions  Json? // Permissions configuration for this module
+  requiredRole String? // Minimum role needed to access
+  adminRoute   String? // Path to admin interface
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model UserRole {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  permissions Json? // Stored as JSON with module-specific permissions
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[] // Relation to users with this role
+}
+
+model UserRole {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  permissions Json? // Stored as JSON with module-specific permissions
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]   @relation("UserRole")
+}
+
+model User {
+  id                    String                 @id @default(uuid())
+  username              String                 @unique
+  email                 String                 @unique
+  passwordHash          String
+  firstName             String?
+  lastName              String?
+  avatar                String?
+  bio                   String?
+  role                  Role                   @default(USER)
+  userRole              UserRole?              @relation("UserRole", fields: [userRoleId], references: [id])
+  userRoleId            String?
+  posts                 Post[]
+  comments              Comment[]
+  files                 File[]
+  ownedProjects         Project[]              @relation("OwnedProjects")
+  collaboratedProjects  Project[]              @relation("CollaboratedProjects")
+  followedBy            User[]                 @relation("UserFollows")
+  following             User[]                 @relation("UserFollows")
+  bookmarks             Bookmark[]
+  commentReactions      CommentReaction[]
+  fileReactions         FileReaction[]
+  notifications         Notification[]
+  activities            Activity[]
+  studentRole           SchoolRole             @default(STUDENT)
+  courses               Course[]
+  enrollments           Enrollment[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  profile               Profile?
+  settings              UserSettings?
+  badges                Badge[]
+  points                Int                    @default(0)
+  progress              Progress[]
+  assignmentSubmissions AssignmentSubmission[]
+  quizSubmissions       QuizSubmission[]
+  forumTopics           ForumTopic[]           @relation("ForumTopicAuthorRel", fields: [forumTopicAuthorId], references: [id])
+  forumPosts            ForumPost[]            @relation("ForumPostAuthorRel", fields: [forumPostAuthorId], references: [id])
+}
+
+model Project {
+  id            String           @id @default(uuid())
+  name          String
+  description   String
+  owner         User             @relation("OwnedProjects", fields: [ownerId], references: [id])
+  ownerId       String
+  likes         Int              @default(0)
+  views         Int              @default(0)
+  collaborators User[]           @relation("CollaboratedProjects")
+  files         File[]
+  tags          Tag[]
+  comments      Comment[]
+  spaces        Space[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  bookmarks     Bookmark[]
+  settings      ProjectSettings?
+}
+
+model Space {
+  id            String         @id @default(uuid())
+  name          String
+  description   String?
+  owner         User           @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  likes         Int            @default(0)
+  collaborators User[]         @relation("CollaboratedSpaces")
+  pages         Page[]
+  project       Project?       @relation(fields: [projectId], references: [id])
+  projectId     String?
+  views         SpaceView[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bookmarks     Bookmark[]
+  settings      SpaceSettings?
+}
+
+model ForumTopic {
+  id           String        @id @default(uuid())
+  title        String
+  content      String
+  slug         String        @unique
+  author       User          @relation("ForumTopicAuthorRel", fields: [authorId], references: [id])
+  authorId     String
+  category     ForumCategory @relation(fields: [categoryId], references: [id])
+  categoryId   String
+  posts        ForumPost[]
+  viewCount    Int           @default(0)
+  isPinned     Boolean       @default(false)
+  isLocked     Boolean       @default(false)
+  tags         String[]
+  lastPostId   String?
+  lastPostAt   DateTime?
+  lastPostUser String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model ForumPost {
+  id        String      @id @default(uuid())
+  content   String
+  author    User        @relation("ForumPostAuthorRel", fields: [authorId], references: [id])
+  authorId  String
+  topic     ForumTopic  @relation(fields: [topicId], references: [id])
+  topicId   String
+  parentId  String?
+  parent    ForumPost?  @relation("PostReplies", fields: [parentId], references: [id])
+  replies   ForumPost[] @relation("PostReplies")
+  isEdited  Boolean     @default(false)
+  reactions String[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Tutorial {
+  id            String            @id @default(uuid())
+  title         String
+  content       String
+  author        User              @relation(fields: [authorId], references: [id])
+  authorId      String
+  collaborators User[]            @relation("CollaboratedTutorials")
+  tags          Tag[]
+  comments      Comment[]
+  likes         Int               @default(0)
+  views         Int               @default(0)
+  isFeatured    Boolean           @default(false)
+  isPinned      Boolean           @default(false)
+  isPublished   Boolean           @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  bookmarks     Bookmark[]
+  settings      TutorialSettings?
+  prerequisite  Prerequisite[]
+}

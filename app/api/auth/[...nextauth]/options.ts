@@ -1,7 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import prisma, { User } from '@/lib/prisma';
-import { compare } from 'bcrypt';
+import { compare } from 'bcryptjs';
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -20,18 +20,9 @@ const authOptions: NextAuthOptions = {
           where: {
             email: credentials.email,
           },
-          include: {
-            profile: true,
-            settings: {
-              include: {
-                notificationPreferences: true,
-                privacySettings: true,
-              },
-            },
-          },
         });
 
-        if (!user || !(await compare(credentials.password, user.passwordHash))) {
+        if (!user || !(await compare(credentials.password, user.password_hash))) {
           throw new Error('Invalid credentials');
         }
 

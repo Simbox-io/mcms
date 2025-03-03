@@ -64,28 +64,125 @@ const SearchBar: React.FC<SearchBarProps> = ({
         tutorials: [],
         users: [],
       });
+      setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
+
     try {
       const response = await axios.get(`/api/search?q=${encodeURIComponent(query)}`);
-      setSearchResults(response.data.results);
+      const data = response.data;
+
+      // Transform the data into the SearchResult format
+      const posts = data.posts.map((post: any) => ({
+        id: post.id,
+        type: 'post',
+        title: post.title,
+        content: post.content.substring(0, 100) + (post.content.length > 100 ? '...' : ''),
+        author: post.author.username,
+        value: post.title,
+        image: post.author.avatar,
+        url: `/explore/posts/${post.id}`,
+      }));
+
+      const files = data.files.map((file: any) => ({
+        id: file.id,
+        type: 'file',
+        title: file.name,
+        content: file.description || '',
+        author: file.uploadedBy.username,
+        value: file.name,
+        image: file.uploadedBy.avatar,
+        url: `/files/${file.id}`,
+      }));
+
+      const projects = data.projects.map((project: any) => ({
+        id: project.id,
+        type: 'project',
+        title: project.name,
+        content: project.description || '',
+        author: project.owner.username,
+        value: project.name,
+        image: project.owner.avatar,
+        url: `/projects/${project.id}`,
+      }));
+
+      const spaces = data.spaces.map((space: any) => ({
+        id: space.id,
+        type: 'space',
+        title: space.title,
+        content: space.description || '',
+        author: space.owner.username,
+        value: space.title,
+        image: space.owner.avatar,
+        url: `/spaces/${space.id}`,
+      }));
+
+      const tutorials = data.tutorials.map((tutorial: any) => ({
+        id: tutorial.id,
+        type: 'tutorial',
+        title: tutorial.title,
+        content: tutorial.description || '',
+        author: tutorial.author.username,
+        value: tutorial.title,
+        image: tutorial.author.avatar,
+        url: `/tutorials/${tutorial.id}`,
+      }));
+
+      const users = data.users.map((user: any) => ({
+        id: user.id,
+        type: 'profile',
+        title: user.username,
+        content: user.bio || '',
+        author: '',
+        value: user.username,
+        image: user.avatar,
+        url: `/profile/${user.username}`,
+      }));
+
+      setSearchResults({
+        posts,
+        files,
+        projects,
+        spaces,
+        tutorials,
+        users,
+      });
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
+
     setIsLoading(false);
   };
 
-  const debouncedFetchSearchResults = debounce(fetchSearchResults, 500);
+  // Add debounced function for search
+  const debouncedSearch = useRef(
+    debounce(async (query: string) => {
+      await fetchSearchResults(query);
+    }, 300)
+  ).current;
 
   useEffect(() => {
-    if (searchQuery.trim() !== '') {
-      debouncedFetchSearchResults(searchQuery);
+    if (searchQuery) {
+      debouncedSearch(searchQuery);
+      setIsOpen(true);
     } else {
-      setSearchResults({ posts: [], files: [], projects: [], spaces: [], tutorials: [], users: [] });
+      setSearchResults({
+        posts: [],
+        files: [],
+        projects: [],
+        spaces: [],
+        tutorials: [],
+        users: [],
+      });
+      setIsOpen(false);
     }
-  }, [searchQuery]);
+
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [searchQuery, debouncedSearch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +191,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setIsOpen(true);
   };
 
   const handleResultClick = (result: SearchResult) => {
@@ -121,6 +217,83 @@ const SearchBar: React.FC<SearchBarProps> = ({
     };
   }, []);
 
+  // Handle keyboard navigation
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [activeSection, setActiveSection] = useState('');
+  const sections = ['posts', 'files', 'projects', 'spaces', 'tutorials', 'users'];
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isOpen) return;
+
+    // Get total number of items across all sections
+    const totalItems = Object.values(searchResults).reduce(
+      (acc, curr) => acc + curr.length,
+      0
+    );
+
+    // Handle keyboard navigation
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        if (activeIndex < totalItems - 1) {
+          setActiveIndex(activeIndex + 1);
+          
+          // Determine which section the active item is in
+          let itemCount = 0;
+          for (const section of sections) {
+            if (activeIndex + 1 < itemCount + searchResults[section as keyof typeof searchResults].length) {
+              setActiveSection(section);
+              break;
+            }
+            itemCount += searchResults[section as keyof typeof searchResults].length;
+          }
+        }
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        if (activeIndex > 0) {
+          setActiveIndex(activeIndex - 1);
+          
+          // Determine which section the active item is in
+          let itemCount = 0;
+          for (const section of sections) {
+            if (activeIndex - 1 < itemCount + searchResults[section as keyof typeof searchResults].length) {
+              setActiveSection(section);
+              break;
+            }
+            itemCount += searchResults[section as keyof typeof searchResults].length;
+          }
+        }
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (activeIndex >= 0) {
+          // Find the selected result
+          let itemCount = 0;
+          for (const section of sections) {
+            const sectionResults = searchResults[section as keyof typeof searchResults];
+            if (activeIndex < itemCount + sectionResults.length) {
+              const result = sectionResults[activeIndex - itemCount];
+              handleResultClick(result);
+              break;
+            }
+            itemCount += sectionResults.length;
+          }
+        } else {
+          // If no item is selected, search for the current query
+          onSearch(searchQuery);
+          setIsOpen(false);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsOpen(false);
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <form onSubmit={handleSearch} className={`relative ${className}`}>
       <input
@@ -130,6 +303,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         placeholder={placeholder}
         value={searchQuery}
         onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
       />
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         <svg
@@ -163,7 +337,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 <Skeleton className="h-4 w-full mt-2" />
               </div>
             ) : (
-              <SearchResults results={searchResults} onResultClick={handleResultClick} />
+              <SearchResults results={searchResults} onResultClick={handleResultClick} activeIndex={activeIndex} activeSection={activeSection} />
             )}
           </motion.div>
         )}

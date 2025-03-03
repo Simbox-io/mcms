@@ -30,9 +30,39 @@ const ProjectSettingsPage: React.FC = () => {
   const [notifyOnMentions, setNotifyOnMentions] = useState(true);
 
   const handleSaveSettings = async () => {
-    // TODO: Implement API call to save project settings
-    console.log('Project settings saved');
-    router.push(`/projects/${projectId}`);
+    try {
+      const response = await fetch(`/api/projects/${projectId.id}/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          settings: {
+            visibility,
+            collaborationSettings: {
+              allowCollaborators,
+              collaboratorRoles,
+            },
+            notificationSettings: {
+              notifyOnActivity,
+              notifyOnMentions,
+            },
+          },
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Project settings saved successfully');
+        router.push(`/projects/${projectId.id}`);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to save project settings:', errorData.message);
+        // Handle error (could add a toast notification here)
+      }
+    } catch (error) {
+      console.error('Error saving project settings:', error);
+      // Handle error (could add a toast notification here)
+    }
   };
 
   return (

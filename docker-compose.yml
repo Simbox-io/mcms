@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/mcms_db?schema=public
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=your-development-secret-key
+      - NODE_ENV=development
+      - SEED_DATABASE=true
+      - RESET_DATABASE=true
+      - DIRECT_SQL=true
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./.next:/app/.next
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - mcms-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mcms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mcms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+networks:
+  mcms-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

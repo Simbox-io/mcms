@@ -10,6 +10,7 @@ import SearchBar from "@/components/base/SearchBar";
 import Skeleton from './Skeleton';
 import useSWR from 'swr';
 import instance from '@/utils/api';
+import Image from 'next/image';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -22,6 +23,8 @@ const Header: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const user = session?.user as User;
+  const [siteTitle, setSiteTitle] = useState('MCMS');
+  const [siteLogo, setSiteLogo] = useState('');
 
   const fetcher = async (url: string) => {
     const res = await instance.get(url);
@@ -75,6 +78,21 @@ const Header: React.FC = () => {
       setIsNotificationsOpen(false);
     }
   };
+
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        const response = await instance.get('/api/admin/settings');
+        if (response.data) {
+          setSiteTitle(response.data.siteTitle || 'MCMS');
+          setSiteLogo(response.data.logo || '');
+        }
+      } catch (error) {
+        console.error('Error fetching site settings:', error);
+      }
+    };
+    fetchSiteSettings();
+  }, []);
 
   useEffect(() => {
     document.addEventListener('mouseup', handleClickOutside);
@@ -141,80 +159,26 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow z-10">
-      <div className="max-w-8xl mx-auto px-2 sm:px-6 lg:px-12">
-        <div className="flex justify-between items-center h-16">
-          <div className='flex'>
-            <div className="flex flex-shrink space-x-1 items-center">
-              <Link href="/">
-                <div className='flex items-between items-center'>
-                  <img src="/logo.png" alt="" className="h-16 w-16 sm:h-12 sm:w-12" />
-                  <span className="hidden md:block mx-1 mr-4 text-xl font-bold text-blue-600 dark:text-blue-400">MCMS</span>
-                </div>
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex">
+            <div className="flex-shrink-0 flex items-center">
+              <Link href="/" className="flex items-center">
+                {siteLogo ? (
+                  <div className="h-8 w-auto">
+                    <img 
+                      src={siteLogo} 
+                      alt={siteTitle} 
+                      className="h-full object-contain" 
+                    />
+                  </div>
+                ) : (
+                  <span className="text-xl font-bold text-gray-800 dark:text-white">
+                    {siteTitle}
+                  </span>
+                )}
               </Link>
-              <nav className="hidden md:ml-4 md:flex mx-1 space-x-1 xl:space-x-6">
-                <Button
-                  variant="text"
-                  size="medium"
-                  onClick={() => router.push('/explore')}
-                  className="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 rounded-md text-sm font-medium flex items-center"
-                >
-                  Explore
-                </Button>
-                <Button
-                  variant="text"
-                  size="medium"
-                  onClick={() => router.push('/explore/posts')}
-                  className="hidden ml-4 md:block text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 rounded-md text-sm font-medium flex items-center"
-                >
-                  News
-                </Button>
-                <Dropdown
-                  label="Courses"
-                  options={['Dashboard', 'All Courses', 'Featured']}
-                  value=""
-                  onChange={(value) => {
-                    if (value === 'Dashboard') {
-                      router.push('/courses/dashboard');
-                    } else if (value === 'All Courses') {
-                      router.push(`/courses`);
-                    } else if (value === 'Featured') {
-                      router.push(`/courses/featured`);
-                    }
-                    setIsMenuOpen(false);
-                  }}
-                  className="block w-full"
-                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-3 py-2 rounded-md text-base font-medium justify-end"
-                  menuClassName="mt-2 z-10"
-                />
-                <Dropdown
-                  label="Projects"
-                  options={['All Projects', 'Trending', 'Recent', 'My Project 1']}
-                  value=""
-                  onChange={(value) => router.push(`/projects/${value.toLowerCase().replace(' ', '-')}`)}
-                  className="ml-4"
-                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                  menuClassName="mt-2"
-                />
-                <Dropdown
-                  label="Files"
-                  options={['All Files', 'Shared with Me', 'Recent']}
-                  value=""
-                  onChange={(value) => router.push(`/files/${value.toLowerCase().replace(' ', '-')}`)}
-                  className="ml-4"
-                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                  menuClassName="mt-2"
-                />
-                <Dropdown
-                  label="Spaces"
-                  options={['All', 'Recent', 'Space 1', 'Space 2']}
-                  value=""
-                  onChange={(value) => router.push(`/spaces/${value.toLowerCase().replace(' ', '-')}`)}
-                  className="ml-4"
-                  buttonClassName="text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-500 px-2 py-2 rounded-md text-sm font-medium flex items-center"
-                  menuClassName="mt-2"
-                />
-              </nav>
             </div>
           </div>
           <div className="flex items-center">

@@ -16,9 +16,16 @@ interface SearchResultsProps {
         users: SearchResult[];
     };
     onResultClick: (result: SearchResult) => void;
+    activeIndex?: number;
+    activeSection?: string;
 }
 
-const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick }) => {
+const SearchResults: React.FC<SearchResultsProps> = ({ 
+    results, 
+    onResultClick, 
+    activeIndex = -1,
+    activeSection = ''
+}) => {
     const renderIcon = (category: string) => {
         switch (category) {
             case 'Posts':
@@ -38,7 +45,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
         }
     };
 
-    const renderResults = (items: SearchResult[]) => {
+    const renderResults = (items: SearchResult[], section: string, startIndex: number) => {
         if (items?.length === 0 || !items || !items.length || items === undefined || results === undefined || results === null) {
             return (
                 <div className="px-4 py-2">
@@ -47,49 +54,114 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onResultClick })
             );
         }
 
-        return items?.map((result) => (
-            <div
-                key={result.id}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 h-16"
-                onClick={() => onResultClick(result)}
-            >
-                <div className="flex justify-between">
-                    <div className='flex flex-col space-y-2'>
-                        <div className='flex items-center'>
-                            {result.image && <Avatar src={result.image} size="small" className="mr-4" />}
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{result.title}</p>
+        return items?.map((result, idx) => {
+            const isActive = activeSection === section && activeIndex === startIndex + idx;
+            
+            return (
+                <div
+                    key={result.id}
+                    className={`px-4 py-2 cursor-pointer ${isActive ? 'bg-blue-100 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'} h-16 transition-colors duration-150`}
+                    onClick={() => onResultClick(result)}
+                >
+                    <div className="flex justify-between">
+                        <div className='flex flex-col space-y-2'>
+                            <div className='flex items-center'>
+                                {result.image && <Avatar src={result.image} size="small" className="mr-4" />}
+                                <p className={`text-sm font-medium ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'}`}>{result.title}</p>
                             </div>
-                            {result.content && (
-                                <p
-                                    className="text-xs text-gray-500 dark:text-gray-400"
-                                    dangerouslySetInnerHTML={{
-                                        __html: result.content.slice(0, 120) + (result.content.length > 120 ? '...' : ''),
-                                    }}
-                                />
-                            )}
+                            <p className="text-xs text-gray-500 truncate dark:text-gray-400">{result.content}</p>
+                        </div>
+                        {result.author && <span className="text-xs text-gray-400 dark:text-gray-500">{result.author}</span>}
                     </div>
-                    {result.author && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {result.author}
-                        </p>
-                    )}
                 </div>
-            </div>
-        ));
+            );
+        });
     };
 
-    const tabs = [
-        { id: 'posts', label: 'Posts', icon: renderIcon('Posts'), content: renderResults(results?.posts), count: results?.posts?.length },
-        { id: 'files', label: 'Files', icon: renderIcon('Files'), content: renderResults(results?.files), count: results?.files?.length },
-        { id: 'projects', label: 'Projects', icon: renderIcon('Projects'), content: renderResults(results?.projects), count: results?.projects?.length },
-        { id: 'spaces', label: 'Spaces', icon: renderIcon('Spaces'), content: renderResults(results?.spaces), count: results?.spaces?.length },
-        { id: 'tutorials', label: 'Tutorials', icon: renderIcon('Tutorials'), content: renderResults(results?.tutorials), count: results?.tutorials?.length },
-        { id: 'users', label: 'Users', icon: renderIcon('Users'), content: renderResults(results?.users), count: results?.users?.length },
-    ];
+    // Calculate start indices for each category
+    const getStartIndex = (section: string) => {
+        const sections = ['posts', 'files', 'projects', 'spaces', 'tutorials', 'users'];
+        let startIndex = 0;
+        
+        for (const s of sections) {
+            if (s === section) break;
+            startIndex += results[s as keyof typeof results].length;
+        }
+        
+        return startIndex;
+    };
+
+    const totalResults = Object.values(results).reduce((acc, curr) => acc + curr.length, 0);
+
+    if (totalResults === 0) {
+        return (
+            <div className="px-4 py-8">
+                <p className="text-center text-gray-500 dark:text-gray-400">No results found. Try a different search term.</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="bg-white dark:bg-gray-800 shadow-md rounded-md overflow-hidden">
-            <Tabs tabs={tabs} className="h-full w-full md:h-[512px] overflow-y-auto" />
+        <div className="max-h-96 overflow-y-auto">
+            {results.posts?.length > 0 && (
+                <div>
+                    <div className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-50 dark:bg-gray-800 flex items-center">
+                        {renderIcon('Posts')}
+                        <span className="ml-2">Posts</span>
+                    </div>
+                    {renderResults(results.posts, 'posts', getStartIndex('posts'))}
+                </div>
+            )}
+
+            {results.files?.length > 0 && (
+                <div>
+                    <div className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-50 dark:bg-gray-800 flex items-center">
+                        {renderIcon('Files')}
+                        <span className="ml-2">Files</span>
+                    </div>
+                    {renderResults(results.files, 'files', getStartIndex('files'))}
+                </div>
+            )}
+
+            {results.projects?.length > 0 && (
+                <div>
+                    <div className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-50 dark:bg-gray-800 flex items-center">
+                        {renderIcon('Projects')}
+                        <span className="ml-2">Projects</span>
+                    </div>
+                    {renderResults(results.projects, 'projects', getStartIndex('projects'))}
+                </div>
+            )}
+
+            {results.spaces?.length > 0 && (
+                <div>
+                    <div className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-50 dark:bg-gray-800 flex items-center">
+                        {renderIcon('Spaces')}
+                        <span className="ml-2">Spaces</span>
+                    </div>
+                    {renderResults(results.spaces, 'spaces', getStartIndex('spaces'))}
+                </div>
+            )}
+
+            {results.tutorials?.length > 0 && (
+                <div>
+                    <div className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-50 dark:bg-gray-800 flex items-center">
+                        {renderIcon('Tutorials')}
+                        <span className="ml-2">Tutorials</span>
+                    </div>
+                    {renderResults(results.tutorials, 'tutorials', getStartIndex('tutorials'))}
+                </div>
+            )}
+
+            {results.users?.length > 0 && (
+                <div>
+                    <div className="sticky top-0 z-10 px-4 py-2 font-medium bg-gray-50 dark:bg-gray-800 flex items-center">
+                        {renderIcon('Users')}
+                        <span className="ml-2">Users</span>
+                    </div>
+                    {renderResults(results.users, 'users', getStartIndex('users'))}
+                </div>
+            )}
         </div>
     );
 };
