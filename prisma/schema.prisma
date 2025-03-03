@@ -7,7 +7,7 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -39,6 +39,7 @@ model User {
   studentRole           SchoolRole             @default(STUDENT)
   courses               Course[]
   enrollments           Enrollment[]
+  authoredPages         Page[]                 @relation("PageAuthor")
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   profile               Profile?
@@ -114,46 +115,46 @@ model AccountDeletionSettings {
 
 // CMS ModuleConfig model
 model ModuleConfig {
-  id           String  @id @default(uuid())
+  id           String   @id @default(uuid())
   name         String
-  slug         String  @unique
+  slug         String   @unique
   description  String?
-  isEnabled    Boolean @default(true)
+  isEnabled    Boolean  @default(true)
   icon         String?
   adminRoute   String?
-  displayOrder Int     @default(0)
-  settings     Json?   @default("{}")
+  displayOrder Int      @default(0)
+  settings     Json?    @default("{}")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
 
 // CMS SiteSettings model
 model SiteSettings {
-  id                     String   @id @default(uuid())
-  siteTitle              String   @default("MCMS")
-  siteDescription        String   @default("Modern Content Management System")
-  logo                   String?
-  accentColor            String?
-  enableUserRegistration Boolean  @default(true)
-  requireEmailVerification Boolean @default(false)
-  requireAccountApproval Boolean  @default(false)
-  fileStorageProvider    String   @default("local")
-  maxFileSize            Int      @default(10)
-  allowedFileTypes       String[] @default(["jpg", "jpeg", "png", "gif", "pdf", "docx", "xlsx"])
-  emailProvider          String?
-  smtpHost               String?
-  smtpPort               Int?
-  smtpSecure             Boolean  @default(false)
-  smtpAuthUser           String?
-  smtpAuthPass           String?
-  sesRegion              String?
-  sesAccessKey           String?
-  sesSecretAccessKey     String?
-  emailFrom              String?
-  footerText             String?
-  copyrightText          String?
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  id                       String   @id @default(uuid())
+  siteTitle                String   @default("MCMS")
+  siteDescription          String   @default("Modern Content Management System")
+  logo                     String?
+  accentColor              String?
+  enableUserRegistration   Boolean  @default(true)
+  requireEmailVerification Boolean  @default(false)
+  requireAccountApproval   Boolean  @default(false)
+  fileStorageProvider      String   @default("local")
+  maxFileSize              Int      @default(10)
+  allowedFileTypes         String[] @default(["jpg", "jpeg", "png", "gif", "pdf", "docx", "xlsx"])
+  emailProvider            String?
+  smtpHost                 String?
+  smtpPort                 Int?
+  smtpSecure               Boolean  @default(false)
+  smtpAuthUser             String?
+  smtpAuthPass             String?
+  sesRegion                String?
+  sesAccessKey             String?
+  sesSecretAccessKey       String?
+  emailFrom                String?
+  footerText               String?
+  copyrightText            String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 }
 
 // Forum models
@@ -688,52 +689,56 @@ enum BackupFrequency {
 }
 
 model Page {
-  id        String        @id @default(uuid())
-  title     String
-  content   String
-  space     Space         @relation(fields: [spaceId], references: [id])
-  spaceId   String
-  likes     Int           @default(0)
-  views     Int           @default(0)
-  comments  Comment[]
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  version   Int           @default(1)
-  bookmarks Bookmark[]
-  settings  PageSettings?
-}
-
-model PageSettings {
-  id                      String                       @id @default(uuid())
-  page                    Page                         @relation(fields: [pageId], references: [id])
-  pageId                  String                       @unique
-  seoSettings             SeoSettings?
-  revisionHistorySettings PageRevisionHistorySettings?
-  commentingSettings      PageCommentingSettings?
-}
-
-model SeoSettings {
-  id              String       @id @default(uuid())
-  pageSettings    PageSettings @relation(fields: [pageSettingsId], references: [id])
-  pageSettingsId  String       @unique
+  id              String            @id @default(uuid())
+  title           String
+  slug            String            @unique
+  description     String?
+  isPublished     Boolean           @default(false)
+  isHomePage      Boolean           @default(false)
+  layout          String            @default("default") // default, full-width, sidebar, etc.
+  sections        PageSection[]
   metaTitle       String?
   metaDescription String?
-  openGraphTags   Json?
+  featuredImage   String?
+  author          User              @relation("PageAuthor", fields: [authorId], references: [id])
+  authorId        String
+  contentTypes    PageContentType[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  space           Space?            @relation(fields: [spaceId], references: [id])
+  spaceId         String?
+  comments        Comment[]
+  bookmarks       Bookmark[]
 }
 
-model PageRevisionHistorySettings {
-  id              String       @id @default(uuid())
-  pageSettings    PageSettings @relation(fields: [pageSettingsId], references: [id])
-  pageSettingsId  String       @unique
-  revisionsToKeep Int          @default(10)
+model PageSection {
+  id        String   @id @default(uuid())
+  name      String
+  type      String // hero, content, gallery, etc.
+  content   Json? // Flexible content structure
+  order     Int      @default(0)
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  pageId    String
+  isEnabled Boolean  @default(true)
+  settings  Json? // Section-specific settings
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model PageCommentingSettings {
-  id               String       @id @default(uuid())
-  pageSettings     PageSettings @relation(fields: [pageSettingsId], references: [id])
-  pageSettingsId   String       @unique
-  allowComments    Boolean      @default(true)
-  moderateComments Boolean      @default(false)
+model PageContentType {
+  id            String   @id @default(uuid())
+  page          Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  pageId        String
+  contentType   String // posts, projects, tutorials, etc.
+  displayMode   String   @default("list") // list, grid, carousel, etc.
+  limit         Int      @default(10)
+  filterBy      Json? // Filter criteria
+  sortBy        String   @default("createdAt")
+  sortDirection String   @default("desc")
+  isEnabled     Boolean  @default(true)
+  settings      Json? // Content type specific settings
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model SpaceView {

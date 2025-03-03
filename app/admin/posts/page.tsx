@@ -8,11 +8,11 @@ import Card from '@/components/next-gen/Card';
 import Button from '@/components/next-gen/Button';
 import Input from '@/components/next-gen/Input';
 import Spinner from '@/components/base/Spinner';
-import Dialog from '@/components/base/Dialog';
 import { useToast } from '@/hooks/use-toast';
 import EmptyState from '@/components/EmptyState';
-import { User } from '@/lib/prisma';
 import { formatDistanceToNow } from 'date-fns';
+import AdminLayout from '@/components/admin/AdminLayout';
+import { User } from '@/lib/prisma';
 
 interface Post {
   id: string;
@@ -200,188 +200,128 @@ const PostsPage = () => {
     .filter(post => selectedCategory ? post.categoryId === selectedCategory : true)
     .filter(post => selectedStatus ? post.status === selectedStatus : true);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
-  if (!session || !(user?.role === 'ADMIN')) {
-    return (
-      <EmptyState
-        title="Unauthorized"
-        description="You don't have permission to access this page."
-        action={
-          <Button variant="primary" onClick={() => router.push('/login')}>
-            Go to Login
-          </Button>
-        }
-      />
-    );
-  }
-
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Posts Management</h1>
-        <Button variant="primary" onClick={handleCreatePost}>
-          <FiPlus className="mr-2" /> Create New Post
-        </Button>
-      </div>
-
-      <Card className="mb-6 p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-grow">
+    <AdminLayout title="Posts" description="Manage your blog posts">
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex-1">
             <Input
-              value={searchTerm}
-              onChange={(value) => setSearchTerm(value)}
+              type="text"
               placeholder="Search posts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full"
             />
           </div>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300"
-          >
-            <option value="">All Categories</option>
-            {categories.map(category => (
-              <option key={category.id} value={category.id}>{category.name}</option>
-            ))}
-          </select>
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300"
-          >
-            <option value="">All Statuses</option>
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
-            <option value="archived">Archived</option>
-          </select>
+          <div className="flex flex-col md:flex-row gap-2">
+            <select
+              className="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <select
+              className="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+              <option value="">All Status</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+              <option value="archived">Archived</option>
+            </select>
+            <Button variant="primary" onClick={handleCreatePost} className="whitespace-nowrap">
+              <FiPlus className="mr-2" /> New Post
+            </Button>
+          </div>
         </div>
-      </Card>
 
-      {filteredPosts.length === 0 ? (
-        <Card>
-          <EmptyState
-            title="No Posts Found"
-            description={searchTerm || selectedCategory || selectedStatus
-              ? "No posts match your filters. Try changing your search criteria."
-              : "You haven't created any posts yet."}
-            action={
-              <Button variant="primary" onClick={handleCreatePost}>
-                Create Your First Post
-              </Button>
-            }
-          />
-        </Card>
-      ) : (
-        <div className="grid gap-4">
-          {filteredPosts.map((post) => (
-            <Card key={post.id} className="p-0">
-              <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-200 dark:border-gray-700">
-                <div className="flex-grow mb-2 sm:mb-0">
-                  <div className="flex items-start">
-                    {post.featuredImage && (
-                      <div className="w-16 h-16 rounded overflow-hidden mr-4 flex-shrink-0">
-                        <img src={post.featuredImage} alt={post.title} className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="text-lg font-semibold">
-                        {post.title}
-                        {post.isFeatured && (
-                          <span className="ml-2 text-yellow-500">
-                            <FiStar className="inline-block h-4 w-4" />
-                          </span>
-                        )}
-                      </h3>
-                      {post.excerpt && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                          {post.excerpt}
-                        </p>
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Spinner size="large" />
+          </div>
+        ) : filteredPosts.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4">
+            {filteredPosts.map((post) => (
+              <Card key={post.id} className="p-4 hover:shadow-md transition-shadow">
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{post.title}</h3>
+                      {post.isFeatured && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                          <FiStar className="mr-1" /> Featured
+                        </span>
                       )}
-                      <div className="flex flex-wrap items-center mt-2 text-xs space-x-3">
-                        <span className={`px-2 py-1 rounded ${getStatusBadgeClass(post.status)}`}>
-                          {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getStatusBadgeClass(post.status)}`}>
+                        {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      <span className="inline-flex items-center mr-3">
+                        <FiCalendar className="mr-1" />
+                        {post.publishedAt 
+                          ? `Published ${formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true })}` 
+                          : `Created ${formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}`}
+                      </span>
+                      {post.category && (
+                        <span className="inline-flex items-center mr-3">
+                          <FiFolder className="mr-1" />
+                          {post.category.name}
                         </span>
-                        <span className="text-gray-500 dark:text-gray-400 flex items-center">
-                          <FiCalendar className="mr-1" /> 
-                          {post.publishedAt 
-                            ? formatDistanceToNow(new Date(post.publishedAt), { addSuffix: true })
-                            : formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                      )}
+                      <span className="inline-flex items-center mr-3">
+                        <FiMessageSquare className="mr-1" />
+                        {post.commentCount} comments
+                      </span>
+                      {post.tags.length > 0 && (
+                        <span className="inline-flex items-center">
+                          <FiTag className="mr-1" />
+                          {post.tags.map(t => t.tag.name).join(', ')}
                         </span>
-                        {post.category && (
-                          <span className="text-gray-500 dark:text-gray-400 flex items-center">
-                            <FiFolder className="mr-1" /> {post.category.name}
-                          </span>
-                        )}
-                        <span className="text-gray-500 dark:text-gray-400 flex items-center">
-                          <FiMessageSquare className="mr-1" /> {post.commentCount} comments
-                        </span>
-                        <span className="text-gray-500 dark:text-gray-400">
-                          {post.views} views
-                        </span>
-                      </div>
-                      {post.tags && post.tags.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {post.tags.map(({ tag }) => (
-                            <span key={tag.slug} className="text-xs px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 flex items-center">
-                              <FiTag className="mr-1 h-3 w-3" /> {tag.name}
-                            </span>
-                          ))}
-                        </div>
                       )}
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleViewPost(post)}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title="View Post"
-                  >
-                    <FiEye className="w-5 h-5 text-gray-500" />
-                  </button>
-                  <button
-                    onClick={() => handleToggleFeatured(post)}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title={post.isFeatured ? "Remove from Featured" : "Mark as Featured"}
-                  >
-                    <FiStar className={`w-5 h-5 ${post.isFeatured ? 'text-yellow-500' : 'text-gray-500'}`} />
-                  </button>
-                  <button
-                    onClick={() => handleToggleStatus(post)}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title={post.status === 'published' ? "Set to Draft" : "Publish"}
-                  >
-                    <span className={`text-xs font-medium px-2 py-1 rounded ${getStatusBadgeClass(post.status)}`}>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleViewPost(post)}>
+                      <FiEye className="mr-1" /> View
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleEditPost(post)}>
+                      <FiEdit className="mr-1" /> Edit
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleToggleFeatured(post)}>
+                      <FiStar className="mr-1" /> {post.isFeatured ? 'Unfeature' : 'Feature'}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleToggleStatus(post)}>
                       {post.status === 'published' ? 'Unpublish' : 'Publish'}
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => handleEditPost(post)}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title="Edit Post"
-                  >
-                    <FiEdit className="w-5 h-5 text-blue-500" />
-                  </button>
-                  <button
-                    onClick={() => handleDeletePost(post)}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title="Delete Post"
-                  >
-                    <FiTrash className="w-5 h-5 text-red-500" />
-                  </button>
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeletePost(post)}>
+                      <FiTrash className="mr-1" /> Delete
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            title="No posts found"
+            description={searchTerm || selectedCategory || selectedStatus ? "Try adjusting your filters" : "Get started by creating your first post"}
+            action={
+              <Button variant="primary" onClick={handleCreatePost}>
+                <FiPlus className="mr-2" /> Create Post
+              </Button>
+            }
+          />
+        )}
+      </div>
+    </AdminLayout>
   );
 };
 

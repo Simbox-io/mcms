@@ -1,4 +1,4 @@
-// app/api/pages/[id]/revert/route.ts
+// app/api/pages/by-id/[id]/revert/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import cachedPrisma from '@/lib/prisma';
@@ -19,11 +19,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const page = await cachedPrisma.page.findUnique({
       where: { id: pageId },
       include: {
-        space: {
-          include: {
-            owner: true,
-          },
-        },
+        space: true,
       },
     });
 
@@ -31,13 +27,23 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Page not found' }, { status: 404 });
     }
 
-    if (page.space.owner.id !== userObj.id) {
-      return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    // Check if user has permission to edit the page
+    const isAuthor = page.authorId === userObj.id;
+    const isSpaceCollaborator = page.space && await cachedPrisma.spaceCollaborator.findFirst({
+      where: {
+        spaceId: page.spaceId,
+        userId: userObj.id,
+      },
+    });
+
+    if (!isAuthor && !isSpaceCollaborator && userObj.role !== 'ADMIN') {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
     }
 
-    const versionToRevert = await cachedPrisma.page.findFirst({
+    // Get the specific version
+    const versionToRevert = await cachedPrisma.pageVersion.findFirst({
       where: {
-        id: pageId,
+        pageId,
         version,
       },
     });
@@ -46,20 +52,19 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ message: 'Version not found' }, { status: 404 });
     }
 
-    const revertedPage = await cachedPrisma.page.update({
+    // Update the page with the version data
+    const updatedPage = await cachedPrisma.page.update({
       where: { id: pageId },
       data: {
         title: versionToRevert.title,
         content: versionToRevert.content,
-        version: {
-          increment: 1,
-        },
+        updatedAt: new Date(),
       },
     });
 
-    return NextResponse.json(revertedPage);
+    return NextResponse.json(updatedPage);
   } catch (error) {
     console.error('Error reverting page:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to revert page' }, { status: 500 });
   }
 }
